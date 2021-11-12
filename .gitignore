@@ -17,3 +17,6 @@ __pycache__/
 
 # Virtualenv folder
 venv
+
+# Env variables
+.env
