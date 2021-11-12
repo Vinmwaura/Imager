@@ -1,0 +1,19 @@
+# Logs
+*.logs
+
+# Python Compile bytecode and misc.
+*.pyc
+__pycache__/
+
+# Compressed files and folders
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Virtualenv folder
+venv
