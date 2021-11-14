@@ -1,6 +1,10 @@
 import os
 
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
+# Handles Database operations
+db = SQLAlchemy()
 
 
 def create_app(config=None):
@@ -19,6 +23,11 @@ def create_app(config=None):
         app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
         app.config["DEBUG"] = os.getenv("DEBUG")
         app.config["FLASK_ENV"] = os.getenv("FLASK_ENV")
+        app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+            "SQLALCHEMY_DATABASE_URI")
+
+    # Flask extensions
+    db.init_app(app)
 
     # Apps Blueprint Registration
     from .auth import auth_bp
