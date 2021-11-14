@@ -20,4 +20,8 @@ def create_app(config=None):
         app.config["DEBUG"] = os.getenv("DEBUG")
         app.config["FLASK_ENV"] = os.getenv("FLASK_ENV")
 
+    # Apps Blueprint Registration
+    from .auth import auth_bp
+    app.register_blueprint(auth_bp)
+
     return app
