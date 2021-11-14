@@ -1,10 +1,14 @@
 import os
 
 from flask import Flask
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 # Handles Database operations
 db = SQLAlchemy()
+
+# Handles Database migrations
+migrate = Migrate()
 
 
 def create_app(config=None):
@@ -25,12 +29,15 @@ def create_app(config=None):
         app.config["FLASK_ENV"] = os.getenv("FLASK_ENV")
         app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
             "SQLALCHEMY_DATABASE_URI")
-
-    # Flask extensions
-    db.init_app(app)
+        # Added to remove warnings
+        app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # Apps Blueprint Registration
     from .auth import auth_bp
     app.register_blueprint(auth_bp)
+
+    # Flask extensions
+    db.init_app(app)
+    migrate.init_app(app, db)
 
     return app
