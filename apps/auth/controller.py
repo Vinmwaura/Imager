@@ -1,6 +1,7 @@
 import os
 import re
 import click
+from .. import db
 from . import models
 from . import auth_bp
 
@@ -86,7 +87,7 @@ def validate_callback(ctx, param, value):
     help="Username for account")
 @click.option(
     '--first_name',
-    prompt="Enter First Name?",
+    prompt="Enter Firstname?",
     callback=validate_callback,
     help="Firstname of user")
 @click.option(
@@ -107,4 +108,57 @@ def validate_callback(ctx, param, value):
     callback=validate_callback,
     help="User password for user with administrative role")
 def createsuperuser(username, first_name, last_name, email, password):
-    pass
+    # Create Admin Role if none exists
+    admin_role = models.Role().query.filter_by(name='admin').first()
+    if admin_role is None:
+        try:
+            admin_role = models.Role(name='admin')
+            db.session.add(admin_role)
+
+            # Commit session
+            db.session.commit()
+        except Exception as e:
+            # Rollback session
+            db.session.rollback()
+            raise e
+
+    # Add Admin Permissions to Admin Role
+    permission_list = [
+        models.PermissionsEnum.CAN_ACCESS_ADMIN,
+        models.PermissionsEnum.CAN_UPDATE_ADMIN,
+        models.PermissionsEnum.CAN_INSERT_ADMIN,
+        models.PermissionsEnum.CAN_POST_DASHBOARD,
+        models.PermissionsEnum.CAN_VIEW_DASHBOARD
+    ]
+    admin_permissions = models.Permissions().query.filter_by(
+        role_id=admin_role.id).first()
+    if admin_permissions is None:
+        try:
+            for permission_val in permission_list:
+                admin_permissions = models.Permissions(
+                    role_id=admin_role.id,
+                    permission=permission_val.value)
+                db.session.add(admin_permissions)
+
+            # Commit session
+            db.session.commit()
+        except Exception as e:
+            print("Error: ", e)
+            # Rollback session
+            db.session.rollback()
+            raise e
+
+    auth_dict = {
+        "username": username,
+        "first_name": first_name,
+        "last_name": last_name,
+        "email": email,
+        "user_role": admin_role.id,
+        "password": password
+    }
+
+    # Create Admin User
+    admin_user = models.User()
+    admin_user.add_user(auth_dict)
+
+    print("User: {} has been successfully added".format(admin_user.username))

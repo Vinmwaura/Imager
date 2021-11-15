@@ -1,3 +1,4 @@
+import os
 from .. import db
 from enum import Enum, auto
 
@@ -20,7 +21,7 @@ class Permissions(db.Model):
     permission = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return "<Permission %s>" % self.id
+        return "<Permission %s>" % self.permission
 
 
 # Role Table
@@ -55,6 +56,57 @@ class User(db.Model):
     user_role = db.Column(db.Integer, db.ForeignKey('role.id'))
 
     active = db.Column(db.Boolean, default=False)
+
+    def create_salt(self, salt_len=16):
+        """
+        Creates a salt of 16 bytes(Default)
+        """
+        from bcrypt import gensalt
+        return gensalt(salt_len)
+
+    def hash_password(self, salt, password):
+        """
+        Hashes password using salt
+        """
+        from bcrypt import hashpw
+        hashed_pwd = hashpw(
+            password,
+            salt)
+        return hashed_pwd
+
+    def generate_salt_pwd(self, password):
+        try:
+            # Get salt
+            salt = self.create_salt()
+
+            # Hash password using salt
+            pwd_hash = self.hash_password(
+                salt,
+                password.encode("utf-8"))
+
+            return salt, pwd_hash
+        except Exception as e:
+            raise e
+
+    def add_user(self, user_dict):
+        try:
+            self.username = user_dict['username']
+            self.first_name = user_dict['first_name']
+            self.last_name = user_dict['last_name']
+            self.email = user_dict['email']
+            self.user_role = user_dict['user_role']
+            self.salt, self.password_hash = self.generate_salt_pwd(
+                user_dict['password'])
+
+        except Exception as e:
+            raise e
+        finally:
+            try:
+                db.session.add(self)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                raise e
 
     def __repr__(self):
         return "<User %s>" % self.username
