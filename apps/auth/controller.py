@@ -1,18 +1,8 @@
 import os
 import re
 import click
-# from . import models
+from . import models
 from . import auth_bp
-
-"""
-@auth_bp.cli.command('createsuperuser')
-@click.option('--username', prompt="Enter Username?", help="Username")
-@click.option('--firstname', prompt="Enter First Name?", help="Firstname")
-@click.option('--lastname', prompt="Enter Lastname?", help="Lastname")
-@click.option('--email', prompt="Enter Email?", help="Email address")
-def create_super_user(username, firstname, lastname, email):
-    click.echo(f"Username: {username}\nFirstname: {firstname}\nLastname: {lastname}\nEmail: {email}")
-"""
 
 
 # Validates firstname, lastname, and username
@@ -43,12 +33,13 @@ def validate_email(email):
 def validate_password(password):
     """
     Password has to be:
-        Minimum eight and maximum 10 characters,
-        at least one uppercase letter,
-        one lowercase letter,
-        one number and one special character
+        At least one upper case English letter, (?=.*?[A-Z])
+        At least one lower case English letter, (?=.*?[a-z])
+        At least one digit, (?=.*?[0-9])
+        At least one special character, (?=.*?[#?!@$%^&*-])
+        Minimum 8, Maximum 128 in length.{8, 128} (with the anchors)
     """
-    password_regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,128}$"
+    password_regex = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,128}$$"
     if re.search(password_regex, password):
         return True
     else:
@@ -70,20 +61,18 @@ def validate_callback(ctx, param, value):
         else:
             raise click.BadParameter('Invalid email, please try again.')
     elif param.name == "password":
-        password_requirements = """
-        Password has to be:
-        Minimum 8 and maximum 128 characters,
-        at least one uppercase letter,
-        one lowercase letter,
-        one number and one special character.
-        """
+        password_requirements = "\nPassword has to be:\n\
+    > At least one upper case English letter,\n\
+    > At least one lower case English letter,\n\
+    > At least one digit,\n\
+    > At least one special character,\n\
+    > Minimum 8, Maximum 128 in length.\n"
         valid_pwd = validate_password(value)
         if valid_pwd:
             return value
         else:
-            # Hack to get password requirements to print to screen
             click.echo(password_requirements)
-            raise click.BadParameter(0)
+            raise click.BadParameter("Invalid password, please try again.")
     else:
         return value
 
@@ -92,25 +81,22 @@ def validate_callback(ctx, param, value):
 @click.option(
     '--username',
     prompt="Enter Username?",
-    default="admin",
+    default="admin_" + os.urandom(2).hex(),
     callback=validate_callback,
     help="Username for account")
 @click.option(
-    '--firstname',
+    '--first_name',
     prompt="Enter First Name?",
-    default="admin",
     callback=validate_callback,
     help="Firstname of user")
 @click.option(
-    '--lastname',
+    '--last_name',
     prompt="Enter Lastname?",
-    default="admin",
     callback=validate_callback,
     help="Lastname of user")
 @click.option(
     '--email',
     prompt="Enter Email?",
-    default="admin@gmail.com",
     callback=validate_callback,
     help="Email address to send activation url to")
 @click.option(
@@ -119,6 +105,6 @@ def validate_callback(ctx, param, value):
     hide_input=True,
     confirmation_prompt=True,
     callback=validate_callback,
-    help="User password for admin")
-def createsuperuser(username, firstname, lastname, email, password):
+    help="User password for user with administrative role")
+def createsuperuser(username, first_name, last_name, email, password):
     pass
