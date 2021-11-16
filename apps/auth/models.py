@@ -60,6 +60,11 @@ class User(db.Model):
     def create_salt(self, salt_len=16):
         """
         Creates a salt of 16 bytes(Default)
+        Args:
+          salt_len: Length in bytes of the salt to be generated.
+
+        Returns:
+          Salt value.
         """
         from bcrypt import gensalt
         return gensalt(salt_len)
@@ -67,6 +72,13 @@ class User(db.Model):
     def hash_password(self, salt, password):
         """
         Hashes password using salt
+
+        Args:
+          salt: Salt value.
+          password: Plain-text password
+
+        Returns:
+          Hashed password.
         """
         from bcrypt import hashpw
         hashed_pwd = hashpw(
@@ -75,6 +87,15 @@ class User(db.Model):
         return hashed_pwd
 
     def generate_salt_pwd(self, password):
+        """
+        Generates salt and hashed password
+
+        Args:
+          password: Plain-text password
+
+        Returns:
+          Salt and Hashed password.
+        """
         try:
             # Get salt
             salt = self.create_salt()
@@ -89,6 +110,15 @@ class User(db.Model):
             raise e
 
     def add_user(self, user_dict):
+        """
+        Adds User to the database.
+
+        Args:
+          user_dict: Dictionary containing details about the user
+
+        Returns:
+          Boolean indicating result of operation.
+        """
         try:
             self.username = user_dict['username']
             self.first_name = user_dict['first_name']
@@ -98,15 +128,17 @@ class User(db.Model):
             self.salt, self.password_hash = self.generate_salt_pwd(
                 user_dict['password'])
 
+            # Adds User object containing the user details
+            db.session.add(self)
+
+            # Commit session
+            db.session.commit()
+            return True
+
         except Exception as e:
-            raise e
-        finally:
-            try:
-                db.session.add(self)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                raise e
+            db.session.rollback()
+            print("Exception occured when creating user: {}".format(e))
+            return False
 
     def __repr__(self):
         return "<User %s>" % self.username
