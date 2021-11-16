@@ -5,98 +5,116 @@ from .. import db
 from . import models
 from . import auth_bp
 
+from email_validator import validate_email, EmailNotValidError
 
-# Validates firstname, lastname, and username
-def validate_names(name):
+
+# Min and Max length of First and Last names
+MIN_NAMES = 2
+MAX_NAMES = 20
+
+# Min and Max length of password
+MIN_PASSWORD = 8
+MAX_PASSWORD = 128
+
+"""
+Regex patterns constants
+"""
+# Only single words consisting of numbers, letters, undercore(s) or hyphens
+NAMES_REGEX = "^[a-zA-Z0-9-_]+$"
+
+# Password regex:
+# At least one upper case English letter, (?=.*?[A-Z])
+# At least one lower case English letter, (?=.*?[a-z])
+# At least one digit, (?=.*?[0-9])
+# At least one special character, (?=.*?[#?!@$%^&*-])
+PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{4,}$$"
+
+
+# Regex Checker
+def check_valid_characters(string, regex_pattern):
     """
-    Validates Names(Username, Firstname, Lastname).
-    Name has to be 4-20 character long,
-    no _ or . in the beginning,
-    no __ or _. or ._ or .. inside,
-    and no _ or . at the end
+    Validates Names(Username, Firstname, and Lastname).
 
     Args:
       name: Plain text name to be validated
 
     Returns:
       Boolean indicating result of operation.
+
+    Raises:
+      TypeError: If invalid parameter type is give, i.e not a string.
     """
-    name_regex = "^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$"
-    if re.search(name_regex, name):
-        return True
+    if isinstance(string, str) and isinstance(regex_pattern, str):
+        regex = re.compile(regex_pattern)
+        return regex.search(string) is not None
     else:
-        return False
+        raise TypeError("Only strings are supported")
 
 
-# Validates email
-def validate_email(email):
+# Length Checker
+def check_length(string, min_len=0, max_len=1):
     """
-    Validates Email.
+    Checks Length of String if matches the minimum and maximum specified.
 
     Args:
-      email: Plain text email to be validated
+      string: Plain text name to be validated
+      max_len: Max value int
+      min_len: Min value int
 
     Returns:
       Boolean indicating result of operation.
+
+    Raises:
+      TypeError: If invalid parameter type is give, i.e not a string.
     """
-    email_regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
-    if re.search(email_regex, email):
-        return True
+    if isinstance(string, str):
+        return min_len <= len(string) <= max_len
     else:
-        return False
-
-
-# Validates password
-def validate_password(password):
-    """
-    Validates Password.
-    Password has to be:
-        At least one upper case English letter, (?=.*?[A-Z])
-        At least one lower case English letter, (?=.*?[a-z])
-        At least one digit, (?=.*?[0-9])
-        At least one special character, (?=.*?[#?!@$%^&*-])
-        Minimum 8, Maximum 128 in length.{8, 128} (with the anchors)
-
-    Args:
-      password: Plain text password to be validated
-
-    Returns:
-      Boolean indicating result of operation.
-    """
-    password_regex = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,128}$$"
-    if re.search(password_regex, password):
-        return True
-    else:
-        return False
+        raise TypeError("Only strings are supported")
 
 
 # Click callback used in validating email, password and names
 def validate_callback(ctx, param, value):
-    if param.name == "username" or param.name == "firstname" or param.name == "lastname":
-        valid_name = validate_names(value)
+    if param.name == "username" or param.name == "first_name" or param.name == "last_name":
+        valid_name = check_valid_characters(value, NAMES_REGEX)
+        valid_len = check_length(value, min_len=MIN_NAMES, max_len=MAX_NAMES)
         if valid_name:
-            return value
+            if valid_len:
+                return value
+            else:
+                raise click.BadParameter(
+                    '{} must be between {} and {} characters. Please try again.'.format(
+                        param.name.title(), MIN_NAMES, MAX_NAMES))
         else:
-            raise click.BadParameter('Invalid name, please try again.')
+            raise click.BadParameter(
+                f'{param.name.title()} must contain letters, numbers, and underscores only. Please try again.')
     elif param.name == "email":
-        valid_email = validate_email(value)
-        if valid_email:
+        try:
+            valid = validate_email(value)
             return value
-        else:
-            raise click.BadParameter('Invalid email, please try again.')
+        except EmailNotValidError as e:
+            raise click.BadParameter(e)
+
     elif param.name == "password":
-        password_requirements = "\nPassword has to be:\n\
+        valid_pwd = check_valid_characters(value, PASSWORD_REGEX)
+        valid_len = check_length(value, MIN_PASSWORD, MAX_PASSWORD)
+
+        if valid_pwd:
+            if valid_len:
+                return value
+            else:
+                raise click.BadParameter(
+                    'Password must be between {} \
+                    and {} characters. Please try again.'.format(
+                        MIN_PASSWORD, MAX_PASSWORD))
+        else:
+            password_requirements = "\nPassword has to have:\n\
     > At least one upper case English letter,\n\
     > At least one lower case English letter,\n\
     > At least one digit,\n\
-    > At least one special character,\n\
-    > Minimum 8, Maximum 128 in length.\n"
-        valid_pwd = validate_password(value)
-        if valid_pwd:
-            return value
-        else:
+    > At least one special character,\n"
             click.echo(password_requirements)
-            raise click.BadParameter("Invalid password, please try again.")
+            raise click.BadParameter(password_requirements)
     else:
         return value
 
