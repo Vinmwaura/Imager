@@ -301,6 +301,28 @@ def account_creation(user_details, role_name, permissions=[]):
         return False
 
 
+def authenticate_user(username, password):
+    """
+    Authenticates User account given username, and password.
+
+    Args:
+      username: Username.
+      password: Password in plaintext.
+
+    Returns:
+      Boolean indicating result of operation.
+
+    Raises:
+      Exception: Any exeption that occurs.
+    """
+    user_ = models.User().query.filter_by(
+        username=username).first()
+    if user_:
+        return user_.check_hash(password)
+    else:
+        return False
+
+
 @auth_bp.cli.command('createsuperuser')
 @click.option(
     '--username',

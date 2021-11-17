@@ -5,9 +5,9 @@ from flask import render_template
 from .forms import *
 from .controllers import (
     account_creation,
+    authenticate_user,
     DEFAULT_GENERAL_USER_ROLE,
-    GENERAL_USER_PERMISSIONS
-)
+    GENERAL_USER_PERMISSIONS)
 
 
 # Registration
@@ -15,7 +15,6 @@ from .controllers import (
 def registration():
     registration_form = RegistrationForm()
     if registration_form.validate_on_submit():
-
         user_details = {
             "username": request.form["username"],
             "first_name": request.form["first_name"],
@@ -32,16 +31,29 @@ def registration():
             # Placeholders
             return "Account has been created, Redirecting to homepage..."
         else:
-            return "An error occured creating an account, please try again!"
+            error = "An error occured creating an account, please try again!"
+            return error
     return render_template(
         'auth/registration.html',
         form=registration_form)
 
 
 # Login
-@auth_bp.route("/login")
+@auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    pass
+    login_form = LoginForm()
+    if login_form.validate_on_submit():
+        status = authenticate_user(
+            request.form["username"],
+            request.form["password"])
+        if status:
+            return "User has an account"
+        else:
+            error = "Invalid Username or password"
+            return error
+    return render_template(
+        'auth/login.html',
+        form=login_form)
 
 
 # Logout

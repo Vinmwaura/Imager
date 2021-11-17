@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<form method="POST" action="{{ url_for('auth.login') }}" novalidate>
+	    {{ form.csrf_token }}
+	    
+	    {{ form.username.label }} {{ form.username(size=20) }}<br/>
+	    {% if form.username.errors %}
+	    <ul class="errors">
+	    {% for error in form.username.errors %}
+	        <li>{{ error }}</li>
+	    {% endfor %}
+	    </ul>
+		{% endif %}
+
+	    {{ form.password.label }} {{ form.password() }}<br/>
+	    {% if form.password.errors %}
+	    <ul class="errors">
+	    {% for error in form.password.errors %}
+	        <li>{{ error }}</li>
+	    {% endfor %}
+	    </ul>
+		{% endif %}
+
+	    <input type="submit" value="Submit"><br/>
+	</form>
+{% endblock %}

@@ -74,3 +74,13 @@ class RegistrationForm(FlaskForm):
         ])
     password_confirmation = PasswordField('Confirm Password')
     submit = SubmitField('Register')
+
+
+class LoginForm(FlaskForm):
+    username = StringField(
+        'Username',
+        validators=[InputRequired()])
+    password = PasswordField(
+        'Password',
+        validators=[InputRequired()])
+    submit = SubmitField('Login')
