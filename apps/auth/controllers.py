@@ -38,6 +38,7 @@ PASSWORD_REQUIREMENTS = "Password has to have:\n\
 NAME_REQUIREMENTS = "Field must contain letters, numbers and underscores only."
 INVALID_FIELD_LENGTH = lambda field_min, field_max: 'Field must be between {} and {} characters.'.format(
                         field_min, field_max)
+USERNAME_ALREADY_EXISTS = lambda username: "Username {} already exists".format(username)
 
 # Default Role Names
 DEFAULT_ADMIN_ROLE = "ADMIN"
@@ -100,6 +101,25 @@ def check_length(string, min_len=0, max_len=1):
         return min_len <= len(string) <= max_len
     else:
         raise TypeError("Only strings are supported")
+
+
+def check_username_exists(username):
+    """
+    Checks if Username exists in User table.
+
+    Args:
+      username: username
+
+    Returns:
+      Boolean indicating result of operation.
+    """
+    user_ = models.User()
+    user_exists = user_.query.filter_by(
+        username=username).first()
+    if user_exists:
+        return True
+    else:
+        return False
 
 
 # Click callback used in validating email, password and names
@@ -237,8 +257,15 @@ def add_User(user_details):
       Exception: Any exeption that occurs when creating User.
     """
     try:
-        admin_user = models.User()
-        user_created = admin_user.add_user(user_details)
+        # Check if Username Exists
+        user_exists = check_username_exists(user_details['username'])
+        if user_exists:
+            print(USERNAME_ALREADY_EXISTS(user_details['username']))
+            return False
+
+        # Create user
+        user_ = models.User()
+        user_created = user_.add_user(user_details)
         return user_created
     except Exception as e:
         # Logs exceptions

@@ -5,8 +5,10 @@ from .forms import *
 from .controllers import (
     account_creation,
     authenticate_user,
+    check_username_exists,
     DEFAULT_GENERAL_USER_ROLE,
-    GENERAL_USER_PERMISSIONS)
+    GENERAL_USER_PERMISSIONS,
+    USERNAME_ALREADY_EXISTS)
 
 
 # Registration
@@ -21,6 +23,12 @@ def registration():
             "email": request.form["email"],
             "password": request.form["password"]
         }
+
+        # Check if username has been created
+        username_exists = check_username_exists(
+            request.form["username"])
+        if username_exists:
+            flash(USERNAME_ALREADY_EXISTS(request.form["username"]))
 
         user_created = account_creation(
             user_details=user_details,
