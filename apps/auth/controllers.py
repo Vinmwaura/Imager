@@ -7,7 +7,9 @@ from . import auth_bp
 
 from email_validator import validate_email, EmailNotValidError
 
-
+"""
+Constants
+"""
 # Min and Max length of First and Last names
 MIN_NAMES = 2
 MAX_NAMES = 20
@@ -16,9 +18,7 @@ MAX_NAMES = 20
 MIN_PASSWORD = 8
 MAX_PASSWORD = 128
 
-"""
-Regex patterns constants
-"""
+# Regex patterns constants
 # Only single words consisting of numbers, letters, undercore(s) or hyphens
 NAMES_REGEX = "^[a-zA-Z0-9-_]+$"
 
@@ -28,6 +28,35 @@ NAMES_REGEX = "^[a-zA-Z0-9-_]+$"
 # At least one digit, (?=.*?[0-9])
 # At least one special character, (?=.*?[#?!@$%^&*-])
 PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{4,}$$"
+
+# Error Messages
+PASSWORD_REQUIREMENTS = "Password has to have:\n\
+    > At least one upper case English letter,\n\
+    > At least one lower case English letter,\n\
+    > At least one digit,\n\
+    > At least one special character."
+NAME_REQUIREMENTS = "Field must contain letters, numbers and underscores only."
+INVALID_FIELD_LENGTH = lambda field_min, field_max: 'Field must be between {} and {} characters.'.format(
+                        field_min, field_max)
+
+# Default Role Names
+DEFAULT_ADMIN_ROLE = "ADMIN"
+DEFAULT_GENERAL_USER_ROLE = "GENERAL"
+
+# List of permissions General Users should have
+GENERAL_USER_PERMISSIONS = [
+    models.PermissionsEnum.CAN_POST_DASHBOARD,
+    models.PermissionsEnum.CAN_VIEW_DASHBOARD
+]
+
+# List of permissions Admin should have
+ADMIN_PERMISSION_LIST = [
+    models.PermissionsEnum.CAN_ACCESS_ADMIN,
+    models.PermissionsEnum.CAN_UPDATE_ADMIN,
+    models.PermissionsEnum.CAN_INSERT_ADMIN,
+    models.PermissionsEnum.CAN_POST_DASHBOARD,
+    models.PermissionsEnum.CAN_VIEW_DASHBOARD
+]
 
 
 # Regex Checker
@@ -83,14 +112,14 @@ def validate_callback(ctx, param, value):
                 return value
             else:
                 raise click.BadParameter(
-                    '{} must be between {} and {} characters. Please try again.'.format(
-                        param.name.title(), MIN_NAMES, MAX_NAMES))
+                    INVALID_FIELD_LENGTH(
+                        MIN_NAMES, MAX_NAMES))
         else:
             raise click.BadParameter(
-                f'{param.name.title()} must contain letters, numbers, and underscores only. Please try again.')
+                NAME_REQUIREMENTS)
     elif param.name == "email":
         try:
-            valid = validate_email(value)
+            validate_email(value)
             return value
         except EmailNotValidError as e:
             raise click.BadParameter(e)
@@ -104,19 +133,43 @@ def validate_callback(ctx, param, value):
                 return value
             else:
                 raise click.BadParameter(
-                    'Password must be between {} \
-                    and {} characters. Please try again.'.format(
+                    INVALID_FIELD_LENGTH(
                         MIN_PASSWORD, MAX_PASSWORD))
         else:
-            password_requirements = "\nPassword has to have:\n\
-    > At least one upper case English letter,\n\
-    > At least one lower case English letter,\n\
-    > At least one digit,\n\
-    > At least one special character,\n"
-            click.echo(password_requirements)
-            raise click.BadParameter(password_requirements)
+            click.echo(PASSWORD_REQUIREMENTS)
+            raise click.BadParameter(PASSWORD_REQUIREMENTS)
     else:
         return value
+
+
+def get_Role(role_name):
+    """
+    Gets Role object using role_name passed.
+
+    Args:
+      role_name: Name for Role.
+
+    Returns:
+      Role object if any.
+    """
+    user_role = models.Role().query.filter_by(name=role_name).first()
+    return user_role
+
+
+def get_Permission(role):
+    """
+    Get Permission object(s).
+
+    Args:
+      role: Role object.
+
+    Returns:
+      Permission object if any.
+    """
+    role_permissions = models.Permissions().query.filter_by(
+        role_id=role.id).first()
+
+    return role_permissions
 
 
 def add_Role(role_name):
@@ -132,7 +185,7 @@ def add_Role(role_name):
     try:
         user_role = models.Role(name=role_name)
         db.session.add(user_role)
-        return True
+        return user_role
 
     except Exception as e:
         # Rollback session
@@ -140,7 +193,7 @@ def add_Role(role_name):
 
         # Logs exceptions
         print("Exception occured when creating Role: {}".format(e))
-        return False
+        return None
 
 
 def add_Permission(role_id, permission_index):
@@ -159,13 +212,92 @@ def add_Permission(role_id, permission_index):
             role_id=role_id,
             permission=permission_index)
         db.session.add(role_permission)
-        return True
+        return role_permission
     except Exception as e:
         # Rollback session
         db.session.rollback()
 
         # Logs exceptions
         print("Exception occured when creating Role: {}".format(e))
+        return None
+
+
+def add_User(user_details):
+    """
+    Creates User.
+
+    Args:
+      user_details: Dictionary containing username, first_name,
+                    last_name, email, and password.
+
+    Returns:
+      Boolean indicating result of operation.
+
+    Raises:
+      Exception: Any exeption that occurs when creating User.
+    """
+    try:
+        admin_user = models.User()
+        user_created = admin_user.add_user(user_details)
+        return user_created
+    except Exception as e:
+        # Logs exceptions
+        print("Exception occured when creating Role: {}".format(e))
+        return False
+
+
+def account_creation(user_details, role_name, permissions=[]):
+    """
+    Creates User Account including Roles and Permissions if they don't exist.
+
+    Args:
+      user_details: Dictionary containing username, first_name,
+                    last_name, email, and password.
+      role_name: Name of role
+      permissions: List of permissions from ENUM object
+
+    Returns:
+      Boolean indicating result of operation.
+
+    Raises:
+      Exception: Any exeption that occurs when commiting User, Role and Permissions.
+    """
+    # Create User Role if none exists
+    user_role = get_Role(role_name=role_name)
+    if user_role is None:
+        user_role = add_Role(role_name)
+        if not user_role:
+            print("Role {} was not able to be created.".format(role_name))
+            return False
+
+    # Add User Permissions to User Role if none exists
+    role_permissions = get_Permission(user_role)
+    if role_permissions is None:
+        for permission in permissions:
+            role_permissions = add_Permission(
+                role_id=user_role.id,
+                permission_index=permission.value)
+
+    # Commit General Roles and Permissions added
+    try:
+        # Commit session
+        db.session.commit()
+    except Exception as e:
+        print("An error occured while committing: {}".format(e))
+        # Rollback session
+        db.session.rollback()
+        return False
+
+    # Appends User Role to user details Dict
+    user_details["user_role"] = user_role.id
+
+    # Create Admin User
+    user_created = add_User(user_details)
+    if user_created:
+        print("User: {} has been successfully added".format(
+            user_details["username"]))
+        return True
+    else:
         return False
 
 
@@ -210,57 +342,17 @@ def createsuperuser(username, first_name, last_name, email, password):
       email: Email of user for verification and recovery.
       password: Plain text password to be used by user.
     """
-    # Create Admin Role if none exists
-    admin_role = models.Role().query.filter_by(name='admin').first()
-    if admin_role is None:
-        role_created = add_Role(admin_role)
-        if not role_created:
-            return
-
-    # List of permissions Admin should have
-    admin_permissions_list = [
-        models.PermissionsEnum.CAN_ACCESS_ADMIN,
-        models.PermissionsEnum.CAN_UPDATE_ADMIN,
-        models.PermissionsEnum.CAN_INSERT_ADMIN,
-        models.PermissionsEnum.CAN_POST_DASHBOARD,
-        models.PermissionsEnum.CAN_VIEW_DASHBOARD
-    ]
-
-    # Add Admin Permissions to Admin Role if none exists
-    admin_permissions = models.Permissions().query.filter_by(
-        role_id=admin_role.id).all()
-    if admin_permissions is None:
-        for permission in admin_permissions_list:
-            permission_created = add_Permission(
-                role_id=admin_role.id,
-                permission_index=permission.value)
-
-            if not permission_created:
-                return
-
-    # Commit Admin Roles and Permissions added
-    try:
-        # Commit session
-        db.session.commit()
-    except Exception as e:
-        print("An error occured while committing: {}".format(e))
-        # Rollback session
-        db.session.rollback()
-        return
-
     # Admin User details
-    auth_dict = {
+    admin_details = {
         "username": username,
         "first_name": first_name,
         "last_name": last_name,
         "email": email,
-        "user_role": admin_role.id,
         "password": password
     }
 
-    # Create Admin User
-    admin_user = models.User()
-    user_created = admin_user.add_user(auth_dict)
-    if user_created:
-        print("User: {} has been successfully added".format(
-            admin_user.username))
+    admin_created = account_creation(
+        user_details=admin_details,
+        role_name=DEFAULT_ADMIN_ROLE,
+        permissions=ADMIN_PERMISSION_LIST)
+    return admin_created
