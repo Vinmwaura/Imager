@@ -1,6 +1,5 @@
 from . import auth_bp
-from flask import request
-from flask import render_template
+from flask import request, render_template, flash
 # from http import HTTPStatus
 from .forms import *
 from .controllers import (
@@ -31,8 +30,7 @@ def registration():
             # Placeholders
             return "Account has been created, Redirecting to homepage..."
         else:
-            error = "An error occured creating an account, please try again!"
-            return error
+            flash("An error occured creating an account, please try again!")
     return render_template(
         'auth/registration.html',
         form=registration_form)
@@ -49,8 +47,7 @@ def login():
         if status:
             return "User has an account"
         else:
-            error = "Invalid Username or password"
-            return error
+            flash("Invalid Username or password")
     return render_template(
         'auth/login.html',
         form=login_form)
