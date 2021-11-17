@@ -50,12 +50,26 @@ class User(db.Model):
     last_name = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(64), unique=True, nullable=False)
 
-    salt = db.Column(db.String(16), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
 
     user_role = db.Column(db.Integer, db.ForeignKey('role.id'))
 
     active = db.Column(db.Boolean, default=False)
+
+    def check_hash(self, password):
+        """
+        Hashes password using salt and compares with hashed password.
+
+        Args:
+          password: Plain text password.
+
+        Returns:
+          Boolean value indicating result of comparison.
+        """
+        from bcrypt import hashpw
+        return hashpw(
+            password.encode("utf-8"),
+            self.password_hash)
 
     def create_salt(self, salt_len=16):
         """
@@ -86,7 +100,7 @@ class User(db.Model):
             salt)
         return hashed_pwd
 
-    def generate_salt_pwd(self, password):
+    def generate_pwd(self, password):
         """
         Generates salt and hashed password
 
@@ -105,7 +119,7 @@ class User(db.Model):
                 salt,
                 password.encode("utf-8"))
 
-            return salt, pwd_hash
+            return pwd_hash
         except Exception as e:
             raise e
 
@@ -125,7 +139,7 @@ class User(db.Model):
             self.last_name = user_dict['last_name']
             self.email = user_dict['email']
             self.user_role = user_dict['user_role']
-            self.salt, self.password_hash = self.generate_salt_pwd(
+            self.password_hash = self.generate_pwd(
                 user_dict['password'])
 
             # Adds User object containing the user details
