@@ -4,7 +4,8 @@ from flask import (
     render_template,
     flash,
     current_app,
-    abort)
+    abort,
+    url_for)
 from flask_login import current_user, login_user, logout_user
 # from http import HTTPStatus
 
@@ -23,6 +24,9 @@ from .controllers import (
     USERNAME_ALREADY_EXISTS,
     EMAIL_ALREADY_USED,
     EMAIL_CONFIRMATION_TOKEN)
+
+from .. import mail
+from flask_mail import Message
 
 
 # Registration
@@ -56,11 +60,23 @@ def registration():
             role_name=DEFAULT_GENERAL_USER_ROLE,
             permissions=GENERAL_USER_PERMISSIONS)
         if user_created:
-            # Send token via EMAIL
-            token = generate_token(
-                request.form["email"],
-                EMAIL_CONFIRMATION_TOKEN)
-            print(token)
+            try:
+                # Send token via EMAIL
+                token = generate_token(
+                    request.form["email"],
+                    EMAIL_CONFIRMATION_TOKEN)
+                activation_email = Message(
+                    subject='Activate account',
+                    html='Congratulations {} on setting an account with Imager, to activate your account go to the following <a href="{}">link</a>'.format(
+                        user_details["username"],
+                        url_for('auth.activate_account', activation_token=token, _external=True)),
+                    sender=current_app.config['MAIL_USERNAME'],
+                    recipients=[request.form["email"]])
+                mail.send(activation_email)
+            except Exception as e:
+                print("An error occured sending email: ", e)
+                return "An error occured while sending the email!"
+
             return "User has been successfully created, Check email"
         else:
             flash("An error occured creating an account, please try again!")
@@ -102,13 +118,8 @@ def activate_account():
         user = validate_token(activation_token, EMAIL_CONFIRMATION_TOKEN)
         if user:
             user_activated = activate_user(user)
-            if user_activated is not None and not user.active:
+            if user_activated:
                 return "User {} has been activated".format(user.username)
-            elif user_activated is not None and user.active:
-                return "Email has already been confirmed."
-            else:
-                return "An error occured, please try again."
-        else:
-            abort(404)
+        abort(404)
     else:
         return "No activation token received"

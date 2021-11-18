@@ -6,6 +6,8 @@ from flask_sqlalchemy import SQLAlchemy
 
 from flask_login import LoginManager
 
+from flask_mail import Mail
+
 # Handles Database operations
 db = SQLAlchemy()
 
@@ -14,6 +16,9 @@ migrate = Migrate()
 
 # Handles Session management
 login_manager = LoginManager()
+
+# Handles sending of email
+mail = Mail()
 
 
 def create_app(config=None):
@@ -37,6 +42,13 @@ def create_app(config=None):
         # Added to remove warnings
         app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+        app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER")
+        app.config["MAIL_PORT"] = os.getenv("MAIL_PORT")
+        app.config["MAIL_USE_SSL"] = os.getenv("MAIL_USE_SSL")
+        app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
+        app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
+        app.config["MAIL_DEBUG"] = os.getenv("MAIL_DEBUG")
+
     # Apps Blueprint Registration
     from .auth import auth_bp
     app.register_blueprint(auth_bp)
@@ -45,5 +57,6 @@ def create_app(config=None):
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
+    mail.init_app(app)
 
     return app
