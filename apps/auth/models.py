@@ -1,6 +1,7 @@
-import os
 from .. import db
 from enum import Enum, auto
+
+from flask_login import UserMixin
 
 
 # Permissions Enums
@@ -41,7 +42,7 @@ class Role(db.Model):
 
 
 # User Table
-class User(db.Model):
+class User(UserMixin, db.Model):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -66,10 +67,12 @@ class User(db.Model):
         Returns:
           Boolean value indicating result of comparison.
         """
-        from bcrypt import hashpw
-        return hashpw(
-            password.encode("utf-8"),
-            self.password_hash)
+        from bcrypt import checkpw
+        input_pw = password.encode("utf-8")
+        stored_pw = self.password_hash.encode("utf-8")
+        return checkpw(
+            input_pw,
+            stored_pw)
 
     def create_salt(self, salt_len=16):
         """
@@ -100,29 +103,6 @@ class User(db.Model):
             salt)
         return hashed_pwd
 
-    def generate_pwd(self, password):
-        """
-        Generates salt and hashed password
-
-        Args:
-          password: Plain-text password
-
-        Returns:
-          Salt and Hashed password.
-        """
-        try:
-            # Get salt
-            salt = self.create_salt()
-
-            # Hash password using salt
-            pwd_hash = self.hash_password(
-                salt,
-                password.encode("utf-8"))
-
-            return pwd_hash
-        except Exception as e:
-            raise e
-
     def add_user(self, user_dict):
         """
         Adds User to the database.
@@ -139,8 +119,16 @@ class User(db.Model):
             self.last_name = user_dict['last_name']
             self.email = user_dict['email']
             self.user_role = user_dict['user_role']
-            self.password_hash = self.generate_pwd(
-                user_dict['password'])
+
+            # Create salt
+            salt = self.create_salt()
+
+            # Hash password using salt created
+            password_hash = self.hash_password(
+                salt,
+                user_dict['password'].encode("utf-8"))
+
+            self.password_hash = password_hash.decode("utf-8")
 
             # Adds User object containing the user details
             db.session.add(self)

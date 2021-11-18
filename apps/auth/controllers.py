@@ -6,7 +6,7 @@ from . import models
 from . import auth_bp
 
 from email_validator import validate_email, EmailNotValidError
-
+from .. import login_manager
 """
 Constants
 """
@@ -39,6 +39,7 @@ NAME_REQUIREMENTS = "Field must contain letters, numbers and underscores only."
 INVALID_FIELD_LENGTH = lambda field_min, field_max: 'Field must be between {} and {} characters.'.format(
                         field_min, field_max)
 USERNAME_ALREADY_EXISTS = lambda username: "Username {} already exists".format(username)
+EMAIL_ALREADY_USED = lambda email: "Email {} has been used by another account.".format(email)
 
 # Default Role Names
 DEFAULT_ADMIN_ROLE = "ADMIN"
@@ -58,6 +59,11 @@ ADMIN_PERMISSION_LIST = [
     models.PermissionsEnum.CAN_POST_DASHBOARD,
     models.PermissionsEnum.CAN_VIEW_DASHBOARD
 ]
+
+
+@login_manager.user_loader
+def load_user(id):
+    return models.User.query.get(int(id))
 
 
 # Regex Checker
@@ -122,13 +128,37 @@ def check_username_exists(username):
         return False
 
 
+def check_email_exists(email):
+    """
+    Checks if Email exists in User table.
+
+    Args:
+      username: username
+
+    Returns:
+      Boolean indicating result of operation.
+    """
+    user_ = models.User()
+    email_exists = user_.query.filter_by(
+        email=email).first()
+    if email_exists:
+        return True
+    else:
+        return False
+
+
 # Click callback used in validating email, password and names
 def validate_callback(ctx, param, value):
     if param.name == "username" or param.name == "first_name" or param.name == "last_name":
+        # Checks if valid name
         valid_name = check_valid_characters(value, NAMES_REGEX)
+
+        # Checks if valid length
         valid_len = check_length(value, min_len=MIN_NAMES, max_len=MAX_NAMES)
+
         if valid_name:
             if valid_len:
+
                 return value
             else:
                 raise click.BadParameter(
@@ -139,6 +169,7 @@ def validate_callback(ctx, param, value):
                 NAME_REQUIREMENTS)
     elif param.name == "email":
         try:
+            # Attempts to validate if proper email, raises Exception if not
             validate_email(value)
             return value
         except EmailNotValidError as e:
@@ -257,13 +288,6 @@ def add_User(user_details):
       Exception: Any exeption that occurs when creating User.
     """
     try:
-        # Check if Username Exists
-        user_exists = check_username_exists(user_details['username'])
-        if user_exists:
-            print(USERNAME_ALREADY_EXISTS(user_details['username']))
-            return False
-
-        # Create user
         user_ = models.User()
         user_created = user_.add_user(user_details)
         return user_created
@@ -305,9 +329,8 @@ def account_creation(user_details, role_name, permissions=[]):
                 role_id=user_role.id,
                 permission_index=permission.value)
 
-    # Commit General Roles and Permissions added
+    # Commit Roles and Permissions added
     try:
-        # Commit session
         db.session.commit()
     except Exception as e:
         print("An error occured while committing: {}".format(e))
@@ -338,16 +361,14 @@ def authenticate_user(username, password):
 
     Returns:
       Boolean indicating result of operation.
-
-    Raises:
-      Exception: Any exeption that occurs.
     """
     user_ = models.User().query.filter_by(
         username=username).first()
-    if user_:
-        return user_.check_hash(password)
+    user_authenticated = user_.check_hash(password)
+    if user_authenticated:
+        return user_
     else:
-        return False
+        return None
 
 
 @auth_bp.cli.command('createsuperuser')

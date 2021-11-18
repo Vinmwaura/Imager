@@ -4,11 +4,16 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
+from flask_login import LoginManager
+
 # Handles Database operations
 db = SQLAlchemy()
 
 # Handles Database migrations
 migrate = Migrate()
+
+# Handles Session management
+login_manager = LoginManager()
 
 
 def create_app(config=None):
@@ -39,5 +44,6 @@ def create_app(config=None):
     # Flask extensions
     db.init_app(app)
     migrate.init_app(app, db)
+    login_manager.init_app(app)
 
     return app
