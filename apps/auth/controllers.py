@@ -5,8 +5,13 @@ from .. import db
 from . import models
 from . import auth_bp
 
+from flask import current_app
+
 from email_validator import validate_email, EmailNotValidError
 from .. import login_manager
+
+from itsdangerous.url_safe import URLSafeTimedSerializer
+
 """
 Constants
 """
@@ -59,6 +64,87 @@ ADMIN_PERMISSION_LIST = [
     models.PermissionsEnum.CAN_POST_DASHBOARD,
     models.PermissionsEnum.CAN_VIEW_DASHBOARD
 ]
+
+# Token
+EMAIL_CONFIRMATION_TOKEN = "email-confirm-key"
+TOKEN_MAX_AGE = 24 * 60 * 60  # 24 HOURS
+
+
+def generate_token(email, token_type):
+    """
+    Generates token to be sent to User.
+
+    Args:
+      email: Email of User.
+      token_type: Salt key used in creating the token.
+
+    Returns:
+      Token.
+    """
+    try:
+        secret_key = current_app.config["SECRET_KEY"]
+        timed_serializer = URLSafeTimedSerializer(secret_key)
+        email_activation_token = timed_serializer.dumps(
+            email,
+            salt=token_type)
+        return email_activation_token
+    except Exception as e:
+        print("An error occured when generating token: {}".format(e))
+        return None
+
+
+def validate_token(received_token, token_type):
+    """
+    Confirms if token is genuine and from the User Email.
+
+    Args:
+      received_token: Token.
+      token_type: Salt key used in creating the token.
+
+    Returns:
+      User object who passed the token from their Email or None if errors
+    """
+    try:
+        secret_key = current_app.config["SECRET_KEY"]
+        timed_serializer = URLSafeTimedSerializer(secret_key)
+        email = timed_serializer.loads(
+            received_token,
+            salt=token_type,
+            max_age=TOKEN_MAX_AGE)
+        user = models.User.query.filter_by(email=email).first()
+        if user:
+            return user
+        else:
+            return None
+    except Exception as e:
+        print("An error occured while confirming token: {}".format(e))
+        return None
+
+
+def activate_user(user):
+    """
+    Activates user if not already activated.
+
+    Args:
+      user: User object.
+
+    Returns:
+      Boolean indicating if user was activated.
+    """
+    if not user.active:
+        try:
+            user.active = True
+            db.session.add(user)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print("An Error occured when activating user {}: {}".format(
+                user.username, e))
+            return False
+        finally:
+            return True
+    else:
+        return False
 
 
 @login_manager.user_loader
@@ -346,6 +432,7 @@ def account_creation(user_details, role_name, permissions=[]):
     if user_created:
         print("User: {} has been successfully added".format(
             user_details["username"]))
+
         return True
     else:
         return False
@@ -418,7 +505,8 @@ def createsuperuser(username, first_name, last_name, email, password):
         "first_name": first_name,
         "last_name": last_name,
         "email": email,
-        "password": password
+        "password": password,
+        "active": True  # Admin user have account activated by default
     }
 
     admin_created = account_creation(

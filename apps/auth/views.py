@@ -1,19 +1,28 @@
 from . import auth_bp
-from flask import request, render_template, flash
+from flask import (
+    request,
+    render_template,
+    flash,
+    current_app,
+    abort)
 from flask_login import current_user, login_user, logout_user
 # from http import HTTPStatus
 
 from .forms import *
 from .controllers import (
+    activate_user,
     load_user,
     account_creation,
     authenticate_user,
     check_username_exists,
     check_email_exists,
+    generate_token,
+    validate_token,
     DEFAULT_GENERAL_USER_ROLE,
     GENERAL_USER_PERMISSIONS,
     USERNAME_ALREADY_EXISTS,
-    EMAIL_ALREADY_USED)
+    EMAIL_ALREADY_USED,
+    EMAIL_CONFIRMATION_TOKEN)
 
 
 # Registration
@@ -47,6 +56,11 @@ def registration():
             role_name=DEFAULT_GENERAL_USER_ROLE,
             permissions=GENERAL_USER_PERMISSIONS)
         if user_created:
+            # Send token via EMAIL
+            token = generate_token(
+                request.form["email"],
+                EMAIL_CONFIRMATION_TOKEN)
+            print(token)
             return "User has been successfully created, Check email"
         else:
             flash("An error occured creating an account, please try again!")
@@ -85,6 +99,16 @@ def logout():
 def activate_account():
     activation_token = request.args.get("activation_token")
     if activation_token:
-        pass
+        user = validate_token(activation_token, EMAIL_CONFIRMATION_TOKEN)
+        if user:
+            user_activated = activate_user(user)
+            if user_activated is not None and not user.active:
+                return "User {} has been activated".format(user.username)
+            elif user_activated is not None and user.active:
+                return "Email has already been confirmed."
+            else:
+                return "An error occured, please try again."
+        else:
+            abort(404)
     else:
-        pass
+        return "No activation token received"
