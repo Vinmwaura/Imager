@@ -67,7 +67,9 @@ ADMIN_PERMISSION_LIST = [
 
 # Token
 EMAIL_CONFIRMATION_TOKEN = "email-confirm-key"
-TOKEN_MAX_AGE = 24 * 60 * 60  # 24 HOURS
+RESET_PASSWORD_TOKEN = "reset-password-key"
+REGISTRATION_TOKEN_MAX_AGE = 24 * 60 * 60  # 24 HOURS
+RESET_TOKEN_MAX_AGE = 5 * 60  # 5 MINUTES
 
 
 def generate_token(email, token_type):
@@ -93,7 +95,7 @@ def generate_token(email, token_type):
         return None
 
 
-def validate_token(received_token, token_type):
+def validate_token(received_token, token_type, token_max_age):
     """
     Confirms if token is genuine and from the User Email.
 
@@ -110,7 +112,7 @@ def validate_token(received_token, token_type):
         email = timed_serializer.loads(
             received_token,
             salt=token_type,
-            max_age=TOKEN_MAX_AGE)
+            max_age=token_max_age)
         user = models.User.query.filter_by(email=email).first()
         if user:
             return user
@@ -143,6 +145,23 @@ def activate_user(user):
             return False
         finally:
             return True
+    else:
+        return False
+
+
+def reset_user_password(user, password):
+    """
+    Changes User password.
+
+    Args:
+      user: User object.
+
+    Returns:
+      Boolean indicating if user was activated.
+    """
+    if user and user.active:
+        status = user.change_password(password)
+        return status
     else:
         return False
 

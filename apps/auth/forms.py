@@ -65,7 +65,10 @@ class RegistrationForm(FlaskForm):
         'Password',
         validators=[
             InputRequired(),
-            Regexp(PASSWORD_REGEX, message=PASSWORD_REQUIREMENTS.replace("\n", "").replace(">", "")),
+            Regexp(
+                PASSWORD_REGEX,
+                message=PASSWORD_REQUIREMENTS.replace(
+                    "\n", "").replace(">", "")),
             EqualTo('password_confirmation', 'Passwords must match'),
             Length(
                 min=MIN_PASSWORD,
@@ -84,3 +87,31 @@ class LoginForm(FlaskForm):
         'Password',
         validators=[InputRequired()])
     submit = SubmitField('Login')
+
+
+class ForgotPassword(FlaskForm):
+    email = EmailField(
+        'Email',
+        validators=[
+            InputRequired(),
+            Email()])
+    submit = SubmitField('Submit')
+
+
+class ResetPassword(FlaskForm):
+    password = PasswordField(
+        'Password',
+        validators=[
+            InputRequired(),
+            Regexp(
+                PASSWORD_REGEX,
+                message=PASSWORD_REQUIREMENTS.replace(
+                    "\n", "").replace(">", "")),
+            EqualTo('password_confirmation', 'Passwords must match'),
+            Length(
+                min=MIN_PASSWORD,
+                max=MAX_PASSWORD,
+                message=INVALID_FIELD_LENGTH(MIN_PASSWORD, MAX_PASSWORD))
+        ])
+    password_confirmation = PasswordField('Confirm Password')
+    submit = SubmitField('Submit')

@@ -1,6 +1,7 @@
 from . import auth_bp
 from flask import (
     request,
+    redirect,
     render_template,
     flash,
     current_app,
@@ -14,6 +15,7 @@ from .controllers import (
     activate_user,
     load_user,
     account_creation,
+    reset_user_password,
     authenticate_user,
     check_username_exists,
     check_email_exists,
@@ -23,10 +25,22 @@ from .controllers import (
     GENERAL_USER_PERMISSIONS,
     USERNAME_ALREADY_EXISTS,
     EMAIL_ALREADY_USED,
-    EMAIL_CONFIRMATION_TOKEN)
+    EMAIL_CONFIRMATION_TOKEN,
+    RESET_PASSWORD_TOKEN,
+    REGISTRATION_TOKEN_MAX_AGE,
+    RESET_TOKEN_MAX_AGE)
 
 from .. import mail
 from flask_mail import Message
+
+
+def send_email(subject, body, sender, recipients):
+    email_content = Message(
+        subject=subject,
+        html=body,
+        sender=sender,
+        recipients=recipients)
+    mail.send(email_content)
 
 
 # Registration
@@ -65,14 +79,20 @@ def registration():
                 token = generate_token(
                     request.form["email"],
                     EMAIL_CONFIRMATION_TOKEN)
-                activation_email = Message(
-                    subject='Activate account',
-                    html='Congratulations {} on setting an account with Imager, to activate your account go to the following <a href="{}">link</a>'.format(
+
+                subject = 'Imager Activate account'
+                body = 'Congratulations {} on setting an account with Imager,'\
+                    ' to activate your account go to the following '\
+                    '<a href="{}">link</a>'.format(
                         user_details["username"],
-                        url_for('auth.activate_account', activation_token=token, _external=True)),
-                    sender=current_app.config['MAIL_USERNAME'],
-                    recipients=[request.form["email"]])
-                mail.send(activation_email)
+                        url_for(
+                            'auth.activate_account',
+                            activation_token=token,
+                            _external=True))
+                sender = current_app.config['MAIL_USERNAME']
+                recipients = [request.form["email"]]
+
+                send_email(subject, body, sender, recipients)
             except Exception as e:
                 print("An error occured sending email: ", e)
                 return "An error occured while sending the email!"
@@ -115,7 +135,10 @@ def logout():
 def activate_account():
     activation_token = request.args.get("activation_token")
     if activation_token:
-        user = validate_token(activation_token, EMAIL_CONFIRMATION_TOKEN)
+        user = validate_token(
+            activation_token,
+            EMAIL_CONFIRMATION_TOKEN,
+            REGISTRATION_TOKEN_MAX_AGE)
         if user:
             user_activated = activate_user(user)
             if user_activated:
@@ -123,3 +146,71 @@ def activate_account():
         abort(404)
     else:
         return "No activation token received"
+
+
+# Forgot Password
+@auth_bp.route("/forgot_password", methods=["GET", "POST"])
+def forgot_password():
+    forgot_password = ForgotPassword()
+    if forgot_password.validate_on_submit():
+        email_exists = check_email_exists(
+            request.form["email"])
+        if email_exists:
+            # Send an email to reset password
+            reset_token = generate_token(
+                request.form["email"],
+                RESET_PASSWORD_TOKEN)
+
+            subject = 'Imager Reset password'
+            body = '<h1>Reset password</h1><br>'\
+                'You recently requested to reset your Imager '\
+                'account password.<br>'\
+                '<a href="{}">link</a>'.format(
+                    url_for(
+                        'auth.reset_password',
+                        reset_token=reset_token,
+                        _external=True))
+            sender = current_app.config['MAIL_USERNAME']
+            recipients = [request.form["email"]]
+            send_email(subject, body, sender, recipients)
+            flash("Check email, password reset link has been sent.")
+    return render_template(
+        'auth/forgotpassword.html',
+        form=forgot_password)
+
+
+# Reset Password
+@auth_bp.route("/reset_password", methods=["GET", "POST"])
+def reset_password():
+    reset_password = ResetPassword()
+
+    reset_token = request.args.get("reset_token")
+
+    if reset_password.validate_on_submit():
+        reset_token = request.form["reset_token"]
+        password = request.form["password"]
+
+        user = validate_token(
+            reset_token,
+            RESET_PASSWORD_TOKEN,
+            RESET_TOKEN_MAX_AGE)
+
+        if user:
+            status = reset_user_password(user, password)
+            if status:
+                flash("Successfully changed password.")
+                return redirect(url_for("auth.login"))
+            else:
+                flash("Token required for ")
+                abort(404)
+        else:
+            flash("Invalid token, please try requesting to change password.")
+            return redirect(url_for("auth.forgot_password"))
+
+    if reset_token:
+        return render_template(
+            'auth/resetpassword.html',
+            form=reset_password,
+            token=reset_token)
+    else:
+        abort(404)

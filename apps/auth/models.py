@@ -103,6 +103,30 @@ class User(UserMixin, db.Model):
             salt)
         return hashed_pwd
 
+    def change_password(self, password):
+        try:
+            # Create salt
+            salt = self.create_salt()
+
+            # Hash password using salt created
+            password_hash = self.hash_password(
+                salt,
+                password.encode("utf-8"))
+
+            self.password_hash = password_hash.decode("utf-8")
+
+            # Adds User object containing the user details
+            db.session.add(self)
+
+            # Commit session
+            db.session.commit()
+            return True
+
+        except Exception as e:
+            db.session.rollback()
+            print("Exception occured when creating user: {}".format(e))
+            return False
+
     def add_user(self, user_dict):
         """
         Adds User to the database.
