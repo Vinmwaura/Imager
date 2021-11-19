@@ -149,18 +149,38 @@ def activate_user(user):
         return False
 
 
-def reset_user_password(user, password):
+def changer_user_email(user, new_email):
+    """
+    Changes User email and sends an authentication
+    email to check if new email is legit.
+
+    Args:
+      user: User object.
+      new_email: New email for client.
+
+    Returns:
+      Boolean indicating if email was changed.
+    """
+    if user and user.active:
+        status = user.change_email(new_email)
+        return status
+    else:
+        return False
+
+
+def reset_user_password(user, new_password):
     """
     Changes User password.
 
     Args:
       user: User object.
+      password: Plain text password of new password
 
     Returns:
-      Boolean indicating if user was activated.
+      Boolean indicating if password was changed.
     """
     if user and user.active:
-        status = user.change_password(password)
+        status = user.change_password(new_password)
         return status
     else:
         return False

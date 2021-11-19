@@ -103,7 +103,41 @@ class User(UserMixin, db.Model):
             salt)
         return hashed_pwd
 
-    def change_password(self, password):
+    def change_email(self, new_email):
+        """
+        Changes email.
+
+        Args:
+          new_email: New Email.
+
+        Returns:
+          Boolean indicating result of operation.
+        """
+        try:
+            self.email = new_email
+
+            # Adds User object containing the user details
+            db.session.add(self)
+
+            # Commit session
+            db.session.commit()
+            return True
+
+        except Exception as e:
+            db.session.rollback()
+            print("Exception occured when updating email: {}".format(e))
+            return False
+
+    def change_password(self, new_password):
+        """
+        Changes password.
+
+        Args:
+          password: New password
+
+        Returns:
+          Boolean indicating result of operation.
+        """
         try:
             # Create salt
             salt = self.create_salt()
@@ -111,7 +145,7 @@ class User(UserMixin, db.Model):
             # Hash password using salt created
             password_hash = self.hash_password(
                 salt,
-                password.encode("utf-8"))
+                new_password.encode("utf-8"))
 
             self.password_hash = password_hash.decode("utf-8")
 
@@ -124,7 +158,7 @@ class User(UserMixin, db.Model):
 
         except Exception as e:
             db.session.rollback()
-            print("Exception occured when creating user: {}".format(e))
+            print("Exception occured when updating password: {}".format(e))
             return False
 
     def add_user(self, user_dict):
