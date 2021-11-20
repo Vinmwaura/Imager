@@ -4,13 +4,14 @@ import click
 from .. import db
 from . import models
 from . import auth_bp
+from .. import login_manager
 
 from flask import current_app
 
-from email_validator import validate_email, EmailNotValidError
-from .. import login_manager
-
 from itsdangerous.url_safe import URLSafeTimedSerializer
+from itsdangerous.exc import BadSignature, SignatureExpired
+from email_validator import validate_email, EmailNotValidError
+
 
 """
 Constants
@@ -71,6 +72,9 @@ RESET_PASSWORD_TOKEN = "reset-password-key"
 REGISTRATION_TOKEN_MAX_AGE = 24 * 60 * 60  # 24 HOURS
 RESET_TOKEN_MAX_AGE = 5 * 60  # 5 MINUTES
 
+BAD_SIGNATURE_TOKEN_ERROR = "Token provided is not valid."
+EXPIRED_SIGNATURE_TOKEN_ERROR = "Token has expired."
+
 
 def generate_token(email, token_type):
     """
@@ -106,21 +110,29 @@ def validate_token(received_token, token_type, token_max_age):
     Returns:
       User object who passed the token from their Email or None if errors
     """
+    secret_key = current_app.config["SECRET_KEY"]
+    timed_serializer = URLSafeTimedSerializer(secret_key)
     try:
-        secret_key = current_app.config["SECRET_KEY"]
-        timed_serializer = URLSafeTimedSerializer(secret_key)
         email = timed_serializer.loads(
             received_token,
             salt=token_type,
             max_age=token_max_age)
-        user = models.User.query.filter_by(email=email).first()
-        if user:
-            return user
-        else:
-            return None
+        print("Email", email)
+    except SignatureExpired as se_err:
+        print("Expired Token")
+        return None, EXPIRED_SIGNATURE_TOKEN_ERROR
+    except BadSignature as bs_err:
+        print("Bad signature")
+        return None, BAD_SIGNATURE_TOKEN_ERROR
     except Exception as e:
         print("An error occured while confirming token: {}".format(e))
-        return None
+        return None, "Error occured while processing request, please try again."
+
+    user = models.User.query.filter_by(email=email).first()
+    if user:
+        return user, ""
+    else:
+        return None, "Error occured while processing request, please try again."
 
 
 def activate_user(user):
@@ -142,11 +154,11 @@ def activate_user(user):
             db.session.rollback()
             print("An Error occured when activating user {}: {}".format(
                 user.username, e))
-            return False
+            return False, "An error occured while activating account."
         finally:
-            return True
+            return True, ""
     else:
-        return False
+        return False, "User has already confirmed their email"
 
 
 def changer_user_email(user, new_email):
