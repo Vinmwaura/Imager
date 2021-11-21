@@ -208,7 +208,7 @@ def reset_password():
             RESET_TOKEN_MAX_AGE)
 
         if user:
-            status = reset_user_password(user, password)
+            status = change_user_password(user, password)
             if status:
                 flash("Successfully changed password.")
                 return redirect(url_for("auth.login"))

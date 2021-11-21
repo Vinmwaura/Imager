@@ -44,8 +44,11 @@ PASSWORD_REQUIREMENTS = "Password has to have:\n\
 NAME_REQUIREMENTS = "Field must contain letters, numbers and underscores only."
 INVALID_FIELD_LENGTH = lambda field_min, field_max: 'Field must be between {} and {} characters.'.format(
                         field_min, field_max)
-USERNAME_ALREADY_EXISTS = lambda username: "Username {} already exists".format(username)
+USERNAME_ALREADY_EXISTS = lambda username: "Username {} already exists.".format(username)
+USER_ALREADY_ACTIVE = "User has already confirmed their email"
 EMAIL_ALREADY_USED = lambda email: "Email {} has been used by another account.".format(email)
+INVALID_USER = "User provided is invalid."
+SERVER_ERROR = "An error occured on the server."
 
 # Default Role Names
 DEFAULT_ADMIN_ROLE = "ADMIN"
@@ -117,22 +120,19 @@ def validate_token(received_token, token_type, token_max_age):
             received_token,
             salt=token_type,
             max_age=token_max_age)
-        print("Email", email)
-    except SignatureExpired as se_err:
-        print("Expired Token")
+    except SignatureExpired:
         return None, EXPIRED_SIGNATURE_TOKEN_ERROR
-    except BadSignature as bs_err:
-        print("Bad signature")
+    except BadSignature:
         return None, BAD_SIGNATURE_TOKEN_ERROR
     except Exception as e:
         print("An error occured while confirming token: {}".format(e))
-        return None, "Error occured while processing request, please try again."
+        return None, SERVER_ERROR
 
     user = models.User.query.filter_by(email=email).first()
     if user:
         return user, ""
     else:
-        return None, "Error occured while processing request, please try again."
+        return None, SERVER_ERROR
 
 
 def activate_user(user):
@@ -146,22 +146,124 @@ def activate_user(user):
       Boolean indicating if user was activated.
     """
     if not user.active:
-        try:
-            user.active = True
-            db.session.add(user)
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            print("An Error occured when activating user {}: {}".format(
-                user.username, e))
-            return False, "An error occured while activating account."
-        finally:
-            return True, ""
+        status = user.activate_user()
+        if status:
+            return status, ""
+        else:
+            return False, SERVER_ERROR
     else:
-        return False, "User has already confirmed their email"
+        return False, USER_ALREADY_ACTIVE
 
 
-def changer_user_email(user, new_email):
+def change_username(user, new_username):
+    """
+    Changes Username.
+
+    Args:
+      user: User object.
+      new_username: New username for client.
+
+    Returns:
+      Boolean indicating if email was changed.
+    """
+    # Checks if valid name
+    valid_name = check_valid_characters(
+        new_username,
+        NAMES_REGEX)
+
+    # Checks if valid length
+    valid_len = check_length(
+        new_username,
+        min_len=MIN_NAMES,
+        max_len=MAX_NAMES)
+
+    if valid_name:
+        if valid_len:
+            if user and user.active:
+                status = user.change_username(new_username)
+                return status, ""
+            else:
+                return False, INVALID_USER
+        else:
+            return False, INVALID_FIELD_LENGTH(
+                MIN_NAMES, MAX_NAMES)
+    else:
+        return False, NAME_REQUIREMENTS
+
+
+def change_firstname(user, new_firstname):
+    """
+    Changes Firstname of user.
+
+    Args:
+      user: User object.
+      new_username: New username for client.
+
+    Returns:
+      Boolean indicating if email was changed.
+    """
+    # Checks if valid name
+    valid_name = check_valid_characters(
+        new_firstname,
+        NAMES_REGEX)
+
+    # Checks if valid length
+    valid_len = check_length(
+        new_firstname,
+        min_len=MIN_NAMES,
+        max_len=MAX_NAMES)
+
+    if valid_name:
+        if valid_len:
+            if user and user.active:
+                status = user.change_firstname(new_firstname)
+                return status, ""
+            else:
+                return False, INVALID_USER
+        else:
+            return False, INVALID_FIELD_LENGTH(
+                MIN_NAMES, MAX_NAMES)
+    else:
+        return False, NAME_REQUIREMENTS
+
+
+def change_lastname(user, new_lastname):
+    """
+    Changes Lastname of user.
+
+    Args:
+      user: User object.
+      new_lastname: New last_name of user.
+
+    Returns:
+      Boolean indicating if email was changed.
+    """
+    # Checks if valid name
+    valid_name = check_valid_characters(
+        new_lastname,
+        NAMES_REGEX)
+
+    # Checks if valid length
+    valid_len = check_length(
+        new_lastname,
+        min_len=MIN_NAMES,
+        max_len=MAX_NAMES)
+
+    if valid_name:
+        if valid_len:
+            if user and user.active:
+                status = user.change_lastname(new_lastname)
+                return status, ""
+            else:
+                return False, INVALID_USER
+        else:
+            return False, INVALID_FIELD_LENGTH(
+                MIN_NAMES, MAX_NAMES)
+    else:
+        return False, NAME_REQUIREMENTS
+
+
+def change_user_email(user, new_email):
     """
     Changes User email and sends an authentication
     email to check if new email is legit.
@@ -173,14 +275,19 @@ def changer_user_email(user, new_email):
     Returns:
       Boolean indicating if email was changed.
     """
-    if user and user.active:
-        status = user.change_email(new_email)
-        return status
-    else:
-        return False
+    try:
+        # Attempts to validate if proper email, raises Exception if not
+        validate_email(new_email)
+        if user and user.active:
+            status = user.change_email(new_email)
+            return status, ""
+        else:
+            return False, INVALID_USER
+    except EmailNotValidError as e:
+        return False, e
 
 
-def reset_user_password(user, new_password):
+def change_user_password(user, new_password):
     """
     Changes User password.
 
@@ -191,11 +298,26 @@ def reset_user_password(user, new_password):
     Returns:
       Boolean indicating if password was changed.
     """
-    if user and user.active:
-        status = user.change_password(new_password)
-        return status
+    valid_pwd = check_valid_characters(
+        new_password,
+        PASSWORD_REGEX)
+    valid_len = check_length(
+        new_password,
+        MIN_PASSWORD,
+        MAX_PASSWORD)
+
+    if valid_pwd:
+        if valid_len:
+            if user and user.active:
+                status = user.change_password(new_password)
+                return status
+            else:
+                return False, INVALID_USER
+        else:
+            return False, INVALID_FIELD_LENGTH(
+                MIN_PASSWORD, MAX_PASSWORD)
     else:
-        return False
+        return False, PASSWORD_REQUIREMENTS
 
 
 @login_manager.user_loader
@@ -502,9 +624,12 @@ def authenticate_user(username, password):
     """
     user_ = models.User().query.filter_by(
         username=username).first()
-    user_authenticated = user_.check_hash(password)
-    if user_authenticated:
-        return user_
+    if user_:
+        user_authenticated = user_.check_hash(password)
+        if user_authenticated:
+            return user_
+        else:
+            return None
     else:
         return None
 

@@ -103,6 +103,102 @@ class User(UserMixin, db.Model):
             salt)
         return hashed_pwd
 
+    def activate_user(self):
+        """
+        Activate User.
+
+        Returns:
+          Boolean indicating result of operation.
+        """
+        try:
+            self.active = True
+
+            # Adds User object containing the user details
+            db.session.add(self)
+
+            # Commit session
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            print("Exception occured when activating user: {}".format(e))
+            return False
+
+    def change_username(self, new_username):
+        """
+        Changes username.
+
+        Args:
+          new_email: New Email.
+
+        Returns:
+          Boolean indicating result of operation.
+        """
+        try:
+            self.username = new_username
+
+            # Adds User object containing the user details
+            db.session.add(self)
+
+            # Commit session
+            db.session.commit()
+            return True
+
+        except Exception as e:
+            db.session.rollback()
+            print("Exception occured when updating username: {}".format(e))
+            return False
+
+    def change_firstname(self, new_firstname):
+        """
+        Changes first_name.
+
+        Args:
+          new_firstname: New first name.
+
+        Returns:
+          Boolean indicating result of operation.
+        """
+        try:
+            self.first_name = new_firstname
+
+            # Adds User object containing the user details
+            db.session.add(self)
+
+            # Commit session
+            db.session.commit()
+            return True
+
+        except Exception as e:
+            db.session.rollback()
+            print("Exception occured when updating first_name: {}".format(e))
+            return False
+
+    def change_lastname(self, new_lastname):
+        """
+        Changes last_name.
+
+        Args:
+          new_lastname: New last name.
+
+        Returns:
+          Boolean indicating result of operation.
+        """
+        try:
+            self.last_name = new_lastname
+
+            # Adds User object containing the user details
+            db.session.add(self)
+
+            # Commit session
+            db.session.commit()
+            return True
+
+        except Exception as e:
+            db.session.rollback()
+            print("Exception occured when updating last_name: {}".format(e))
+            return False
+
     def change_email(self, new_email):
         """
         Changes email.
