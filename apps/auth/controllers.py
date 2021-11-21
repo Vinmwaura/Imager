@@ -79,6 +79,102 @@ BAD_SIGNATURE_TOKEN_ERROR = "Token provided is not valid."
 EXPIRED_SIGNATURE_TOKEN_ERROR = "Token has expired."
 
 
+# Regex Checker
+def check_valid_characters(string, regex_pattern):
+    """
+    Validates Names(Username, Firstname, and Lastname).
+
+    Args:
+      name: Plain text name to be validated
+
+    Returns:
+      Boolean indicating result of operation.
+
+    Raises:
+      TypeError: If invalid parameter type is give, i.e not a string.
+    """
+    if isinstance(string, str) and isinstance(regex_pattern, str):
+        regex = re.compile(regex_pattern)
+        return regex.search(string) is not None
+    else:
+        raise TypeError("Only strings are supported")
+
+
+# Length Checker
+def check_length(string, min_len=0, max_len=1):
+    """
+    Checks Length of String if matches the minimum and maximum specified.
+
+    Args:
+      string: Plain text name to be validated
+      max_len: Max value int
+      min_len: Min value int
+
+    Returns:
+      Boolean indicating result of operation.
+
+    Raises:
+      TypeError: If invalid parameter type is give, i.e not a string.
+    """
+    if isinstance(string, str):
+        return min_len <= len(string) <= max_len
+    else:
+        raise TypeError("Only strings are supported")
+
+
+# Decorator function for functions validating names
+def validate_names(func):
+    def inner(user, name):
+        # Checks if valid name
+        valid_name = check_valid_characters(
+            name,
+            NAMES_REGEX)
+
+        # Checks if valid length
+        valid_len = check_length(
+            name,
+            min_len=MIN_NAMES,
+            max_len=MAX_NAMES)
+
+        if valid_name:
+            if valid_len:
+                if user and user.active:
+                    return func(user, name)
+                else:
+                    return False, INVALID_USER
+            else:
+                return False, INVALID_FIELD_LENGTH(
+                    MIN_NAMES, MAX_NAMES)
+        else:
+            return False, NAME_REQUIREMENTS
+    return inner
+
+
+# Decorator function for functions validating passwords
+def validate_password(func):
+    def inner(user, password):
+        valid_pwd = check_valid_characters(
+            password,
+            PASSWORD_REGEX)
+        valid_len = check_length(
+            password,
+            MIN_PASSWORD,
+            MAX_PASSWORD)
+
+        if valid_pwd:
+            if valid_len:
+                if user and user.active:
+                    return func(user, password)
+                else:
+                    return False, INVALID_USER
+            else:
+                return False, INVALID_FIELD_LENGTH(
+                    MIN_PASSWORD, MAX_PASSWORD)
+        else:
+            return False, PASSWORD_REQUIREMENTS
+    return inner
+
+
 def generate_token(email, token_type):
     """
     Generates token to be sent to User.
@@ -155,6 +251,7 @@ def activate_user(user):
         return False, USER_ALREADY_ACTIVE
 
 
+@validate_names
 def change_username(user, new_username):
     """
     Changes Username.
@@ -166,31 +263,11 @@ def change_username(user, new_username):
     Returns:
       Boolean indicating if email was changed.
     """
-    # Checks if valid name
-    valid_name = check_valid_characters(
-        new_username,
-        NAMES_REGEX)
-
-    # Checks if valid length
-    valid_len = check_length(
-        new_username,
-        min_len=MIN_NAMES,
-        max_len=MAX_NAMES)
-
-    if valid_name:
-        if valid_len:
-            if user and user.active:
-                status = user.change_username(new_username)
-                return status, ""
-            else:
-                return False, INVALID_USER
-        else:
-            return False, INVALID_FIELD_LENGTH(
-                MIN_NAMES, MAX_NAMES)
-    else:
-        return False, NAME_REQUIREMENTS
+    status = user.change_username(new_username)
+    return status, ""
 
 
+@validate_names
 def change_firstname(user, new_firstname):
     """
     Changes Firstname of user.
@@ -202,31 +279,11 @@ def change_firstname(user, new_firstname):
     Returns:
       Boolean indicating if email was changed.
     """
-    # Checks if valid name
-    valid_name = check_valid_characters(
-        new_firstname,
-        NAMES_REGEX)
-
-    # Checks if valid length
-    valid_len = check_length(
-        new_firstname,
-        min_len=MIN_NAMES,
-        max_len=MAX_NAMES)
-
-    if valid_name:
-        if valid_len:
-            if user and user.active:
-                status = user.change_firstname(new_firstname)
-                return status, ""
-            else:
-                return False, INVALID_USER
-        else:
-            return False, INVALID_FIELD_LENGTH(
-                MIN_NAMES, MAX_NAMES)
-    else:
-        return False, NAME_REQUIREMENTS
+    status = user.change_firstname(new_firstname)
+    return status, ""
 
 
+@validate_names
 def change_lastname(user, new_lastname):
     """
     Changes Lastname of user.
@@ -238,29 +295,8 @@ def change_lastname(user, new_lastname):
     Returns:
       Boolean indicating if email was changed.
     """
-    # Checks if valid name
-    valid_name = check_valid_characters(
-        new_lastname,
-        NAMES_REGEX)
-
-    # Checks if valid length
-    valid_len = check_length(
-        new_lastname,
-        min_len=MIN_NAMES,
-        max_len=MAX_NAMES)
-
-    if valid_name:
-        if valid_len:
-            if user and user.active:
-                status = user.change_lastname(new_lastname)
-                return status, ""
-            else:
-                return False, INVALID_USER
-        else:
-            return False, INVALID_FIELD_LENGTH(
-                MIN_NAMES, MAX_NAMES)
-    else:
-        return False, NAME_REQUIREMENTS
+    status = user.change_lastname(new_lastname)
+    return status, ""
 
 
 def change_user_email(user, new_email):
@@ -287,6 +323,7 @@ def change_user_email(user, new_email):
         return False, e
 
 
+@validate_password
 def change_user_password(user, new_password):
     """
     Changes User password.
@@ -298,74 +335,13 @@ def change_user_password(user, new_password):
     Returns:
       Boolean indicating if password was changed.
     """
-    valid_pwd = check_valid_characters(
-        new_password,
-        PASSWORD_REGEX)
-    valid_len = check_length(
-        new_password,
-        MIN_PASSWORD,
-        MAX_PASSWORD)
-
-    if valid_pwd:
-        if valid_len:
-            if user and user.active:
-                status = user.change_password(new_password)
-                return status
-            else:
-                return False, INVALID_USER
-        else:
-            return False, INVALID_FIELD_LENGTH(
-                MIN_PASSWORD, MAX_PASSWORD)
-    else:
-        return False, PASSWORD_REQUIREMENTS
+    status = user.change_password(new_password)
+    return status, ""
 
 
 @login_manager.user_loader
 def load_user(id):
     return models.User.query.get(int(id))
-
-
-# Regex Checker
-def check_valid_characters(string, regex_pattern):
-    """
-    Validates Names(Username, Firstname, and Lastname).
-
-    Args:
-      name: Plain text name to be validated
-
-    Returns:
-      Boolean indicating result of operation.
-
-    Raises:
-      TypeError: If invalid parameter type is give, i.e not a string.
-    """
-    if isinstance(string, str) and isinstance(regex_pattern, str):
-        regex = re.compile(regex_pattern)
-        return regex.search(string) is not None
-    else:
-        raise TypeError("Only strings are supported")
-
-
-# Length Checker
-def check_length(string, min_len=0, max_len=1):
-    """
-    Checks Length of String if matches the minimum and maximum specified.
-
-    Args:
-      string: Plain text name to be validated
-      max_len: Max value int
-      min_len: Min value int
-
-    Returns:
-      Boolean indicating result of operation.
-
-    Raises:
-      TypeError: If invalid parameter type is give, i.e not a string.
-    """
-    if isinstance(string, str):
-        return min_len <= len(string) <= max_len
-    else:
-        raise TypeError("Only strings are supported")
 
 
 def check_username_exists(username):
@@ -417,7 +393,6 @@ def validate_callback(ctx, param, value):
 
         if valid_name:
             if valid_len:
-
                 return value
             else:
                 raise click.BadParameter(
@@ -570,7 +545,8 @@ def account_creation(user_details, role_name, permissions=[]):
       Boolean indicating result of operation.
 
     Raises:
-      Exception: Any exeption that occurs when commiting User, Role and Permissions.
+      Exception: Any exeption that occurs when commiting
+      User, Role and Permissions.
     """
     # Create User Role if none exists
     user_role = get_Role(role_name=role_name)
@@ -588,7 +564,11 @@ def account_creation(user_details, role_name, permissions=[]):
                 role_id=user_role.id,
                 permission_index=permission.value)
 
-    # Commit Roles and Permissions added
+    """
+    Commit Roles and Permissions added
+    Allows rolling back both Roles and Permission
+    if an error occurs while commiting either one
+    """
     try:
         db.session.commit()
     except Exception as e:
