@@ -3,10 +3,12 @@ from enum import Enum, auto
 
 from flask_login import UserMixin
 
+from .auth import *
+
 
 # Permissions Enums
 class PermissionsEnum(Enum):
-    CAN_ACCESS_ADMIN = auto()
+    CAN_VIEW_ADMIN = auto()
     CAN_UPDATE_ADMIN = auto()
     CAN_INSERT_ADMIN = auto()
     CAN_POST_DASHBOARD = auto()
@@ -55,7 +57,49 @@ class User(UserMixin, db.Model):
 
     user_role = db.Column(db.Integer, db.ForeignKey('role.id'))
 
-    active = db.Column(db.Boolean, default=False)
+    email_confirmed = db.Column(db.Boolean, nullable=False, default=False)
+    active = db.Column(db.Boolean, nullable=False, default=True)
+
+    def can_view_admin_dashboard(self):
+        permission = Permissions.query.filter_by(
+            role_id=self.user_role,
+            permission=PermissionsEnum.CAN_VIEW_ADMIN.value).first()
+        if permission:
+            return True
+        return False
+
+    def can_update_admin_dashboard(self):
+        permission = Permissions.query.filter_by(
+            role_id=self.user_role,
+            permission=PermissionsEnum.CAN_UPDATE_ADMIN.value).first()
+        return True
+        if permission:
+            return True
+        return False
+
+    def can_insert_admin_dashboard(self):
+        permission = Permissions.query.filter_by(
+            role_id=self.user_role,
+            permission=PermissionsEnum.CAN_INSERT_ADMIN.value).first()
+        if permission:
+            return True
+        return False
+
+    def can_view_main_dashboard(self):
+        permission = Permissions.query.filter_by(
+            role_id=self.user_role,
+            permission=PermissionsEnum.CAN_VIEW_DASHBOARD.value).first()
+        if permission:
+            return True
+        return False
+
+    def can_post_main_dashboard(self):
+        permission = Permissions.query.filter_by(
+            role_id=self.user_role,
+            permission=PermissionsEnum.CAN_POST_DASHBOARD.value).first()
+        if permission:
+            return True
+        return False
 
     def check_hash(self, password):
         """
@@ -103,15 +147,15 @@ class User(UserMixin, db.Model):
             salt)
         return hashed_pwd
 
-    def activate_user(self):
+    def confirm_email(self):
         """
-        Activate User.
+        Confirm User Email.
 
         Returns:
           Boolean indicating result of operation.
         """
         try:
-            self.active = True
+            self.email_confirmed = True
 
             # Adds User object containing the user details
             db.session.add(self)
@@ -121,7 +165,7 @@ class User(UserMixin, db.Model):
             return True
         except Exception as e:
             db.session.rollback()
-            print("Exception occured when activating user: {}".format(e))
+            print("Exception occured when confirming user email: {}".format(e))
             return False
 
     def change_username(self, new_username):

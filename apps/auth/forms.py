@@ -75,7 +75,21 @@ class RegistrationForm(FlaskForm):
                 max=MAX_PASSWORD,
                 message=INVALID_FIELD_LENGTH(MIN_PASSWORD, MAX_PASSWORD))
         ])
-    password_confirmation = PasswordField('Confirm Password')
+    password_confirmation = PasswordField(
+        'Confirm Password',
+        validators=[
+            InputRequired(),
+            Regexp(
+                PASSWORD_REGEX,
+                message=PASSWORD_REQUIREMENTS.replace(
+                    "\n", "").replace(">", "")),
+            EqualTo('password_confirmation', 'Passwords must match'),
+            Length(
+                min=MIN_PASSWORD,
+                max=MAX_PASSWORD,
+                message=INVALID_FIELD_LENGTH(MIN_PASSWORD, MAX_PASSWORD))
+        ])
+
     submit = SubmitField('Register')
 
 

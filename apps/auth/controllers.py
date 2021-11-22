@@ -1,6 +1,9 @@
 import os
 import re
 import click
+
+from .auth import *
+
 from .. import db
 from . import models
 from . import auth_bp
@@ -45,29 +48,10 @@ NAME_REQUIREMENTS = "Field must contain letters, numbers and underscores only."
 INVALID_FIELD_LENGTH = lambda field_min, field_max: 'Field must be between {} and {} characters.'.format(
                         field_min, field_max)
 USERNAME_ALREADY_EXISTS = lambda username: "Username {} already exists.".format(username)
-USER_ALREADY_ACTIVE = "User has already confirmed their email"
+EMAIL_ALREADY_CONFIRMED = "User has already confirmed their email"
 EMAIL_ALREADY_USED = lambda email: "Email {} has been used by another account.".format(email)
 INVALID_USER = "User provided is invalid."
 SERVER_ERROR = "An error occured on the server."
-
-# Default Role Names
-DEFAULT_ADMIN_ROLE = "ADMIN"
-DEFAULT_GENERAL_USER_ROLE = "GENERAL"
-
-# List of permissions General Users should have
-GENERAL_USER_PERMISSIONS = [
-    models.PermissionsEnum.CAN_POST_DASHBOARD,
-    models.PermissionsEnum.CAN_VIEW_DASHBOARD
-]
-
-# List of permissions Admin should have
-ADMIN_PERMISSION_LIST = [
-    models.PermissionsEnum.CAN_ACCESS_ADMIN,
-    models.PermissionsEnum.CAN_UPDATE_ADMIN,
-    models.PermissionsEnum.CAN_INSERT_ADMIN,
-    models.PermissionsEnum.CAN_POST_DASHBOARD,
-    models.PermissionsEnum.CAN_VIEW_DASHBOARD
-]
 
 # Token
 EMAIL_CONFIRMATION_TOKEN = "email-confirm-key"
@@ -231,7 +215,7 @@ def validate_token(received_token, token_type, token_max_age):
         return None, SERVER_ERROR
 
 
-def activate_user(user):
+def confirm_email(user):
     """
     Activates user if not already activated.
 
@@ -241,14 +225,14 @@ def activate_user(user):
     Returns:
       Boolean indicating if user was activated.
     """
-    if not user.active:
-        status = user.activate_user()
+    if not user.email_confirmed:
+        status = user.confirm_email()
         if status:
             return status, ""
         else:
             return False, SERVER_ERROR
     else:
-        return False, USER_ALREADY_ACTIVE
+        return False, EMAIL_ALREADY_CONFIRMED
 
 
 @validate_names
