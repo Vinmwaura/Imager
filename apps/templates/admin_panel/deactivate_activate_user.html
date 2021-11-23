@@ -1,0 +1,46 @@
+{% extends "admin_panel/admin_base.html" %}
+
+{% block content %}
+<div class="content">
+	{% if user.active %}
+	<h1>Deactivate User</h1>
+    {% else %}
+    <h1>Activate User</h1>
+    {% endif %}
+
+	<section>
+		<div>
+			<h1>The action will be performed on this user, Are you sure?</h1>
+			<table>
+			  	<tr>
+			    	<th>Username</th>
+			    	<th>FirstName</th>
+			    	<th>LastName</th>
+			    	<th>Email</th>
+			    	<th>Role</th>
+			    	<th>Active</th>
+			    	<th>Email Confirmed</th>
+			  	</tr>
+
+			  	<tr>
+				    <td>{{user.username}}</td>
+				    <td>{{user.first_name}}</td>
+				    <td>{{user.last_name}}</td>
+				    <td>{{user.email}}</td>
+				    <td>{{user.role.name}}</td>
+				    <td>{{user.active}}</td>
+				    <td>{{user.email_confirmed}}</td>
+				 </tr>
+			</table>
+		</div>
+		<div>
+			{% if user.active %}
+		    <a href="{{url_for('admin_panel.deactivate_user', user_id=user.id)}}">Ok</a>
+		    {% else %}
+		    <a href="{{url_for('admin_panel.activate_user', user_id=user.id)}}">Ok</a>
+		    {% endif %}
+		    <a href="{{url_for('admin_panel.view_users')}}">Cancel</a>
+		</div>
+	</section>
+</div>
+{% endblock %}

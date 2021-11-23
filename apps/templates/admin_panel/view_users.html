@@ -1,0 +1,49 @@
+{% extends "admin_panel/admin_base.html" %}
+
+{% block content %}
+<div class="content">
+	<h1>User(s)</h1>
+	{% with messages = get_flashed_messages() %}
+	{% if messages %}
+	    <div class="notification is-danger">
+	        {{ messages[0] }}
+	    </div>
+	{% endif %}
+	{% endwith %}
+	<a href="{{url_for('admin_panel.index')}}">Go back</a>
+	<section>
+		<div>
+			<table>
+			  	<tr>
+			    	<th>Username</th>
+			    	<th>FirstName</th>
+			    	<th>LastName</th>
+			    	<th>Email</th>
+			    	<th>Role</th>
+			    	<th>Active</th>
+			    	<th>Email Confirmed</th>
+			    	<th colspan="1">Actions</th>
+			  	</tr>
+
+			  	{% for user in users %}
+			  	<tr>
+				    <td>{{user.username}}</td>
+				    <td>{{user.first_name}}</td>
+				    <td>{{user.last_name}}</td>
+				    <td>{{user.email}}</td>
+				    <td>{{user.role.name}}</td>
+				    <td>{{user.active}}</td>
+				    <td>{{user.email_confirmed}}</td>
+				    {% if user.active %}
+				    <td><a href="{{url_for('admin_panel.edit_user', user_id=user.id)}}">Deactivate</a></td>
+				    {% else %}
+				    <td><a href="{{url_for('admin_panel.edit_user', user_id=user.id)}}">Activate</a></td>
+				    {% endif %}
+					
+				 </tr>
+			  	{% endfor %}
+			</table>
+		</div>
+	</section>
+</div>
+{% endblock %}

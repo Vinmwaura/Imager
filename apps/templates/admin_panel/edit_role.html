@@ -1,0 +1,46 @@
+{% extends "admin_panel/admin_base.html" %}
+
+{% block content %}
+	{% with messages = get_flashed_messages() %}
+	{% if messages %}
+	    <div class="notification is-danger">
+	        {{ messages[0] }}
+	    </div>
+	{% endif %}
+	{% endwith %}
+
+	<h1>Edit Role and Permission(s)</h1>
+	<a href="{{url_for('admin_panel.index')}}">Go back</a>
+	<form method="POST" action="{{ url_for('admin_panel.edit_role', role_id=role_id) }}" novalidate>
+	    {{ form.csrf_token }}
+
+	    <input type="hidden" name="role_id" value='{{role_id}}'>
+	    
+	    {{ form.role_name.label }} {{ form.role_name(size=20) }}<br/>
+	    {% if form.role_name.errors %}
+	    <ul class="errors">
+	    {% for error in form.role_name.errors %}
+	        <li>{{ error }}</li>
+	    {% endfor %}
+	    </ul>
+		{% endif %}
+
+		<fieldset>
+		    <legend>Permissions</legend>
+		    <ul style="list-style-type:none;">
+		    	{% for permission in permissions %}
+		    	<li>
+		    		{% if permission.value in active_permissions %}
+			    	<input type="checkbox" id="{{permission.name}}" name="{{permission.name}}" value="{{permission.value}}" checked>
+		    		{% else %}
+		    		<input type="checkbox" id="{{permission.name}}" name="{{permission.name}}" value="{{permission.value}}">
+		    		{% endif %}
+		    		<label for="{{permission.name}}">{{permission.name}}</label>
+		    	</li>
+		    	{% endfor %}
+		    </ul>
+		</fieldset>
+
+	    <input type="submit" value="Submit"><br/>
+	</form>
+{% endblock %}
