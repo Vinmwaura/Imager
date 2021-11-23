@@ -36,8 +36,7 @@ class Role(db.Model):
 
     permissions = db.relationship(
         "Permissions",
-        backref="role",
-        lazy='dynamic')
+        lazy='joined')
 
     def __repr__(self):
         return "<Role %s>" % self.name
@@ -59,6 +58,10 @@ class User(UserMixin, db.Model):
 
     email_confirmed = db.Column(db.Boolean, nullable=False, default=False)
     active = db.Column(db.Boolean, nullable=False, default=True)
+
+    role = db.relationship(
+        "Role",
+        lazy='joined')
 
     def can_view_admin_dashboard(self):
         permission = Permissions.query.filter_by(
@@ -166,6 +169,46 @@ class User(UserMixin, db.Model):
         except Exception as e:
             db.session.rollback()
             print("Exception occured when confirming user email: {}".format(e))
+            return False
+
+    def activate_user(self):
+        """
+        Activates user account.
+
+        Returns:
+            Boolean indicating result of operation.
+        """
+        try:
+            self.active = True
+
+            # Adds User object containing the user details
+            db.session.add(self)
+
+            # Commit session
+            db.session.commit()
+            return True
+        except Exception as e:
+            print("An error occured while deactivating user", e)
+            return False
+
+    def deactivate_user(self):
+        """
+        Deactivates user account.
+
+        Returns:
+            Boolean indicating result of operation.
+        """
+        try:
+            self.active = False
+
+            # Adds User object containing the user details
+            db.session.add(self)
+
+            # Commit session
+            db.session.commit()
+            return True
+        except Exception as e:
+            print("An error occured while deactivating user", e)
             return False
 
     def change_username(self, new_username):
