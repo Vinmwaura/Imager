@@ -4,43 +4,41 @@
 <div class="content">
 	<h1>Role(s)</h1>
 	<a href="{{url_for('admin_panel.index')}}">Go back</a>
-	<section>
-		<div>
-			<a href="{{url_for('admin_panel.add_role')}}">Add</a>
-		</div>
-		<div>
-			<table>
-			  	<tr>
-			  		<th>
-			  			<input type="checkbox" id="role-select-all" name="role-select-all" value="-1" disabled>
-			  		</th>
-			    	<th>Name</th>
-			    	{% for permission_name in permissions %}
-			    	<th>{{permission_name.name}}</th>
-			    	{% endfor %}
-			    	<th colspan="2">Action</th>
-			  	</tr>
+	{% if current_user.can_insert_admin_dashboard() %}
+	<a href="{{url_for('admin_panel.add_role')}}">Add</a>
+	{% endif %}
+	
+	<div>
+		<table>
+		  	<tr>
+		  		<th>Name</th>
+		    	{% for permission_name in permissions %}
+		    	<th>{{permission_name.name}}</th>
+		    	{% endfor %}
+		    	{% if current_user.can_update_admin_dashboard() %}
+		    	<th colspan="2">Action</th>
+		    	{% endif %}
+		  	</tr>
 
-			  	{% for role in roles %}
-			  	<tr>
-			  		<td><input type="checkbox" id="role-select-{{role.id}}" name="role-select-{{role.id}}" value="{{role.id}}"></td>
-				    <td>{{role.name}}</td>
-				    {% for permission in permissions %}
-			    	<td>
-			    		{% if permission.value in role.permission_list%}
-			    		<input type="checkbox" id="{{role.name}}-{{permission.value}}" name="{{role.name}}-{{permission.value}}" value="{{permission.value}}" checked disabled>
-			    		{% else %}
-			    		<input type="checkbox" id="{{role.name}}-{{permission.value}}" name="{{role.name}}-{{permission.value}}" value="{{permission.value}}" disabled>
-			    		{% endif %}
-			    	</td>
-			    	{% endfor %}
+		  	{% for role in roles %}
+		  	<tr>
+		  		<td>{{role.name}}</td>
+			    {% for permission in permissions %}
+		    	<td>
+		    		{% if permission.value in role.permission_list%}
+		    		<input type="checkbox" id="{{role.name}}-{{permission.value}}" name="{{role.name}}-{{permission.value}}" value="{{permission.value}}" checked disabled>
+		    		{% else %}
+		    		<input type="checkbox" id="{{role.name}}-{{permission.value}}" name="{{role.name}}-{{permission.value}}" value="{{permission.value}}" disabled>
+		    		{% endif %}
+		    	</td>
+		    	{% endfor %}
+		    	{% if current_user.can_update_admin_dashboard() %}
 			    	<td><a href="{{url_for('admin_panel.edit_role', role_id=role.id)}}">Edit</a></td>
-			    	<td><a href="#">Delete</a></td>
-				 </tr>
-			  	{% endfor %}
-
-			</table>
-		</div>
-	</section>
+			    	<td><a href="{{url_for('admin_panel.delete_role', role_id=role.id)}}">Delete</a></td>
+		    	{% endif %}
+			 </tr>
+		  	{% endfor %}
+		</table>
+	</div>
 </div>
 {% endblock %}

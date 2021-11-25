@@ -1,9 +1,14 @@
 from flask_wtf import FlaskForm
+from wtforms.fields import (
+    SubmitField,
+    StringField,
+    SelectField,
+    EmailField)
 from wtforms.validators import (
     Regexp,
     InputRequired,
     Length)
-from wtforms.fields import SubmitField, StringField
+
 from .. import auth
 
 
@@ -21,6 +26,15 @@ class RoleForm(FlaskForm):
                 message=auth.controllers.INVALID_FIELD_LENGTH(
                     auth.controllers.MIN_NAMES,
                     auth.controllers.MAX_NAMES)
-            )]
-    )
+            )])
+    submit = SubmitField('Submit')
+
+
+class UserForm(FlaskForm):
+    username = StringField('Username')
+
+    first_name = StringField('First Name')
+    last_name = StringField('Last Name')
+    email = EmailField('Email')
+    role = SelectField('Role')
     submit = SubmitField('Submit')

@@ -1,16 +1,8 @@
 {% extends "admin_panel/admin_base.html" %}
 
 {% block content %}
-	{% with messages = get_flashed_messages() %}
-	{% if messages %}
-	    <div class="notification is-danger">
-	        {{ messages[0] }}
-	    </div>
-	{% endif %}
-	{% endwith %}
-
 	<h1>Edit Role and Permission(s)</h1>
-	<a href="{{url_for('admin_panel.index')}}">Go back</a>
+	<a href="{{url_for('admin_panel.view_roles')}}">Go back</a>
 	<form method="POST" action="{{ url_for('admin_panel.edit_role', role_id=role_id) }}" novalidate>
 	    {{ form.csrf_token }}
 

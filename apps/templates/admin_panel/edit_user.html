@@ -1,0 +1,20 @@
+{% extends "admin_panel/admin_base.html" %}
+
+{% block content %}
+	<h1>Edit User</h1>
+	<a href="{{url_for('admin_panel.view_users')}}">Go back</a>
+
+	<form method="POST" action="{{ url_for('admin_panel.edit_user_role', user_id=user.id) }}" novalidate>
+	    {{ form.csrf_token }}
+
+	    <input type="hidden" name="role_id" value='{{user_id}}'>
+	    
+	    {{ form.username.label }} {{ form.username(disabled="disabled") }}<br/>
+	    {{ form.first_name.label }} {{ form.first_name(disabled="disabled") }}<br/>
+	    {{ form.last_name.label }} {{ form.last_name(disabled="disabled") }}<br/>
+	    {{ form.email.label }} {{ form.email(disabled="disabled") }}<br/>
+	    {{ form.role.label }} {{ form.role() }}<br/>
+
+	    <input type="submit" value="Submit"><br/>
+	</form>
+{% endblock %}

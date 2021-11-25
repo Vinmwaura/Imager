@@ -1,0 +1,34 @@
+{% extends "admin_panel/admin_base.html" %}
+
+{% block content %}
+	<h1>Delete Role and Permission(s)</h1>
+
+	<h2>The action will be performed on this user, Are you sure?</h2>
+
+	<form method="POST" action="{{ url_for('admin_panel.delete_role', role_id=role_id) }}" novalidate>
+	    {{ form.csrf_token }}
+
+	    <input type="hidden" name="role_id" value='{{role_id}}'>
+
+	    {{ form.role_name.label }} {{ form.role_name(size=20, readonly="readonly") }}<br/>
+
+		<fieldset>
+		    <legend>Permissions</legend>
+		    <ul style="list-style-type:none;">
+		    	{% for permission in permissions %}
+		    	<li>
+		    		{% if permission.value in active_permissions %}
+			    	<input type="checkbox" id="{{permission.name}}" name="{{permission.name}}" value="{{permission.value}}" checked disabled>
+		    		{% else %}
+		    		<input type="checkbox" id="{{permission.name}}" name="{{permission.name}}" value="{{permission.value}}" disabled>
+		    		{% endif %}
+		    		<label for="{{permission.name}}">{{permission.name}}</label>
+		    	</li>
+		    	{% endfor %}
+		    </ul>
+		</fieldset>
+
+	    <input type="submit" value="Delete"><br/>
+	    <a href="{{url_for('admin_panel.view_roles')}}">Cancel</a>
+	</form>
+{% endblock %}
