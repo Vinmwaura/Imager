@@ -2,6 +2,8 @@ import os
 import re
 import click
 
+from functools import wraps
+
 from .auth import *
 
 from .. import db
@@ -108,6 +110,7 @@ def check_length(string, min_len=0, max_len=1):
 
 # Decorator function for functions validating names
 def validate_names(func):
+    @wraps(func)
     def inner(user, name):
         # Checks if valid name
         valid_name = check_valid_characters(
@@ -136,6 +139,7 @@ def validate_names(func):
 
 # Decorator function for functions validating passwords
 def validate_password(func):
+    @wraps(func)
     def inner(user, password):
         valid_pwd = check_valid_characters(
             password,
