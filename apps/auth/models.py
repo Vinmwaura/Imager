@@ -96,7 +96,7 @@ class User(UserMixin, db.Model):
         permission = Permissions.query.filter_by(
             role_id=self.user_role,
             permission=PermissionsEnum.CAN_UPDATE_ADMIN.value).first()
-        return True
+
         if permission:
             return True
         return False
