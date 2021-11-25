@@ -63,7 +63,22 @@ class User(UserMixin, db.Model):
         "Role",
         lazy='joined')
 
+    def is_active(self):
+        """
+        Gets active field value.
+
+        Returns:
+          Boolean indicating whether user is active.
+        """
+        return self.active
+
     def can_view_admin_dashboard(self):
+        """
+        Checks whether user has role with permission to view admin dashboard.
+
+        Returns:
+          Boolean value.
+        """
         permission = Permissions.query.filter_by(
             role_id=self.user_role,
             permission=PermissionsEnum.CAN_VIEW_ADMIN.value).first()
@@ -72,6 +87,12 @@ class User(UserMixin, db.Model):
         return False
 
     def can_update_admin_dashboard(self):
+        """
+        Checks whether user has role with permission to update admin dashboard.
+
+        Returns:
+          Boolean value.
+        """
         permission = Permissions.query.filter_by(
             role_id=self.user_role,
             permission=PermissionsEnum.CAN_UPDATE_ADMIN.value).first()
@@ -81,6 +102,13 @@ class User(UserMixin, db.Model):
         return False
 
     def can_insert_admin_dashboard(self):
+        """
+        Checks whether user has role with permission to insert
+        records in admin dashboard.
+
+        Returns:
+          Boolean value.
+        """
         permission = Permissions.query.filter_by(
             role_id=self.user_role,
             permission=PermissionsEnum.CAN_INSERT_ADMIN.value).first()
@@ -89,6 +117,12 @@ class User(UserMixin, db.Model):
         return False
 
     def can_view_main_dashboard(self):
+        """
+        Checks whether user has role with permission to view main dashboard.
+
+        Returns:
+          Boolean value.
+        """
         permission = Permissions.query.filter_by(
             role_id=self.user_role,
             permission=PermissionsEnum.CAN_VIEW_DASHBOARD.value).first()
@@ -97,6 +131,12 @@ class User(UserMixin, db.Model):
         return False
 
     def can_post_main_dashboard(self):
+        """
+        Checks whether user has role with permission to post to main dashboard.
+
+        Returns:
+          Boolean value.
+        """
         permission = Permissions.query.filter_by(
             role_id=self.user_role,
             permission=PermissionsEnum.CAN_POST_DASHBOARD.value).first()
