@@ -56,6 +56,9 @@ def create_app(config=None):
     from .admin_panel import admin_panel_bp
     app.register_blueprint(admin_panel_bp)
 
+    from .imager import imager_bp
+    app.register_blueprint(imager_bp)
+
     # Flask extensions
     db.init_app(app)
     migrate.init_app(app, db)
