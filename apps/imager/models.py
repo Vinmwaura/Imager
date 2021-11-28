@@ -15,7 +15,7 @@ class UserContent(db.Model):
         nullable=False)
     profile_pic = db.relationship(
         "ProfileImages",
-        back_populates="user_content",
+        backref="user_content",
         uselist=False)  # One-to-one relationship
 
     def __repr__(self):
@@ -32,25 +32,12 @@ class ImageContent(db.Model):
     file_location = db.Column(
         db.String(100),
         nullable=False)
-    image_name = db.Column(db.String(20), nullable=False)
-    image_desc = db.Column(db.String(100))
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
     upload_time = db.Column(
         db.DateTime(timezone=True),
         server_default=func.now())
-    tags = db.relationship(
-        "ImageTags",
-        back_populates="image_content",
-        uselist=False)  # One-to-one relationship
 
-    def __repr__(self):
-        return "<ImageContent %s>" % self.id
-
-
-class ImageTags(db.Model):
-    __tablename__ = "image_tags"
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    image_id = db.Column(db.Integer, db.ForeignKey("image_content.id"))
     tag_1 = db.Column(db.String(20), nullable=True)
     tag_2 = db.Column(db.String(20), nullable=True)
     tag_3 = db.Column(db.String(20), nullable=True)
@@ -59,6 +46,9 @@ class ImageTags(db.Model):
     tag_6 = db.Column(db.String(20), nullable=True)
     tag_7 = db.Column(db.String(20), nullable=True)
     tag_8 = db.Column(db.String(20), nullable=True)
+
+    def __repr__(self):
+        return "<ImageContent %s>" % self.id
 
 
 class ProfileImages(db.Model):
@@ -71,3 +61,6 @@ class ProfileImages(db.Model):
     file_location = db.Column(
         db.String(100),
         nullable=False)
+
+    def __repr__(self):
+        return "<ProfileImages %s>" % self.id
