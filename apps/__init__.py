@@ -8,6 +8,13 @@ from flask_login import LoginManager
 
 from flask_mail import Mail
 
+
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+STATICFILES_DIRS = (os.path.join(
+    BASE_DIR, "apps/static"),)
+MEDIA_ROOT = os.path.join(
+    os.path.dirname(BASE_DIR), "apps/media")
+
 # Handles Database operations
 db = SQLAlchemy()
 
@@ -48,6 +55,13 @@ def create_app(config=None):
         app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
         app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
         app.config["MAIL_DEBUG"] = os.getenv("MAIL_DEBUG")
+
+        app.config["MAX_CONTENT_LENGTH"] = os.getenv("MAX_CONTENT_LENGTH") or \
+            1024 * 1024  # Max: 1MB in size
+        app.config["UPLOAD_EXTENSIONS"] = os.getenv("UPLOAD_EXTENSIONS") or \
+            [".jpg", ".png", ".jpeg"]
+        app.config["UPLOAD_PATH"] = os.getenv("UPLOAD_PATH") or \
+            "apps/media/user_uploads"
 
     # Apps Blueprint Registration
     from .auth import auth_bp

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+	{% with messages = get_flashed_messages() %}
+	{% if messages %}
+	    <div class="notification is-danger">
+	        {{ messages[0] }}
+	    </div>
+	{% endif %}
+	{% endwith %}
+
+	<form method="POST" action="{{ url_for('imager.upload_images') }}" enctype="multipart/form-data">
+	    {{ form.csrf_token }}
+
+	    {{ form.name.label }} {{ form.name() }}<br/>
+	    {% if form.name.errors %}
+	    <ul class="errors">
+	    {% for error in form.name.errors %}
+	        <li>{{ error }}</li>
+	    {% endfor %}
+	    </ul>
+			{% endif %}
+
+	    {{ form.file() }}<br/>
+	    {% if form.file.errors %}
+	    <ul class="errors">
+	    {% for error in form.file.errors %}
+	        <li>{{ error }}</li>
+	    {% endfor %}
+	    </ul>
+			{% endif %}
+
+	    {{ form.submit() }}
+	</form>
+	{#
+	<hr>
+  {% for file in files %}
+    <img src="{{ url_for('imager.load_images', filename=file) }}" style="width: 64px">
+  {% endfor %}
+  #}
+{% endblock %}
