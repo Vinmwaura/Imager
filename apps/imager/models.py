@@ -49,6 +49,10 @@ class ImageContent(db.Model):
     tag_7 = db.Column(db.String(20), nullable=True)
     tag_8 = db.Column(db.String(20), nullable=True)
 
+    user_content = db.relationship(
+        "UserContent",
+        backref="image_content")
+
     def __repr__(self):
         return "<ImageContent %s>" % self.id
 

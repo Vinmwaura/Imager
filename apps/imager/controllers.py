@@ -117,3 +117,21 @@ def save_user_image(user, file, image_details):
             print("An exception occured while removing file: ", e)
 
         return False
+
+
+def load_images_by_time():
+    pass
+
+
+def load_images_by_user():
+    pass
+
+
+def load_images_by_tags(tags):
+    pass
+
+
+def load_image_by_id(image_id):
+    image_content = models.ImageContent().query.filter_by(
+        file_id=image_id).first()
+    return image_content

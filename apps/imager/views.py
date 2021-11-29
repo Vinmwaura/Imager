@@ -1,4 +1,6 @@
 import os
+import glob
+
 from functools import wraps
 
 from flask import (
@@ -63,7 +65,7 @@ def upload_images():
             if file_ext not in current_app.config['UPLOAD_EXTENSIONS'] or \
                     file_ext != validate_image(uploaded_file.stream):
                 flash("Invalid file type!")
-                abort(400)
+                # abort(400)
 
             # Check if user has a folder for storing their content.
             # Create a folder for user if first time posting content.
@@ -89,3 +91,39 @@ def upload_images():
     return render_template(
         "imager/upload.html",
         form=upload_file_form)
+
+
+@imager_bp.route("/<string:image_id>")
+def load_image(image_id):
+    image_content = load_image_by_id(image_id)
+    if image_content:
+        # Folder path where user uploads will be.
+        folder_path = os.path.join(
+            current_app.config["UPLOAD_PATH"],
+            image_content.user_content.content_location
+        )
+
+        # File regex for file name by ID.
+        file_regex = os.path.join(
+            folder_path,
+            image_content.file_id + ".*")
+
+        # Uses file_regex to get the proper filename with extension,
+        # Assumes file extension is not stored on db so need to get
+        # actual file with proper extension.
+        image_file = [
+            os.path.basename(fname) for fname in glob.glob(file_regex)]
+
+        # Checks if actual file exists.
+        if len(image_file) == 0:
+            abort(404)
+        # Check if duplicate files with same ID exists.
+        elif len(image_file) > 1:
+            # Log errors here, duplicates IDS not allowed.
+            print("Duplicate file {} found".format(file_regex))
+            abort(404)
+        else:
+            return send_from_directory(folder_path, image_file[0])
+
+        return "Hello World"
+    abort(404)

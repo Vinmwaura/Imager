@@ -13,7 +13,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 STATICFILES_DIRS = (os.path.join(
     BASE_DIR, "apps/static"),)
 MEDIA_ROOT = os.path.join(
-    os.path.dirname(BASE_DIR), "apps/media")
+    BASE_DIR, "apps/media")
 
 # Handles Database operations
 db = SQLAlchemy()
@@ -61,7 +61,9 @@ def create_app(config=None):
         app.config["UPLOAD_EXTENSIONS"] = os.getenv("UPLOAD_EXTENSIONS") or \
             [".jpg", ".png", ".jpeg"]
         app.config["UPLOAD_PATH"] = os.getenv("UPLOAD_PATH") or \
-            "apps/media/user_uploads"
+            os.path.join(
+                MEDIA_ROOT,
+                "user_uploads")
 
     # Apps Blueprint Registration
     from .auth import auth_bp
