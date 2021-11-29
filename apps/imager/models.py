@@ -29,14 +29,16 @@ class ImageContent(db.Model):
     user_content_id = db.Column(
         db.Integer,
         db.ForeignKey('user_content.id'))
-    file_location = db.Column(
-        db.String(100),
+    file_id = db.Column(
+        db.String(50),
         nullable=False)
+    file_location = db.Column(
+        db.String(100))
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
     upload_time = db.Column(
         db.DateTime(timezone=True),
-        server_default=func.now())
+        server_default=func.utcnow())
 
     tag_1 = db.Column(db.String(20), nullable=True)
     tag_2 = db.Column(db.String(20), nullable=True)
@@ -58,7 +60,7 @@ class ProfileImages(db.Model):
     user_content_id = db.Column(
         db.Integer,
         db.ForeignKey('user_content.id'))
-    file_location = db.Column(
+    file_id = db.Column(
         db.String(100),
         nullable=False)
 
