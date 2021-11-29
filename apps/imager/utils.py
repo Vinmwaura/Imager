@@ -12,9 +12,10 @@ def validate_image(stream):
     return '.' + (format if format != 'jpeg' else 'jpg')
 
 
-def create_content_directory(file_path):
-    # Generates a random unique id for each user's directory
-    directory_name = uuid.uuid4().hex
+def create_content_directory(file_path, directory_name=None):
+    if not directory_name or not isinstance(directory_name, str):
+        # Generates a random unique id for each user's directory
+        directory_name = uuid.uuid4().hex
     try:
         os.makedirs(
             os.path.join(
@@ -30,9 +31,6 @@ def create_content_directory(file_path):
             str(directory_name))), directory_name
 
 
-def generate_filename(user_id, file_ext, name_len=8):
-    file_name = "%s_%s.%s" % (
-        user_id,
-        os.urandom(8).hex(),
-        file_ext)
+def generate_filename(name_len=8):
+    file_name = "%s" % os.urandom(8).hex()
     return file_name

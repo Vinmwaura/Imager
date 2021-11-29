@@ -1,8 +1,6 @@
 import os
-import uuid
 
 from flask import current_app
-from flask_login import current_user
 
 from .. import db
 from . import models  # Imager Models
@@ -55,24 +53,46 @@ def save_user_image(user, file, image_details):
     if not user_content:
         return False
 
+    file_path = current_app.config["UPLOAD_PATH"]
+
+    # Check if folder based on db record exists, and if not creates it
+    is_dir = os.path.isdir(
+        os.path.join(
+            file_path,
+            user_content.content_location))
+    if not is_dir:
+        directory_created, _ = create_content_directory(
+            file_path,
+            user_content.content_location)
+        if directory_created:
+            """
+            # Deletes old non-existant Imagecontent from db
+            image_contents = models.ImageContent().query.filter_by(
+                user_content_id=user_content.id)
+            image_contents.delete()
+            """
+            pass
+
+    # Adds User content id to Image Content.
     image_details["user_content_id"] = user_content.id
 
-    file_ext = os.path.splitext(file.filename)[1]
-    filename = generate_filename(
-        user.id,
-        file_ext)
-    image_details["file_location"] = filename
+    # Generates unique filename for uploaded image.
+    filename = generate_filename()
+    image_details["file_id"] = filename
 
+    # Creates Image Content for storing in database
     image_content = models.ImageContent(**image_details)
 
     db.session.add(image_content)
     try:
+        file_ext = os.path.splitext(file.filename)[1]
+
         # Saves file using user location and new filename
         file.save(
             os.path.join(*[
-                current_app.config["UPLOAD_PATH"],
+                file_path,
                 user_content.content_location,
-                filename
+                filename + file_ext
             ])
         )
 
@@ -81,7 +101,7 @@ def save_user_image(user, file, image_details):
 
         return True
     except Exception as e:
-        print("An error occured while commiting ImageContent: ", e)
+        print("An error occured while saving user image: ", e)
 
         db.session.rollback()
 
