@@ -122,9 +122,7 @@ def login():
                     # Logs user in
                     login_user(user_authenticated)
 
-                    # TODO: Redirect to homepage here
-                    # flash("Welcome {}".format(current_user.username))
-                    return "User {} logged in.".format(current_user.username)
+                    return redirect(url_for("imager.index"))
                 else:
                     flash("Kindly confirm your email first to login")
             else:
@@ -144,8 +142,7 @@ def logout():
     # Logs user out
     logout_user()
 
-    # TODO: Redirect to homepage here
-    return "Logged out, redirecting to homepage..."
+    return redirect(url_for("imager.index"))
 
 
 # Activate account
