@@ -372,7 +372,8 @@ def check_email_exists(email):
 
 # Click callback used in validating email, password and names
 def validate_callback(ctx, param, value):
-    if param.name == "username" or param.name == "first_name" or param.name == "last_name":
+    if param.name == "username" or param.name == "first_name" \
+            or param.name == "last_name":
         # Checks if valid name
         valid_name = check_valid_characters(value, NAMES_REGEX)
 
@@ -579,7 +580,7 @@ def account_creation(user_details, role_name, permissions=[]):
         return False
 
 
-def authenticate_user(username, password):
+def authenticate_user(username_email, password):
     """
     Authenticates User account given username, and password.
 
@@ -590,8 +591,17 @@ def authenticate_user(username, password):
     Returns:
       Boolean indicating result of operation.
     """
-    user_ = models.User().query.filter_by(
-        username=username).first()
+    try:
+        # Attempts to validate if email was used in login.
+        validate_email(username_email)
+
+        user_ = models.User().query.filter_by(
+            email=username_email).first()
+    except EmailNotValidError:
+        # Assumes username was used.
+        user_ = models.User().query.filter_by(
+            username=username_email).first()
+
     if user_:
         user_authenticated = user_.check_hash(password)
         if user_authenticated:

@@ -114,7 +114,7 @@ def login():
         login_form = LoginForm()
         if login_form.validate_on_submit():
             user_authenticated = authenticate_user(
-                request.form["username"],
+                request.form["username_email"],
                 request.form["password"])
 
             if user_authenticated:
