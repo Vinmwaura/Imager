@@ -93,8 +93,45 @@ def upload_images():
         form=upload_file_form)
 
 
-@imager_bp.route("/<string:image_id>")
-def load_image(image_id):
+@imager_bp.route("/gallery/user/<string:username>")
+def load_by_username(username):
+    page = request.args.get('page', 1, type=int)
+    user, image_content = load_images_by_user(username)
+
+    # If no user is found, 404 Page not found
+    if user is None:
+        abort(404)
+
+    # TODO: Load thumbnails instead of full images
+    # If user has no uploaded images, return empty images
+    if image_content is None:
+        images = []
+    else:
+        images = image_pagination(image_content, page=page)
+    return render_template(
+        "imager/user_gallery.html",
+        user=user,
+        images=images)
+
+
+@imager_bp.route("/gallery")
+def load_by_time():
+    page = request.args.get('page', 1, type=int)
+
+    # TODO: Load thumbnails instead of full images
+    image_content = load_images_by_time()
+    if not image_content:
+        images = []
+    else:
+        images = image_pagination(image_content, page=page)
+
+    return render_template(
+        "imager/user_gallery.html",
+        images=images)
+
+
+@imager_bp.route("/gallery/<string:image_id>")
+def load_by_id(image_id):
     image_content = load_image_by_id(image_id)
     if image_content:
         # Folder path where user uploads will be.
@@ -125,5 +162,4 @@ def load_image(image_id):
         else:
             return send_from_directory(folder_path, image_file[0])
 
-        return "Hello World"
     abort(404)

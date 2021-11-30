@@ -4,8 +4,13 @@ from flask import current_app
 
 from .. import db
 from . import models  # Imager Models
+from .. import auth
 
 from .utils import *
+
+PER_PAGE = 20
+ERROR_OUT = True
+MAX_PER_PAGE = 100
 
 
 def get_user_content(user):
@@ -119,12 +124,34 @@ def save_user_image(user, file, image_details):
         return False
 
 
+def image_pagination(obj, page=1):
+    image_pagination = obj.paginate(
+        page=page,
+        per_page=PER_PAGE,
+        error_out=ERROR_OUT,
+        max_per_page=MAX_PER_PAGE)
+    return image_pagination.items
+
+
 def load_images_by_time():
-    pass
+    image_content = models.ImageContent.query.order_by(
+        models.ImageContent.upload_time.desc())
+    return image_content
 
 
-def load_images_by_user():
-    pass
+def load_images_by_user(username):
+    user = auth.models.User().query.filter_by(username=username).first()
+    if not user:
+        return None, None
+
+    user_content = models.UserContent().query.filter_by(
+        user_id=user.id).first()
+    if not user_content:
+        return user, None
+
+    image_content = models.ImageContent().query.filter_by(
+        user_content_id=user_content.id)
+    return user, image_content
 
 
 def load_images_by_tags(tags):

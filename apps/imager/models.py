@@ -17,6 +17,10 @@ class UserContent(db.Model):
         "ProfileImages",
         backref="user_content",
         uselist=False)  # One-to-one relationship
+    user = db.relationship(
+        "User",
+        backref="user_content",
+        uselist=False)
 
     def __repr__(self):
         return "<UserContent %s>" % self.id
