@@ -7,10 +7,13 @@ from . import models  # Imager Models
 from .. import auth
 
 from .utils import *
+from PIL import Image, ImageOps
+
 
 PER_PAGE = 20
 ERROR_OUT = True
 MAX_PER_PAGE = 100
+THUMBNAIL_SIZE = (240, 240)
 
 
 def get_user_content(user):
@@ -89,17 +92,36 @@ def save_user_image(user, file, image_details):
     image_content = models.ImageContent(**image_details)
 
     db.session.add(image_content)
-    try:
-        file_ext = os.path.splitext(file.filename)[1]
 
+    file_ext = os.path.splitext(file.filename)[1]
+
+    image_path = os.path.join(*[
+        file_path,
+        user_content.content_location,
+        filename + file_ext
+    ])
+
+    thumbnail_path = os.path.join(*[
+        file_path,
+        user_content.content_location,
+        'thumbnails',
+        filename + file_ext
+    ])
+    try:
         # Saves file using user location and new filename
-        file.save(
-            os.path.join(*[
-                file_path,
-                user_content.content_location,
-                filename + file_ext
-            ])
-        )
+        file.save(image_path)
+
+        # Create Thumbnails using saved images
+        original_image = Image.open(image_path)
+        thumbnail_image = ImageOps.fit(
+            image=original_image,
+            size=THUMBNAIL_SIZE,
+            method=3,
+            bleed=0.0,
+            centering=(0.5, 0.5))
+
+        # Save thumbnail to Thumbnail directory.
+        thumbnail_image.save(thumbnail_path)
 
         # Commits ImageContent with filename
         db.session.commit()
@@ -112,14 +134,10 @@ def save_user_image(user, file, image_details):
 
         # Removes file if an error occured and file was saved
         try:
-            os.remove(
-                os.path.join(*[
-                    current_app.config["UPLOAD_PATH"],
-                    user_content.content_location,
-                    filename
-                ]))
+            os.remove(image_path)
+            os.remove(thumbnail_path)
         except Exception as e:
-            print("An exception occured while removing file: ", e)
+            print("An exception occured while removing files: ", e)
 
         return False
 

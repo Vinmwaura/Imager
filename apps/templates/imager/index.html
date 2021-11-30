@@ -1,9 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if current_user %}
-<h1>Hello {{current_user.username}}</h1>
-{% else %}
-<h1>Please login/signup</h1>
+<h1>Homepage</h1>
+{% if not current_user.is_anonymous %}
+<h2>Hello {{current_user.username}}</h2>
 {% endif %}
+
+{% for image in images %}
+<a href="{{ url_for('imager.load_orig_by_id', image_id=image.file_id) }}">
+	<img src="{{ url_for('imager.load_thumbnail_by_id', image_id=image.file_id) }}">
+</a>
+{% endfor %}
 {% endblock %}

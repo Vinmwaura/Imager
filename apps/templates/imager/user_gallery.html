@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
+	<h1>Gallery</h1>
 	{% if user %}
 	<h1>{{user.username}}</h1>
 	{% endif %}
 	{% if images %}
 	{% for image in images %}
-	<a href="{{ url_for('imager.load_by_id', image_id=image.file_id) }}">
-		<img src="{{ url_for('imager.load_by_id', image_id=image.file_id) }}" style="width: 128px">
+	<a href="{{ url_for('imager.load_orig_by_id', image_id=image.file_id) }}">
+		<img src="{{ url_for('imager.load_thumbnail_by_id', image_id=image.file_id) }}">
 	</a>
 	{% endfor %}
 	{% else %}

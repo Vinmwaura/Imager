@@ -49,7 +49,17 @@ def validate_image(stream):
 
 @imager_bp.route("/")
 def index():
-    return render_template("imager/index.html")
+    page = request.args.get('page', 1, type=int)
+
+    image_content = load_images_by_time()
+    if not image_content:
+        images = []
+    else:
+        images = image_pagination(image_content, page=page)
+
+    return render_template(
+        "imager/index.html",
+        images=images)
 
 
 @imager_bp.route("/upload", methods=["GET", "POST"])
@@ -118,7 +128,6 @@ def load_by_username(username):
 def load_by_time():
     page = request.args.get('page', 1, type=int)
 
-    # TODO: Load thumbnails instead of full images
     image_content = load_images_by_time()
     if not image_content:
         images = []
@@ -131,7 +140,7 @@ def load_by_time():
 
 
 @imager_bp.route("/gallery/<string:image_id>")
-def load_by_id(image_id):
+def load_orig_by_id(image_id):
     image_content = load_image_by_id(image_id)
     if image_content:
         # Folder path where user uploads will be.
@@ -161,5 +170,44 @@ def load_by_id(image_id):
             abort(404)
         else:
             return send_from_directory(folder_path, image_file[0])
+
+    abort(404)
+
+
+@imager_bp.route("/gallery/thumbnail/<string:image_id>")
+def load_thumbnail_by_id(image_id):
+    image_content = load_image_by_id(image_id)
+    if image_content:
+        # Folder path where user uploads will be.
+        folder_path = os.path.join(
+            current_app.config["UPLOAD_PATH"],
+            image_content.user_content.content_location
+        )
+
+        # File regex for file name by ID.
+        file_regex = os.path.join(
+            folder_path,
+            image_content.file_id + ".*")
+
+        # Uses file_regex to get the proper filename with extension,
+        # Assumes file extension is not stored on db so need to get
+        # actual file with proper extension.
+        image_file = [
+            os.path.basename(fname) for fname in glob.glob(file_regex)]
+
+        # Checks if actual file exists.
+        if len(image_file) == 0:
+            abort(404)
+        # Check if duplicate files with same ID exists.
+        elif len(image_file) > 1:
+            # Log errors here, duplicates IDS not allowed.
+            print("Duplicate file {} found".format(file_regex))
+            abort(404)
+        else:
+            return send_from_directory(
+                os.path.join(
+                    folder_path,
+                    "thumbnails"),
+                image_file[0])
 
     abort(404)

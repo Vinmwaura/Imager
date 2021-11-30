@@ -14,21 +14,29 @@ def validate_image(stream):
 
 def create_content_directory(file_path, directory_name=None):
     if not directory_name or not isinstance(directory_name, str):
-        # Generates a random unique id for each user's directory
+        # Generates a random unique id for each user's directory.
         directory_name = uuid.uuid4().hex
+
+    # User upload directory
+    user_upload_directory = os.path.join(
+        file_path,
+        str(directory_name))
+
+    # Directory for storing each user's image thumbnails.
+    thumbnail_directory = os.path.join(
+        user_upload_directory,
+        'thumbnails')
     try:
-        os.makedirs(
-            os.path.join(
-                file_path,
-                str(directory_name))
-        )
+        # os.makedirs(user_upload_directory)
+        os.makedirs(thumbnail_directory)
     except Exception as e:
         print("An error occured while making user directory: ", e)
+        # Remove directory if any error occurs during creating directory.
+        if os.path.isdir(user_upload_directory):
+            os.removedirs(user_upload_directory)
 
-    return os.path.isdir(
-        os.path.join(
-            file_path,
-            str(directory_name))), directory_name
+    # If thumbnail directory exists, assume everything was ok.
+    return os.path.isdir(thumbnail_directory), directory_name
 
 
 def generate_filename(name_len=8):
