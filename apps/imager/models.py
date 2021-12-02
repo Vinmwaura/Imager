@@ -1,6 +1,32 @@
 from .. import db
 from sqlalchemy.sql import func
 
+from enum import Enum
+
+
+class VoteEnum(Enum):
+    DOWNVOTE = -1
+    UPVOTE = 1
+
+
+class VoteCounter(db.Model):
+    __tablename__ = "vote_counter"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('user.id'),
+        nullable=False)
+    image_file_id = db.Column(
+        db.String(50),
+        db.ForeignKey('image_content.file_id'))
+    vote = db.Column(
+        db.Integer,
+        nullable=False)
+
+    def __repr__(self):
+        return "<VoteCounter %s>" % self.id
+
 
 class UserContent(db.Model):
     __tablename__ = "user_content"
@@ -17,6 +43,7 @@ class UserContent(db.Model):
         "ProfileImages",
         backref="user_content",
         uselist=False)  # One-to-one relationship
+
     user = db.relationship(
         "User",
         backref="user_content",
@@ -35,6 +62,7 @@ class ImageContent(db.Model):
         db.ForeignKey('user_content.id'))
     file_id = db.Column(
         db.String(50),
+        unique=True,
         nullable=False)
     file_location = db.Column(
         db.String(100))

@@ -7,9 +7,9 @@
 	{% endif %}
 	{% if images %}
 	{% for image in images %}
-	<a href="{{ url_for('imager.load_orig_by_id', image_id=image.file_id) }}">
+	<a href="{{ url_for('imager.load_gallery_image', image_id=image.file_id) }}">
 		<img src="{{ url_for('imager.load_thumbnail_by_id', image_id=image.file_id) }}">
-	</a>
+	</a>	
 	{% endfor %}
 	{% else %}
 	<span>No images uploaded.</span>

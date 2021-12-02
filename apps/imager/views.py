@@ -1,7 +1,4 @@
 import os
-import glob
-
-from functools import wraps
 
 from flask import (
     render_template,
@@ -9,6 +6,7 @@ from flask import (
     redirect,
     url_for,
     flash,
+    jsonify,
     current_app,
     send_from_directory,
     abort)
@@ -22,40 +20,15 @@ from .forms import *
 from .controllers import *
 
 
-PERMISSION_DENIED = "You don't have permission to post to this page,"\
-    " Contact Administrator if you think you should."
-SERVER_ERROR = "An error occured in the server"
-
-
-# Assumes you can view admin dashboard to insert
-def can_post_main_dashboard(func):
-    @wraps(func)
-    def inner_func(*args, **kwargs):
-        if current_user.can_post_main_dashboard():
-            return func(*args, **kwargs)
-        else:
-            return PERMISSION_DENIED, 403
-    return inner_func
-
-
-def validate_image(stream):
-    header = stream.read(512)
-    stream.seek(0)
-    format = imghdr.what(None, header)
-    if not format:
-        return None
-    return '.' + (format if format != 'jpeg' else 'jpg')
-
-
 @imager_bp.route("/")
 def index():
     page = request.args.get('page', 1, type=int)
 
-    image_content = load_images_by_time()
+    image_content = get_image_contents_by_time()
     if not image_content:
         images = []
     else:
-        images = image_pagination(image_content, page=page)
+        images = image_content_pagination(image_content, page=page)
 
     return render_template(
         "imager/index.html",
@@ -103,10 +76,72 @@ def upload_images():
         form=upload_file_form)
 
 
+@imager_bp.route("/upload/image/<string:image_id>")
+def load_image_by_id(image_id):
+    image_content = get_image_content_by_id(image_id)
+    if image_content:
+        # Gets filenames and filepath using ImageContent object.
+        folder_path, image_filenames = get_image_file_paths(
+            image_content,
+            current_app.config["UPLOAD_PATH"])
+
+        # Checks if actual file exists.
+        if len(image_filenames) == 0:
+            abort(404)
+        # Check if duplicate files with same ID exists.
+        elif len(image_filenames) > 1:
+            # Log errors here, duplicates IDS not allowed.
+            print("Duplicate file {} found".format(file_regex))
+            abort(404)
+        else:
+            return send_from_directory(folder_path, image_filenames[0])
+
+    abort(404)
+
+
+@imager_bp.route("/upload/thumbnail/<string:image_id>")
+def load_thumbnail_by_id(image_id):
+    image_content = get_image_content_by_id(image_id)
+    if image_content:
+        # Gets filenames and filepath using ImageContent object.
+        folder_path, image_filenames = get_image_file_paths(
+            image_content,
+            current_app.config["UPLOAD_PATH"])
+
+        # Checks if actual file exists.
+        if len(image_filenames) == 0:
+            abort(404)
+        # Check if duplicate files with same ID exists.
+        elif len(image_filenames) > 1:
+            # Log errors here, duplicates IDS not allowed.
+            print("Duplicate file {} found".format(file_regex))
+            abort(404)
+        else:
+            return send_from_directory(
+                os.path.join(
+                    folder_path,
+                    "thumbnails"),
+                image_filenames[0])
+
+    abort(404)
+
+
+@imager_bp.route("/gallery/<string:image_id>")
+def load_gallery_image(image_id):
+    image_content = get_image_content_by_id(image_id)
+    if image_content:
+        metric_data = image_metric(image_content.file_id)
+        return render_template(
+            "imager/image_gallery.html",
+            image=image_content,
+            image_metric=metric_data)
+    abort(404)
+
+
 @imager_bp.route("/gallery/user/<string:username>")
-def load_by_username(username):
+def load_images_by_username(username):
     page = request.args.get('page', 1, type=int)
-    user, image_content = load_images_by_user(username)
+    user, image_content = get_image_contents_by_user(username)
 
     # If no user is found, 404 Page not found
     if user is None:
@@ -117,97 +152,50 @@ def load_by_username(username):
     if image_content is None:
         images = []
     else:
-        images = image_pagination(image_content, page=page)
+        images = image_content_pagination(image_content, page=page)
     return render_template(
         "imager/user_gallery.html",
         user=user,
         images=images)
 
 
-@imager_bp.route("/gallery")
-def load_by_time():
-    page = request.args.get('page', 1, type=int)
+@imager_bp.route("/upvote", methods=["POST"])
+def upvote_counter():
+    if current_user.is_anonymous:
+        # TODO: Add next to return user to previous page
+        return redirect(url_for('auth.login'))
 
-    image_content = load_images_by_time()
-    if not image_content:
-        images = []
+    image_file_id = request.form['image_id']
+    if image_file_id:
+        metric_data = image_metric(image_file_id)
+        upvote_status = upvote(current_user, image_file_id)
+        metric_data["status"] = upvote_status
+        return jsonify(metric_data)
     else:
-        images = image_pagination(image_content, page=page)
-
-    return render_template(
-        "imager/user_gallery.html",
-        images=images)
+        return "Invalid parameter.", 400
 
 
-@imager_bp.route("/gallery/<string:image_id>")
-def load_orig_by_id(image_id):
-    image_content = load_image_by_id(image_id)
-    if image_content:
-        # Folder path where user uploads will be.
-        folder_path = os.path.join(
-            current_app.config["UPLOAD_PATH"],
-            image_content.user_content.content_location
-        )
+@imager_bp.route("/downvote", methods=["POST"])
+def downvote_counter():
+    if current_user.is_anonymous:
+        # TODO: Add next to return user to previous page
+        return redirect(url_for('auth.login'))
 
-        # File regex for file name by ID.
-        file_regex = os.path.join(
-            folder_path,
-            image_content.file_id + ".*")
+    image_file_id = request.args.get('image_id')
+    if image_file_id:
+        metric_data = image_metric(image_file_id)
+        downvote_status = downvote(current_user, image_file_id)
+        metric_data["status"] = downvote_status
 
-        # Uses file_regex to get the proper filename with extension,
-        # Assumes file extension is not stored on db so need to get
-        # actual file with proper extension.
-        image_file = [
-            os.path.basename(fname) for fname in glob.glob(file_regex)]
-
-        # Checks if actual file exists.
-        if len(image_file) == 0:
-            abort(404)
-        # Check if duplicate files with same ID exists.
-        elif len(image_file) > 1:
-            # Log errors here, duplicates IDS not allowed.
-            print("Duplicate file {} found".format(file_regex))
-            abort(404)
-        else:
-            return send_from_directory(folder_path, image_file[0])
-
-    abort(404)
+        return jsonify(metric_data)
+    else:
+        return "Invalid parameter.", 400
 
 
-@imager_bp.route("/gallery/thumbnail/<string:image_id>")
-def load_thumbnail_by_id(image_id):
-    image_content = load_image_by_id(image_id)
-    if image_content:
-        # Folder path where user uploads will be.
-        folder_path = os.path.join(
-            current_app.config["UPLOAD_PATH"],
-            image_content.user_content.content_location
-        )
-
-        # File regex for file name by ID.
-        file_regex = os.path.join(
-            folder_path,
-            image_content.file_id + ".*")
-
-        # Uses file_regex to get the proper filename with extension,
-        # Assumes file extension is not stored on db so need to get
-        # actual file with proper extension.
-        image_file = [
-            os.path.basename(fname) for fname in glob.glob(file_regex)]
-
-        # Checks if actual file exists.
-        if len(image_file) == 0:
-            abort(404)
-        # Check if duplicate files with same ID exists.
-        elif len(image_file) > 1:
-            # Log errors here, duplicates IDS not allowed.
-            print("Duplicate file {} found".format(file_regex))
-            abort(404)
-        else:
-            return send_from_directory(
-                os.path.join(
-                    folder_path,
-                    "thumbnails"),
-                image_file[0])
-
-    abort(404)
+@imager_bp.route("/metric/<string:image_file_id>")
+def vote_metric(image_file_id):
+    metric_data = image_metric(image_file_id)
+    if metric_data:
+        return jsonify(metric_data)
+    else:
+        return "Invalid parameter.", 400

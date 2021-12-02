@@ -1,6 +1,25 @@
 import os
-import imghdr
+import glob
 import uuid
+import imghdr
+from functools import wraps
+from flask_login import current_user
+
+
+PERMISSION_DENIED = "You don't have permission to post to this page,"\
+    " Contact Administrator if you think you should."
+SERVER_ERROR = "An error occured in the server"
+
+
+# Assumes you can view main dashboard to post
+def can_post_main_dashboard(func):
+    @wraps(func)
+    def inner_func(*args, **kwargs):
+        if current_user.can_post_main_dashboard():
+            return func(*args, **kwargs)
+        else:
+            return PERMISSION_DENIED, 403
+    return inner_func
 
 
 def validate_image(stream):
@@ -70,3 +89,34 @@ def generate_filename(name_len=8):
     """
     file_name = "%s" % os.urandom(8).hex()
     return file_name
+
+
+def get_image_file_paths(image_content, upload_path):
+    """
+    Get file path for images based on ImageContent object from db.
+
+    Args:
+      image_content: ImageContent object containing fileid and directory id.
+      upload_path: File path where user uploads directory is located
+                    on the server.
+
+    Returns:
+      List of filepaths of the images.
+    """
+    # Folder path where user uploads will be.
+    folder_path = os.path.join(
+        upload_path,
+        image_content.user_content.content_location
+    )
+
+    # File regex for file name by ID.
+    file_regex = os.path.join(
+        folder_path,
+        image_content.file_id + ".*")
+
+    # Uses file_regex to get the proper filename with extension,
+    # Assumes file extension is not stored on db so need to get
+    # actual file with proper extension.
+    image_filenames = [
+        os.path.basename(fname) for fname in glob.glob(file_regex)]
+    return folder_path, image_filenames

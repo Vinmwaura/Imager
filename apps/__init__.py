@@ -8,6 +8,8 @@ from flask_login import LoginManager
 
 from flask_mail import Mail
 
+from flask_wtf.csrf import CSRFProtect
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 STATICFILES_DIRS = (os.path.join(
@@ -26,6 +28,9 @@ login_manager = LoginManager()
 
 # Handles sending of email
 mail = Mail()
+
+# Handles CSRF protection for AJAX requests
+csrf = CSRFProtect()
 
 
 def create_app(config=None):
@@ -80,5 +85,6 @@ def create_app(config=None):
     migrate.init_app(app, db)
     login_manager.init_app(app)
     mail.init_app(app)
+    csrf.init_app(app)
 
     return app

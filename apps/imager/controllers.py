@@ -1,12 +1,13 @@
 import os
 
 from flask import current_app
+from sqlalchemy.sql import func
 
 from .. import db
 from . import models  # Imager Models
 from .. import auth
-
 from .utils import *
+
 from PIL import Image, ImageOps
 
 
@@ -29,6 +30,61 @@ def get_user_content(user):
     user_content = models.UserContent().query.filter_by(
         user_id=user.id).first()
     return user_content
+
+
+def get_image_contents_by_time():
+    """
+    Loads entire ImageContent model sorted in a descending order.
+
+    Returns:
+      ImageContent object.
+    """
+    image_content = models.ImageContent.query.order_by(
+        models.ImageContent.upload_time.desc())
+    return image_content
+
+
+def get_image_contents_by_user(username):
+    """
+    Loads a User's ImageContent bases on their username.
+
+    Args:
+      username: User name.
+
+    Returns:
+      Tuple consisting of None or user object and imagecontent.
+    """
+    user = auth.models.User().query.filter_by(username=username).first()
+    if not user:
+        return None, None
+
+    user_content = models.UserContent().query.filter_by(
+        user_id=user.id).first()
+    if not user_content:
+        return user, None
+
+    image_content = models.ImageContent().query.filter_by(
+        user_content_id=user_content.id)
+    return user, image_content
+
+
+def get_images_by_tags(tags):
+    pass
+
+
+def get_image_content_by_id(image_id):
+    """
+    Loads ImageContent by file id.
+
+    Args:
+      image_id: File id representing the image.
+
+    Returns:
+      ImageContent object.
+    """
+    image_content = models.ImageContent().query.filter_by(
+        file_id=image_id).first()
+    return image_content
 
 
 def create_user_content(user, directory_name):
@@ -184,7 +240,7 @@ def save_user_image(user, file, image_details):
         return False
 
 
-def image_pagination(obj, page=1):
+def image_content_pagination(obj, page=1):
     """
     Takes Models objects and paginates it.
 
@@ -203,56 +259,106 @@ def image_pagination(obj, page=1):
     return image_pagination.items
 
 
-def load_images_by_time():
+def upvote(user, image_file_id):
     """
-    Loads entire ImageContent model sorted in a descending order.
-
-    Returns:
-      ImageContent object.
-    """
-    image_content = models.ImageContent.query.order_by(
-        models.ImageContent.upload_time.desc())
-    return image_content
-
-
-def load_images_by_user(username):
-    """
-    Loads a User's ImageContent bases on their username.
+    Adds upvote metric to the db.
 
     Args:
-      username: User name.
+      user: User object, specifically current logged in user.
+      image_file_id: File ID of image.
 
     Returns:
-      Tuple consisting of None or user object and imagecontent.
+      Boolean indicating result of operation.
     """
-    user = auth.models.User().query.filter_by(username=username).first()
-    if not user:
-        return None, None
+    upvote_obj = models.VoteCounter().query.filter_by(
+        user_id=user.id,
+        image_file_id=image_file_id)
+    upvote_ = upvote_obj.first()
 
-    user_content = models.UserContent().query.filter_by(
-        user_id=user.id).first()
-    if not user_content:
-        return user, None
+    if upvote_:
+        if upvote_.vote == models.VoteEnum.UPVOTE.value:
+            upvote_obj.delete()
+        else:
+            upvote_.vote = models.VoteEnum.UPVOTE.value
+    else:
+        upvote = models.VoteCounter(
+            user_id=user.id,
+            image_file_id=image_file_id,
+            vote=models.VoteEnum.UPVOTE.value)
 
-    image_content = models.ImageContent().query.filter_by(
-        user_content_id=user_content.id)
-    return user, image_content
+        db.session.add(upvote)
+
+    try:
+        db.session.commit()
+        return True
+    except Exception as e:
+        print("An error occured while upvoting content: ", e)
+        db.session.rollback()
+        return False
 
 
-def load_images_by_tags(tags):
-    pass
-
-
-def load_image_by_id(image_id):
+def downvote(user, image_file_id):
     """
-    Loads ImageContent by file id.
+    Adds downvote metric to the db.
 
     Args:
-      image_id: File id representing the image.
+      user: User object, specifically current logged in user.
+      image_file_id: File ID of image.
 
     Returns:
-      ImageContent object.
+      Boolean indicating result of operation.
     """
+    downvote_obj = models.VoteCounter().query().filter_by(
+        user_id=user.id,
+        image_file_id=image_file_id)
+    downvote_ = downvote_obj.first()
+
+    if downvote_:
+        if downvote_.vote == models.VoteEnum.DOWNVOTE.value:
+            downvote_obj.delete()
+        else:
+            downvote_.vote = models.VoteEnum.DOWNVOTE.value
+    else:
+        downvote = models.VoteCounter(
+            user_id=user.id,
+            image_file_id=image_file_id,
+            vote=models.VoteEnum.DOWNVOTE.value)
+
+        db.session.add(downvote)
+
+    try:
+        db.session.commit()
+        return True
+    except Exception as e:
+        print("An error occured while downvoting content: ", e)
+        db.session.rollback()
+        return False
+
+
+def image_metric(image_file_id):
+    # models.ImageContent().query.filter_by(user_content_id=user_content.id)
     image_content = models.ImageContent().query.filter_by(
-        file_id=image_id).first()
-    return image_content
+        file_id=image_file_id).first()
+    metric_dict = {}
+    if image_content:
+        vote_enum = models.VoteEnum
+        sum_aggr = models.VoteCounter.query.with_entities(
+            func.sum(models.VoteCounter.vote).filter(
+                models.VoteCounter.image_file_id == image_file_id).label(
+                'total'),
+            func.sum(models.VoteCounter.vote).filter(
+                models.VoteCounter.image_file_id == image_file_id,
+                models.VoteCounter.vote == vote_enum.UPVOTE.value).label(
+                'upvotes'),
+            func.sum(models.VoteCounter.vote).filter(
+                models.VoteCounter.image_file_id == image_file_id,
+                models.VoteCounter.vote == vote_enum.DOWNVOTE.value).label(
+                'downvotes')).first()
+        metric_dict['total'] = 0 if sum_aggr.total is None else sum_aggr.total
+        metric_dict['upvotes'] = 0 if sum_aggr.upvotes is None \
+            else sum_aggr.upvotes
+        metric_dict['downvotes'] = 0 if sum_aggr.downvotes is None \
+            else sum_aggr.downvotes
+        return metric_dict
+    else:
+        return None

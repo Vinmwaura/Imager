@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<h1>{{image.name}}</h1>
+
+	<div>
+		<a href="{{ url_for('imager.load_image_by_id', image_id=image.file_id) }}">
+			<img src="{{ url_for('imager.load_thumbnail_by_id', image_id=image.file_id) }}">
+		</a>
+		<div>
+			<button type="button" onclick="upvote()"><span>+</span></button>
+			<span id="metric">{{image_metric.total}}</span>
+			<button type="button" onclick="downvote()"><span>-</span></button>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		var csrf_token = "{{ csrf_token() }}";
+		function upvote() {
+			var url = "{{ url_for('imager.upvote_counter') }}"
+			var xhttp = new XMLHttpRequest();
+			xhttp.onload  = function() {
+				var jsonResponse = JSON.parse(this.responseText);
+				// do something with jsonResponse
+				document.getElementById("metric").innerHTML = jsonResponse["total"];
+			};
+		  	xhttp.open("POST", url, true);
+		  	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		  	xhttp.setRequestHeader("X-CSRFToken", csrf_token)
+		  	xhttp.send("image_id={{image.file_id}}");
+		}
+
+		function downvote() {
+			var url = "{{ url_for('imager.downvote_counter') }}"
+			var xhttp = new XMLHttpRequest();
+		  	xhttp.onload  = function() {
+				var jsonResponse = JSON.parse(this.responseText);
+				// do something with jsonResponse
+				document.getElementById("metric").innerHTML = jsonResponse["total"];
+			}
+		  	xhttp.open("POST", url, true);
+		  	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		  	xhttp.setRequestHeader("X-CSRFToken", csrf_token)
+		  	xhttp.send("image_id={{image.file_id}}");
+		}
+	</script>
+{% endblock %}
