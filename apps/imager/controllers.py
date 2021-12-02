@@ -68,8 +68,27 @@ def get_image_contents_by_user(username):
     return user, image_content
 
 
-def get_images_by_tags(tags):
-    pass
+def get_images_by_tags(tag_name):
+    """
+    Loads ImageContent by tags.
+
+    Args:
+      tags: tags of the images.
+
+    Returns:
+      ImageContent object.
+    """
+    tag = models.Tags().query.filter_by(
+        tag_name=tag_name).first()
+    if not tag:
+        return None
+
+    image_content = models.ImageContent.query.filter(
+        models.ImageContent.id.in_(
+            [j.image_content_id for j in models.ImageTags().query.filter_by(
+                tag_id=tag.id).all()]))
+
+    return image_content
 
 
 def get_image_content_by_id(image_id):

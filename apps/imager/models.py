@@ -72,14 +72,9 @@ class ImageContent(db.Model):
         db.DateTime(timezone=True),
         server_default=func.utcnow())
 
-    tag_1 = db.Column(db.String(20), nullable=True)
-    tag_2 = db.Column(db.String(20), nullable=True)
-    tag_3 = db.Column(db.String(20), nullable=True)
-    tag_4 = db.Column(db.String(20), nullable=True)
-    tag_5 = db.Column(db.String(20), nullable=True)
-    tag_6 = db.Column(db.String(20), nullable=True)
-    tag_7 = db.Column(db.String(20), nullable=True)
-    tag_8 = db.Column(db.String(20), nullable=True)
+    tags = db.relationship(
+        "ImageTags",
+        backref="image_content")
 
     user_content = db.relationship(
         "UserContent",
@@ -87,6 +82,34 @@ class ImageContent(db.Model):
 
     def __repr__(self):
         return "<ImageContent %s>" % self.id
+
+
+class Tags(db.Model):
+    __tablename__ = "tags"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    tag_name = db.Column(
+        db.String(20),
+        unique=True,
+        nullable=False)
+
+    def __repr__(self):
+        return "<ImageTags %s>" % self.tag_name
+
+
+class ImageTags(db.Model):
+    __tablename__ = "image_tags"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    tag_id = db.Column(
+        db.Integer,
+        db.ForeignKey('tags.id'))
+    image_content_id = db.Column(
+        db.Integer,
+        db.ForeignKey('image_content.id'))
+
+    def __repr__(self):
+        return "<ImageTags %s>" % self.id
 
 
 class ProfileImages(db.Model):

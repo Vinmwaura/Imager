@@ -147,7 +147,6 @@ def load_images_by_username(username):
     if user is None:
         abort(404)
 
-    # TODO: Load thumbnails instead of full images
     # If user has no uploaded images, return empty images
     if image_content is None:
         images = []
@@ -156,6 +155,21 @@ def load_images_by_username(username):
     return render_template(
         "imager/user_gallery.html",
         user=user,
+        images=images)
+
+
+@imager_bp.route("/gallery/tag/<string:tag_name>")
+def load_images_by_tag(tag_name):
+    page = request.args.get('page', 1, type=int)
+    image_content = get_images_by_tags(tag_name)
+
+    # If user has no uploaded images, return empty images
+    if image_content is None:
+        images = []
+    else:
+        images = image_content_pagination(image_content, page=page)
+    return render_template(
+        "imager/user_gallery.html",
         images=images)
 
 
