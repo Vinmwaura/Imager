@@ -308,7 +308,7 @@ def downvote(user, image_file_id):
     Returns:
       Boolean indicating result of operation.
     """
-    downvote_obj = models.VoteCounter().query().filter_by(
+    downvote_obj = models.VoteCounter().query.filter_by(
         user_id=user.id,
         image_file_id=image_file_id)
     downvote_ = downvote_obj.first()

@@ -165,10 +165,10 @@ def upvote_counter():
         # TODO: Add next to return user to previous page
         return redirect(url_for('auth.login'))
 
-    image_file_id = request.form['image_id']
+    image_file_id = request.form.get('image_id', None)
     if image_file_id:
-        metric_data = image_metric(image_file_id)
         upvote_status = upvote(current_user, image_file_id)
+        metric_data = image_metric(image_file_id)
         metric_data["status"] = upvote_status
         return jsonify(metric_data)
     else:
@@ -181,10 +181,10 @@ def downvote_counter():
         # TODO: Add next to return user to previous page
         return redirect(url_for('auth.login'))
 
-    image_file_id = request.args.get('image_id')
+    image_file_id = request.form.get('image_id', None)
     if image_file_id:
-        metric_data = image_metric(image_file_id)
         downvote_status = downvote(current_user, image_file_id)
+        metric_data = image_metric(image_file_id)
         metric_data["status"] = downvote_status
 
         return jsonify(metric_data)
