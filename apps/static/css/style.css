@@ -1,0 +1,99 @@
+html {
+    box-sizing:  border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+/* Aligns placeholder input text */
+::-webkit-input-placeholder {
+   text-align: center;
+}
+
+:-moz-placeholder { /* Firefox 18- */
+   text-align: center;  
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+   text-align: center;  
+}
+
+:-ms-input-placeholder {  
+   text-align: center; 
+}
+
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto Mono', monospace;
+    font-family: 'Ubuntu', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Main Content Body */
+.main-content {
+    margin-top: 4em;
+    padding: 0 5em;
+}
+
+/* Main Header Navigation Bar */
+#main-header-nav {
+    background-color: #252a3a;
+    position: fixed;
+    width: 100%;
+    height: 4em;
+    top: 0;
+    padding: 0 1em;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#main-header-nav a, #main-footer-nav a {
+    text-decoration-line: none;
+    color: #FFF;
+}
+
+#main-account-options span:not(:last-of-type) {
+    padding-right: 0 1em;
+}
+
+#main-search-options {
+    width: 30em;
+}
+
+#main-search-options .search-input {
+    padding-left: 0.4em;
+    border: none;
+    width: 95%;
+    float: left;
+    height: 2.5em;
+}
+
+#main-search-options .search-submit {
+    width: 5%;
+    float: left;
+    height: 2.5em;
+    border: none;
+
+    border-left: none;
+    cursor: pointer;
+}
+
+/* Main Footer Navigation Links */
+#main-footer-nav {
+    background-color: #33353b;
+    position: fixed;
+    width: 100%;
+    height: 2em;
+    bottom: 0;
+    padding: 0 3em;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}

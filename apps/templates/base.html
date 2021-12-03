@@ -7,6 +7,13 @@
 		<meta name="description" content="Image Sharing Website.">
 		<title>Imager</title>
 
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@1,300&family=Roboto+Mono:wght@200&family=Roboto:wght@300&family=Ubuntu:wght@300&display=swap" rel="stylesheet">
+
+		<!-- Load icon library -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<!-- Main Custom css -->
 		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
 		{% block css_block %}
 		{% endblock %}
@@ -14,7 +21,6 @@
 
 	<body>
 		<noscript>JavaScript disabled! Please activate it as websites relies on it.</noscript>
-
 
 		{% with messages = get_flashed_messages() %}
 		{% if messages %}
@@ -24,9 +30,50 @@
 		{% endif %}
 		{% endwith %}
 
-		{% block content %}
-		{% endblock %}
+		<!-- Main Navigation Bar -->
+		<nav id="main-header-nav" role="navigation">
+			<div id="main-home-options">
+				<span id="home-link"><a href="{{ url_for('imager.index') }}">Home</a></span>
+			</div>
 
+			<div id="main-search-options">
+				<form class="search-form" action="">
+					<input placeholder="Search for image by name/tag/image id" type="text" class="search-input" id="image-search-input">
+					<button type="submit" class="search-submit"><i class="fa fa-search"></i></button>
+				</form>
+			</div>
+
+			{% block additional_navs %}
+			{% endblock %}
+
+			{% if current_user.is_anonymous %}
+			<div id="main-account-options">
+				<span id="sign-in-link"><a href="{{ url_for('auth.login') }}">Sign In</a></span>
+				<span id="sign-up-link"><a href="{{ url_for('auth.registration') }}">Sign Up</a></span>
+			</div>
+			{% else %}
+			<div id="main-account-options">
+				<span id="user-account-link">
+					<span style="color: #FFF;">{{current_user.username}}</span>&emsp;<a href="#"><i class="fa fa-user"></i></a></span>
+			</div>
+			{% endif %}
+		</nav>
+
+		<!-- Main Content for the website -->
+		<div class="main-content">
+			{% block content %}
+			{% endblock %}
+		</div>
+
+		<!-- Footer -->
+		<footer id="main-footer">
+			<nav id="main-footer-nav">
+				<div id="main-footer-options">
+					<span id="about-link"><a href="">About</a></span>
+				</div>
+			</nav>
+		</footer>
+		
 		<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
 		{% block js_block %}
 		{% endblock %}
