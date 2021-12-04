@@ -58,8 +58,10 @@ body {
     color: #FFF;
 }
 
-#main-account-options span:not(:last-of-type) {
-    padding-right: 0 1em;
+#main-login-options {
+    width: 8em;
+    display: flex;
+    justify-content: space-between;
 }
 
 #main-search-options {
@@ -96,4 +98,40 @@ body {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+}
+
+/*  Dropdown */
+#main-account-dropdown {
+    background-color: #565f6e;
+    min-height: 2em;
+    width: 10em;
+    right: 0;
+    top: 4.1em;
+    position: absolute;
+    margin: 0 1em;
+    border-radius: 0.4em;
+    z-index: 1000;
+}
+
+#main-account-dropdown span {
+    padding: 0.6em 0em;
+    display: block;
+    text-align: center;
+}
+
+#main-account-dropdown span:hover {
+    background-color: #b4b9c2;
+}
+
+#main-account-dropdown[class="show-dropdown"] {
+    visibility: visible;
+    opacity: 1;
+    display: block;
+}
+
+#main-account-dropdown[class="hide-dropdown"] {
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.5s ease;
+    display: none;
 }

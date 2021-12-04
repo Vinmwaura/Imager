@@ -47,14 +47,28 @@
 			{% endblock %}
 
 			{% if current_user.is_anonymous %}
-			<div id="main-account-options">
+			<div id="main-login-options">
 				<span id="sign-in-link"><a href="{{ url_for('auth.login') }}">Sign In</a></span>
 				<span id="sign-up-link"><a href="{{ url_for('auth.registration') }}">Sign Up</a></span>
 			</div>
 			{% else %}
 			<div id="main-account-options">
 				<span id="user-account-link">
-					<span style="color: #FFF;">{{current_user.username}}</span>&emsp;<a href="#"><i class="fa fa-user"></i></a></span>
+					<a href="javascript:void(0)" onclick='toggle_dropdown()'>
+						<span style="color: #FFF;">{{current_user.username}}</span>&emsp;<i class="fa fa-user"></i> <i class="fa fa-caret-down"></i>
+					</a>
+				</span>
+
+				<!-- Dropdown navigation -->
+				<div class="hide-dropdown" id="main-account-dropdown">
+					<a href="{{ url_for('imager.load_images_by_username', username=current_user.username) }}">
+						<span id="user-images-link">My Images</span>
+					</a>
+					<hr>
+					<a href="{{ url_for('auth.logout') }}">
+						<span id="sign-out-link"><i class="fa fa-power-off"></i>&emsp;Sign Out</span>
+					</a>
+				</div>
 			</div>
 			{% endif %}
 		</nav>
