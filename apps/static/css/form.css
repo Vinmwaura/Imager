@@ -1,66 +1,87 @@
-/* Login Form */
+/* Hides the search and login menu options */
+#main-search-options, #main-login-options {
+    visibility: hidden;
+}
+
+/* Navigate to dashboard link */
+.home-link {
+    position: absolute;
+    margin-top: 1em;
+    z-index: 1000;
+    top: 4em;
+}
+
+.home-link a {
+    text-decoration-line: none;
+    font-weight: bolder;
+}
+
+
+/**********************************************************
+        Login, Registration and Forgot credentials Forms
+***********************************************************/
+.centered-form {
+    display: flex;
+    justify-content: center;
+    margin-top: 15em;
+}
+
+.main-form {
+    border: 1px solid;
+    border-radius: 0.5em;
+    padding: 2em;
+    width: 30em;
+}
+
 .form-title {
+    margin: 0;
+    padding-bottom: 0.4em;
     text-align: center;
 }
 
-.centered-form {
-    position: relative;
-    padding-top: 30vh;
-    margin: auto;
-    display: flex;
-    justify-content: center;
+#login-options {
+    display: inline-block;
+    padding-top: 0.7em;
 }
 
-#login-form form,
-#registration-form form,
-#forgot-form form {
-    margin-bottom: 1em;
-    border-radius: 0.5em;
-    border: 1px solid;
-    padding: 1em 5em;
-}
-
-#login-form #login-options {
-    float: right;
-}
-
-#login-form #login-options #login-registration-option {
+#login-options span:not(:last-of-type) {
     margin-right: 0.7em;
 }
 
-#login-form #login-options #login-registration-option a {
-    margin-right: 0.7em;
-    color: #000;
+.separator {
+    border-left: 1px solid #808080;
+}
+
+#login-form #login-options a {
+    color: #808080;
     text-decoration-line: none;
 }
 
-#login-form #login-submit input,
-#registration-form #registration-submit input,
-#forgot-form #forgot-submit input {
+#login-form #login-options a:hover {
+    color: #000;
+    text-decoration-line: underline;
+}
+
+.main-form form .submit-btn input {
     background-color: #5C69FF;
     border: none;
     border-radius: 0.25em;
     color: #FFF;
     padding: 1em 2em;
     cursor: pointer;
+    float: right;
 }
 
-#login-form input[type="text"],
-#login-form input[type="password"],
-#registration-form input[type="text"],
-#registration-form input[type="password"],
-#registration-form input[type="email"],
-#forgot-form input[type="email"] {
-    width: 30em;
-    height: 2.5em;
-    margin: 0.3em 0;
+.main-form form input[type="text"],
+.main-form form input[type="password"],
+.main-form form input[type="email"] {
+    width: 100%;
+    margin: 0.4em 0;
     border-radius: 0.4em;
     border-color: #EBECF0;
+    height: 2.5em;
 }
 
-#login-form .errors li,
-#registration-form .errors li,
-#forgot-form .errors li {
+.main-form .errors li {
     color: #F00;
 }
-

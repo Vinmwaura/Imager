@@ -32,13 +32,9 @@ body {
     padding: 0;
 }
 
-/* Main Content Body */
-.main-content {
-    margin-top: 4em;
-    padding: 0 5em;
-}
-
-/* Main Header Navigation Bar */
+/**********************************************************
+                  MAIN HEADER NAVIGATION
+***********************************************************/
 #main-header-nav {
     background-color: #252a3a;
     position: fixed;
@@ -55,16 +51,18 @@ body {
 #main-header-nav a, #main-footer-nav a {
     text-decoration-line: none;
     color: #FFF;
+    font-weight: bold;
 }
 
 #main-login-options {
-    width: 8em;
-    display: flex;
-    justify-content: space-between;
+   width: 8em;
+   display: flex;
+   justify-content: space-between;
 }
 
 #main-search-options {
-    width: 30em;
+   margin: auto;
+   width: 30em;
 }
 
 #main-search-options .search-input {
@@ -85,22 +83,35 @@ body {
     cursor: pointer;
 }
 
-/* Main Footer Navigation Links */
-#main-footer-nav {
-    background-color: #33353b;
-    position: fixed;
-    width: 100%;
-    height: 2em;
-    bottom: 0;
-    padding: 0 3em;
-
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+/**********************************************************
+                     MAIN CONTENT BODY
+***********************************************************/
+.main-content {
+    margin-top: 4em;
+    padding: 0 5em;
+    
 }
 
-/*  Dropdown */
+/**********************************************************
+                     MAIN CONTENT FOOTER
+***********************************************************/
+#main-footer-nav {
+   background-color: #33353b;
+   position: fixed;
+   width: 100%;
+   height: 2em;
+   bottom: 0;
+   padding: 0 3em;
+
+   display: flex;
+   flex-direction: row;
+   justify-content: space-between;
+   align-items: center;
+}
+
+/**********************************************************
+                    User Profile Dropdown
+***********************************************************/
 #main-account-dropdown {
     background-color: #565f6e;
     min-height: 2em;
@@ -111,6 +122,7 @@ body {
     margin: 0 1em;
     border-radius: 0.4em;
     z-index: 1000;
+    padding:0.3em 0;
 }
 
 #main-account-dropdown span {
@@ -134,16 +146,4 @@ body {
     opacity: 0;
     transition: all 0.5s ease;
     display: none;
-}
-
-/* Navigate to dashboard link */
-.home-link {
-    position: absolute;
-    margin-top: 1em;
-    z-index: 1000;
-}
-
-.home-link a {
-    text-decoration-line: none;
-    font-weight: bolder;
 }

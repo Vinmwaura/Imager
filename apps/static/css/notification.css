@@ -1,15 +1,20 @@
 /* Notifications */
 .notification-section {
 	position: absolute;
+	top: 4em;
 	left: 0;
 	right: 0;
 	margin: 0 auto;
-	z-index: 1000;
-	width: 50em;
+	z-index: 2000;
+	width: 30em;
 	height: 2em;
 	text-align: center;
 	font-weight: bold;
 	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+.notification-message-list {
+	border-radius: 5em;
 }
 
 .notification-message-list div {
