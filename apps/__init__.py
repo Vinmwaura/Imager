@@ -70,6 +70,8 @@ def create_app(config=None):
                 MEDIA_ROOT,
                 "user_uploads")
 
+        app.config["TEST_EMAIL_CONFIG"] = os.getenv("TEST_EMAIL_CONFIG")
+
     # Apps Blueprint Registration
     from .auth import auth_bp
     app.register_blueprint(auth_bp)

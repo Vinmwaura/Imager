@@ -86,20 +86,21 @@ def registration():
                                     activation_token=token,
                                     _external=True))
                         sender = current_app.config['MAIL_USERNAME']
-                        # recipients = [request.form["email"]]
-                        recipients = ["godfathermov1@gmail.com"]
+                        recipients = [current_app.config[
+                            "TEST_EMAIL_CONFIG"]] or [request.form["email"]]
                         send_email(subject, body, sender, recipients)
+
+                        flash(
+                            "User has been successfully created, \
+                            Check email for activation link",
+                            "success")
                     except Exception as e:
+                        # TODO: Delete created user if email sending failed
                         print("An error occured sending email: ", e)
                         flash(
                             "An error occured while sending the \
                             activation email!",
                             "error")
-
-                    flash(
-                        "User has been successfully created, \
-                        Check email for activation link",
-                        "success")
                     return redirect(url_for("auth.login"))
                 else:
                     flash(
