@@ -51,13 +51,17 @@ def registration():
             username_exists = check_username_exists(
                 request.form["username"])
             if username_exists:
-                flash(USERNAME_ALREADY_EXISTS(request.form["username"]))
+                flash(
+                    USERNAME_ALREADY_EXISTS(request.form["username"]),
+                    "info")
 
             # Check if Email has been used by other accounts
             email_exists = check_email_exists(
                 request.form["email"])
             if email_exists:
-                flash(EMAIL_ALREADY_USED(request.form["email"]))
+                flash(
+                    EMAIL_ALREADY_USED(request.form["email"]),
+                    "info")
 
             # Creates account
             if not username_exists and not email_exists:
@@ -89,16 +93,19 @@ def registration():
                         print("An error occured sending email: ", e)
                         flash(
                             "An error occured while sending the \
-                            activation email!")
+                            activation email!",
+                            "error")
 
                     flash(
                         "User has been successfully created, \
-                        Check email for activation link")
+                        Check email for activation link",
+                        "success")
                     return redirect(url_for("auth.login"))
                 else:
                     flash(
                         "An error occured creating an account, \
-                        please try again!")
+                        please try again!",
+                        "error")
 
         return render_template(
             'auth/registration.html',
@@ -119,14 +126,22 @@ def login():
 
             if user_authenticated:
                 if user_authenticated.email_confirmed:
+                    flash(
+                        "Successfully logged in.",
+                        "success")
+
                     # Logs user in
                     login_user(user_authenticated)
 
                     return redirect(url_for("imager.index"))
                 else:
-                    flash("Kindly confirm your email first to login")
+                    flash(
+                        "Kindly confirm your email first to login",
+                        "success")
             else:
-                flash("Invalid Username or password, please try again.")
+                flash(
+                    "Invalid Username or password, please try again.",
+                    "error")
 
         return render_template(
             'auth/login.html',
@@ -199,7 +214,7 @@ def forgot_password():
             # recipients = [request.form["email"]]
             recipients = ["godfathermov1@gmail.com"]
             send_email(subject, body, sender, recipients)
-            flash("Check email, password reset link has been sent.")
+            flash("Check email, password reset link has been sent.", "success")
     return render_template(
         'auth/forgotpassword.html',
         form=forgot_password)
@@ -226,13 +241,13 @@ def reset_password():
         if user:
             status, message_status = change_user_password(user, password)
             if status:
-                flash("Successfully changed password.")
+                flash("Successfully changed password.", "success")
                 return redirect(url_for("auth.login"))
             else:
-                flash("An error occured while reseting the password")
+                flash("An error occured while reseting the password", "error")
                 return redirect(url_for("auth.forgot_password"))
         else:
-            flash(message_status)
+            flash(message_status, "info")
             return redirect(url_for("auth.forgot_password"))
 
     return render_template(

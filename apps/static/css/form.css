@@ -1,0 +1,66 @@
+/* Login Form */
+.form-title {
+    text-align: center;
+}
+
+.centered-form {
+    position: relative;
+    padding-top: 30vh;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+}
+
+#login-form form,
+#registration-form form,
+#forgot-form form {
+    margin-bottom: 1em;
+    border-radius: 0.5em;
+    border: 1px solid;
+    padding: 1em 5em;
+}
+
+#login-form #login-options {
+    float: right;
+}
+
+#login-form #login-options #login-registration-option {
+    margin-right: 0.7em;
+}
+
+#login-form #login-options #login-registration-option a {
+    margin-right: 0.7em;
+    color: #000;
+    text-decoration-line: none;
+}
+
+#login-form #login-submit input,
+#registration-form #registration-submit input,
+#forgot-form #forgot-submit input {
+    background-color: #5C69FF;
+    border: none;
+    border-radius: 0.25em;
+    color: #FFF;
+    padding: 1em 2em;
+    cursor: pointer;
+}
+
+#login-form input[type="text"],
+#login-form input[type="password"],
+#registration-form input[type="text"],
+#registration-form input[type="password"],
+#registration-form input[type="email"],
+#forgot-form input[type="email"] {
+    width: 30em;
+    height: 2.5em;
+    margin: 0.3em 0;
+    border-radius: 0.4em;
+    border-color: #EBECF0;
+}
+
+#login-form .errors li,
+#registration-form .errors li,
+#forgot-form .errors li {
+    color: #F00;
+}
+

@@ -100,7 +100,7 @@ class LoginForm(FlaskForm):
     password = PasswordField(
         'Password',
         validators=[InputRequired()])
-    submit = SubmitField('Login')
+    submit = SubmitField('Sign In')
 
 
 class ForgotPassword(FlaskForm):

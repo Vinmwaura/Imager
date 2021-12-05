@@ -15,20 +15,15 @@
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 		<!-- Main Custom css -->
 		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+
+		<!-- Notifications css -->
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/notification.css') }}">
 		{% block css_block %}
 		{% endblock %}
 	</head>
 
 	<body>
 		<noscript>JavaScript disabled! Please activate it as websites relies on it.</noscript>
-
-		{% with messages = get_flashed_messages() %}
-		{% if messages %}
-		    <div class="notification is-danger">
-		        {{ messages[0] }}
-		    </div>
-		{% endif %}
-		{% endwith %}
 
 		<!-- Main Navigation Bar -->
 		<nav id="main-header-nav" role="navigation">
@@ -75,6 +70,30 @@
 
 		<!-- Main Content for the website -->
 		<div class="main-content">
+			<!-- Notification Section -->
+			<div class="notification-section">
+				{% with messages = get_flashed_messages(with_categories=true) %}
+				{% if messages %}
+				<div class="notification-message-list">
+					{% for category, message in messages %}
+					<div class="notification-message {{category}}">
+						<div class="notification-message-header">
+							<span class="close-notification" id='main-close' onclick='close_notification(this)'>
+								<i class="fa fa-window-close"></i>
+							</span>
+						</div>
+
+						<div class="notification-message-body">
+							{{ message }}
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+				{% endif %}
+				{% endwith %}
+			</div>
+
+
 			{% block content %}
 			{% endblock %}
 		</div>
