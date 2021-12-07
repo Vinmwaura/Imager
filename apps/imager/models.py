@@ -24,6 +24,14 @@ class VoteCounter(db.Model):
         db.Integer,
         nullable=False)
 
+    def get_image_vote(self, file_id):
+        vote_counter = self.query.filter_by(
+            image_file_id=file_id).first() or None
+        if vote_counter:
+            return vote_counter.vote
+        else:
+            return None
+
     def __repr__(self):
         return "<VoteCounter %s>" % self.id
 

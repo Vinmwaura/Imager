@@ -20,6 +20,30 @@ from .forms import *
 from .controllers import *
 
 
+def get_image_details(user, images):
+    data_dict = []
+    for image in images:
+        temp_dict = {}
+        temp_dict["uploaded_by"] = image.user_content.user.username
+        temp_dict["name"] = image.name
+        temp_dict["file_id"] = image.file_id
+        temp_dict["voter_count"] = image_metric(image.file_id)
+
+        if user.is_anonymous:
+            temp_dict["personal_vote"] = None
+        else:
+            vote_counter = models.VoteCounter().query.filter_by(
+                user_id=current_user.id,
+                image_file_id=image.file_id).first()
+            if vote_counter:
+                temp_dict["personal_vote"] = vote_counter.vote
+            else:
+                temp_dict["personal_vote"] = None
+
+        data_dict.append(temp_dict)
+    return data_dict
+
+
 @imager_bp.route("/")
 def index():
     page = request.args.get('page', 1, type=int)
@@ -30,9 +54,10 @@ def index():
     else:
         images = image_content_pagination(image_content, page=page)
 
+    data_dict = get_image_details(current_user, images)
     return render_template(
         "imager/index.html",
-        images=images)
+        images=data_dict)
 
 
 @imager_bp.route("/upload", methods=["GET", "POST"])
@@ -82,7 +107,7 @@ def load_image_by_id(image_id):
     if image_content:
         # Gets filenames and filepath using ImageContent object.
         folder_path, image_filenames = get_image_file_paths(
-            image_content,
+            image_content[0],
             current_app.config["UPLOAD_PATH"])
 
         # Checks if actual file exists.
@@ -105,7 +130,7 @@ def load_thumbnail_by_id(image_id):
     if image_content:
         # Gets filenames and filepath using ImageContent object.
         folder_path, image_filenames = get_image_file_paths(
-            image_content,
+            image_content[0],
             current_app.config["UPLOAD_PATH"])
 
         # Checks if actual file exists.
@@ -130,19 +155,19 @@ def load_thumbnail_by_id(image_id):
 def load_gallery_image(image_id):
     image_content = get_image_content_by_id(image_id)
     if image_content:
-        metric_data = image_metric(image_content.file_id)
+        data_dict = get_image_details(current_user, image_content)
         return render_template(
             "imager/image_gallery.html",
-            image=image_content,
-            image_metric=metric_data)
+            image=data_dict[0])
+
     abort(404)
 
 
 @imager_bp.route("/gallery/user/<string:username>")
 def load_images_by_username(username):
     page = request.args.get('page', 1, type=int)
-    user, image_content = get_image_contents_by_user(username)
 
+    user, image_content = get_image_contents_by_user(username)
     # If no user is found, 404 Page not found
     if user is None:
         abort(404)
@@ -152,10 +177,12 @@ def load_images_by_username(username):
         images = []
     else:
         images = image_content_pagination(image_content, page=page)
+
+    data_dict = get_image_details(current_user, images)
     return render_template(
         "imager/user_gallery.html",
-        user=user,
-        images=images)
+        images=data_dict,
+        user=user)
 
 
 @imager_bp.route("/gallery/tag/<string:tag_name>")

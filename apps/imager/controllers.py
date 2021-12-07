@@ -102,7 +102,7 @@ def get_image_content_by_id(image_id):
       ImageContent object.
     """
     image_content = models.ImageContent().query.filter_by(
-        file_id=image_id).first()
+        file_id=image_id).all()
     return image_content
 
 
