@@ -1,17 +1,81 @@
 {% extends "base.html" %}
 
+{% block css_block %}
+<!-- Gallery css -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/gallery.css') }}">
+{% endblock %}
+
 {% block content %}
-	<h1>Gallery</h1>
-	{% if user %}
-	<h1>{{user.username}}</h1>
-	{% endif %}
-	{% if images %}
-	{% for image in images %}
-	<a href="{{ url_for('imager.load_gallery_image', image_id=image.file_id) }}">
-		<img src="{{ url_for('imager.load_thumbnail_by_id', image_id=image.file_id) }}">
-	</a>	
-	{% endfor %}
-	{% else %}
-	<span>No images uploaded.</span>
-	{% endif %}
+	<div class="user-details-container">
+		<span class="profile_pic"><img src="{{ url_for('static', filename='images/guest-user.jpg') }}"></span>
+		<h1>{{user.username}}</h1>
+	</div>
+
+	<div class="gallery-container">
+		<div class="gallery-section">
+			{% for image in images %}
+			<div class="gallery-image">
+				<a class="gallery-link" href="{{ url_for('imager.load_gallery_image', image_id=image.file_id) }}">
+					<img src="{{ url_for('imager.load_thumbnail_by_id', image_id=image.file_id) }}">
+
+					<div class="image-detail">
+						<div class="image-label">{{image.name}}</div>
+						<div class="image-metric">
+							{% if current_user.is_anonymous %}
+							<div class="metric-section">
+								<a href="{{ url_for('auth.login') }}" id="upvote-{{image.file_id}}" class="upvote">
+									<span><i class="fa fa-arrow-up"></i></span>
+								</a>
+							</div>
+
+							<div class="metric-section">
+								<span id="total-val-{{image.file_id}}" class="total-score">{{image.voter_count["total"]}}</span>
+							</div>
+
+							<div class="metric-section">
+								<a href="{{ url_for('auth.login') }}" id="downvote-{{image.file_id}}" class="downvote">
+									<span><i class="fa fa-arrow-down"></i></span>
+								</a>
+							</div>
+							{% else %}
+							<div class="metric-section">
+								{% if image.personal_vote and image.personal_vote == 1 %}
+								<a href="javascript:void(0)" id="upvote-{{image.file_id}}" class="upvote-selected" onclick="upvote('{{image.file_id}}')">
+									<span><i class="fa fa-arrow-up"></i></span>
+								</a>
+								{% else %}
+								<a href="javascript:void(0)" id="upvote-{{image.file_id}}" class="upvote" onclick="upvote('{{image.file_id}}')">
+									<span><i class="fa fa-arrow-up"></i></span>
+								</a>
+								{% endif %}	
+							</div>
+
+							<div class="metric-section">
+								<span id="total-val-{{image.file_id}}" class="total-score">{{image.voter_count["total"]}}</span>
+							</div>
+
+							<div class="metric-section">
+								{% if image.personal_vote and image.personal_vote == -1 %}
+								<a href="javascript:void(0)" id="downvote-{{image.file_id}}" class="downvote-selected" onclick="downvote('{{image.file_id}}')">
+									<span><i class="fa fa-arrow-down"></i></span>
+								</a>
+								{% else %}
+								<a href="javascript:void(0)" id="downvote-{{image.file_id}}" class="downvote" onclick="downvote('{{image.file_id}}')">
+									<span><i class="fa fa-arrow-down"></i></span>
+								</a>
+								{% endif %}
+							</div>
+							{% endif %}
+						</div>
+					</div>
+				</a>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+{% endblock %}
+
+{% block js_block %}
+<!-- Gallery js -->
+<script type="text/javascript" src="{{ url_for('static', filename='js/gallery.js') }}"></script>
 {% endblock %}

@@ -46,6 +46,7 @@ body {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    z-index: 3000;
 }
 
 #main-header-nav a, #main-footer-nav a {
@@ -89,7 +90,6 @@ body {
 .main-content {
     margin-top: 4em;
     padding: 0 5em;
-    
 }
 
 /**********************************************************

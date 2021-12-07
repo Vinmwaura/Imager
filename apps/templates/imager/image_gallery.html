@@ -1,54 +1,140 @@
 {% extends "base.html" %}
 
-{% block content %}
-	<h1>{{image.name}}</h1>
+{% block css_block %}
+<!-- Gallery css -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/gallery.css') }}">
+{% endblock %}
 
-	<div>
-		<div>
-			<img src="{{ url_for('imager.load_image_by_id', image_id=image.file_id) }}" style="width:800px">
+{% block content %}
+<div class="gallery-container">
+	<div class="image-container">
+		{% if current_user.is_anonymous %}
+		<div class="image-metric">
+			<div class="metric-section">
+				<a href="{{ url_for('auth.login') }}" id="upvote-{{image.file_id}}" class="upvote">
+					<span><i class="fa fa-arrow-up"></i></span>
+				</a>
+			</div>
+
+			<div class="metric-section">
+				<span id="total-val-{{image.file_id}}" class="total-score">{{image.voter_count["total"]}}</span>
+			</div>
+
+			<div class="metric-section">
+				<a href="{{ url_for('auth.login') }}" id="downvote-{{image.file_id}}" class="downvote">
+					<span><i class="fa fa-arrow-down"></i></span>
+				</a>
+			</div>
 		</div>
 
-		<div>
-			{% if current_user.is_anonymous %}
-			<button type="button" onclick="window.location.href = '{{url_for('auth.login')}}';"><span>+</span></button>
-			<span id="metric">{{image_metric.total}}</span>
-			<button type="button" onclick="window.location.href = '{{url_for('auth.login')}}';"><span>-</span></button>
-			{% else %}
-			<button type="button" onclick="upvote()"><span>+</span></button>
-			<span id="metric">{{image_metric.total}}</span>
-			<button type="button" onclick="downvote()"><span>-</span></button>
-			{% endif %}
+		{% else %}
+		<div class="image-metric">
+			<div class="metric-section">
+				{% if image.personal_vote and image.personal_vote == 1 %}
+				<a href="javascript:void(0)" id="upvote-{{image.file_id}}" class="upvote-selected" onclick="upvote('{{image.file_id}}')">
+					<span><i class="fa fa-arrow-up"></i></span>
+				</a>
+				{% else %}
+				<a href="javascript:void(0)" id="upvote-{{image.file_id}}" class="upvote" onclick="upvote('{{image.file_id}}')">
+					<span><i class="fa fa-arrow-up"></i></span>
+				</a>
+				{% endif %}
+			</div>
+
+			<div class="metric-section">
+				<span id="total-val-{{image.file_id}}" class="total-score">{{image.voter_count["total"]}}</span>
+			</div>
+
+			<div class="metric-section">
+				{% if image.personal_vote and image.personal_vote == -1 %}
+				<a href="javascript:void(0)" id="downvote-{{image.file_id}}" class="downvote-selected" onclick="downvote('{{image.file_id}}')">
+					<span><i class="fa fa-arrow-down"></i></span>
+				</a>
+				{% else %}
+				<a href="javascript:void(0)" id="downvote-{{image.file_id}}" class="downvote" onclick="downvote('{{image.file_id}}')">
+					<span><i class="fa fa-arrow-down"></i></span>
+				</a>
+				{% endif %}
+			</div>
+		</div>
+		{% endif %}
+
+		<div class="image-section">
+			<div class="image-details">
+				<div class="image-title">
+					<span>{{image.name}}</span>
+				</div>
+				<div class="image-uploader">
+					<span>
+						Uploaded by: <a href="{{ url_for('imager.load_images_by_username', username=image.uploaded_by) }}">{{image.uploaded_by}}</a>
+					</span>
+				</div>
+			</div>
+			<div class="image-panel">
+				<img src="{{ url_for('imager.load_image_by_id', image_id=image.file_id) }}">
+			</div>
 		</div>
 	</div>
+</div>
+{% endblock %}
 
-	<script type="text/javascript">
-		{% if not current_user.is_anonymous %}
+{% block js_block %}
+<!-- Gallery js -->
+<script type="text/javascript" src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+
+<script type="text/javascript">
+	function toggle_class_by_id(elem_id, class1, class2) {
+		if(document.getElementById(elem_id).className == class1) {
+			document.getElementById(elem_id).className = class2;
+		} else {
+			document.getElementById(elem_id).className = class1;
+		}
+	}
+
+	{% if not current_user.is_anonymous %}
 		var csrf_token = "{{ csrf_token() }}";
-		function upvote() {
+
+		function upvote(file_id) {
 			var url = "{{ url_for('imager.upvote_counter') }}"
 			var xhttp = new XMLHttpRequest();
 			xhttp.onload  = function() {
 				var jsonResponse = JSON.parse(this.responseText);
-				document.getElementById("metric").innerHTML = jsonResponse["total"];
+				document.getElementById("total-val-"+file_id).innerHTML = jsonResponse["total"];
+
+				// Toggle between upvote selected and unselected
+				toggle_class_by_id("upvote-" + file_id, "upvote", "upvote-selected")
+				if(document.getElementById("downvote-" + file_id).className == "downvote-selected") {
+					toggle_class_by_id("downvote-" + file_id, "downvote", "downvote-selected")
+				}
 			};
+
 			xhttp.open("POST", url, true);
 		  	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		  	xhttp.setRequestHeader("X-CSRFToken", csrf_token)
-		  	xhttp.send("image_id={{image.file_id}}");
+		  	xhttp.send("image_id=" + file_id);
 		}
 
-		function downvote() {
+		function downvote(file_id) {
 			var url = "{{ url_for('imager.downvote_counter') }}"
 			var xhttp = new XMLHttpRequest();
 		  	xhttp.onload  = function() {
 				var jsonResponse = JSON.parse(this.responseText);
-				document.getElementById("metric").innerHTML = jsonResponse["total"];
+				document.getElementById("total-val-"+file_id).innerHTML = jsonResponse["total"];
+
+				// Toggle between upvote selected and unselected
+				toggle_class_by_id("downvote-" + file_id, "downvote", "downvote-selected")
+				if(document.getElementById("upvote-" + file_id).className == "upvote-selected") {
+					toggle_class_by_id("upvote-" + file_id, "upvote", "upvote-selected")
+				}
 			}
 		  	xhttp.open("POST", url, true);
 		  	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		  	xhttp.setRequestHeader("X-CSRFToken", csrf_token)
-		  	xhttp.send("image_id={{image.file_id}}");
+		  	xhttp.send("image_id=" + file_id);
 		}
-		{% endif %}
-	</script>
+	{% else %}
+	function upvote() {}
+	function downvote() {}
+	{% endif %}
+</script>
 {% endblock %}
