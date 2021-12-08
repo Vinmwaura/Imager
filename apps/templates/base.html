@@ -26,12 +26,12 @@
 		<noscript>JavaScript disabled! Please activate it as websites relies on it.</noscript>
 
 		<!-- Main Navigation Bar -->
-		<nav id="main-header-nav" role="navigation">
-			<div id="main-home-options">
-				<span id="home-link"><a href="{{ url_for('imager.index') }}">Home</a></span>
+		<nav class="main-header-nav" role="navigation">
+			<div class="main-home-options">
+				<span class="home-link"><a href="{{ url_for('imager.index') }}">Home</a></span>
 			</div>
 
-			<div id="main-search-options">
+			<div class="main-search-options">
 				<form class="search-form" action="">
 					<input placeholder="Search for image by name/tag/image id" type="text" class="search-input" id="image-search-input">
 					<button type="submit" class="search-submit"><i class="fa fa-search"></i></button>
@@ -42,13 +42,13 @@
 			{% endblock %}
 
 			{% if current_user.is_anonymous %}
-			<div id="main-login-options">
-				<span id="sign-in-link"><a href="{{ url_for('auth.login') }}">Sign In</a></span>
-				<span id="sign-up-link"><a href="{{ url_for('auth.registration') }}">Sign Up</a></span>
+			<div class="main-login-options">
+				<span class="sign-in-link"><a href="{{ url_for('auth.login') }}">Sign In</a></span>
+				<span class="sign-up-link"><a href="{{ url_for('auth.registration') }}">Sign Up</a></span>
 			</div>
 			{% else %}
-			<div id="main-account-options">
-				<span id="user-account-link">
+			<div class="main-account-options">
+				<span class="user-account-link">
 					<a href="javascript:void(0)" onclick='toggle_dropdown()'>
 						<span style="color: #FFF;">{{current_user.username}}</span>&emsp;<i class="fa fa-user"></i> <i class="fa fa-caret-down"></i>
 					</a>
@@ -57,10 +57,10 @@
 				<!-- Dropdown navigation -->
 				<div class="hide-dropdown" id="main-account-dropdown">
 					<a href="{{ url_for('imager.load_images_by_username', username=current_user.username) }}">
-						<span id="user-images-link">My Images</span>
+						<span class="user-images-link">My Images</span>
 					</a>
 					<a href="{{ url_for('auth.logout') }}">
-						<span id="sign-out-link"><i class="fa fa-power-off"></i>&emsp;Sign Out</span>
+						<span class="sign-out-link"><i class="fa fa-power-off"></i>&emsp;Sign Out</span>
 					</a>
 				</div>
 			</div>
@@ -78,7 +78,7 @@
 					<div class="notification-message {{category}}">
 						<div class="notification-message-header">
 							<span class="close-notification" id='main-close' onclick='close_notification(this)'>
-								<i class="fa fa-window-close"></i>
+								&#10799;
 							</span>
 						</div>
 
@@ -98,10 +98,10 @@
 		</div>
 
 		<!-- Footer -->
-		<footer id="main-footer">
-			<nav id="main-footer-nav">
-				<div id="main-footer-options">
-					<span id="about-link"><a href="">About</a></span>
+		<footer class="main-footer">
+			<nav class="main-footer-nav">
+				<div class="main-footer-options">
+					<span class="about-link"><a href="javascript:void()">About</a></span>
 				</div>
 			</nav>
 		</footer>

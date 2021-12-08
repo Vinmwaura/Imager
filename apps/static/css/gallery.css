@@ -8,10 +8,6 @@
     text-align: center; /* Centers inline elements not just text */
 }
 
-.gallery-section {
-    margin-top: 5em;
-}
-
 .gallery-image {
     height: 240px;
     width: 240px;
@@ -60,8 +56,9 @@
     color: #FFF;
 }
 
-.metric-section a {
-    color: #FFF;
+.upvote,
+.downvote {
+    color: #FFF !important;
     text-decoration-line: none;
 }
 

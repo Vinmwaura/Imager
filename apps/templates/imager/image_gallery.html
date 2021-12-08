@@ -11,6 +11,10 @@
 	<div id="image-modal" class="modal">
 		<div id="image-modal-content" class="modal-content">
 			<img id="image-original" src="{{ url_for('imager.load_image_by_id', image_id=image.file_id) }}" />
+
+			<span class="close-modal" id="image-modal-close">
+				&#10799;
+			</span>
 		</div>
 	</div>
 
@@ -88,76 +92,13 @@
 {% endblock %}
 
 {% block js_block %}
+{% if not current_user.is_anonymous %}
 <!-- Gallery js -->
-<script type="text/javascript" src="{{ url_for('static', filename='js/gallery.js') }}"></script>
-
-<script type="text/javascript">
-	// Gets the image modal
-	var modal = document.getElementById("image-modal");
-	var modal_content = document.getElementById("image-modal-content");
-	var orig_img = document.getElementById("image-original")
-
-	// When the user clicks anywhere outside of the modal, close it
-	window.onclick = function(event) {
-	  	if (event.target == modal_content || event.target == orig_img) {
-	    	modal.style.display = "none";
-	  	}
-	}
-
-	// Show original image zoom in
-	function original_image() {
-		modal.style.display = "block";
-	}
-
-	function toggle_class_by_id(elem_id, class1, class2) {
-		if(document.getElementById(elem_id).className == class1) {
-			document.getElementById(elem_id).className = class2;
-		} else {
-			document.getElementById(elem_id).className = class1;
-		}
-	}
-
-	{% if not current_user.is_anonymous %}
-		var csrf_token = "{{ csrf_token() }}";
-
-		function upvote(file_id) {
-			var url = "{{ url_for('imager.upvote_counter') }}"
-			var xhttp = new XMLHttpRequest();
-			xhttp.onload  = function() {
-				var jsonResponse = JSON.parse(this.responseText);
-				document.getElementById("total-val-"+file_id).innerHTML = jsonResponse["total"];
-
-				// Toggle between upvote selected and unselected
-				toggle_class_by_id("upvote-" + file_id, "upvote", "upvote-selected")
-				if(document.getElementById("downvote-" + file_id).className == "downvote-selected") {
-					toggle_class_by_id("downvote-" + file_id, "downvote", "downvote-selected")
-				}
-			};
-
-			xhttp.open("POST", url, true);
-		  	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		  	xhttp.setRequestHeader("X-CSRFToken", csrf_token)
-		  	xhttp.send("image_id=" + file_id);
-		}
-
-		function downvote(file_id) {
-			var url = "{{ url_for('imager.downvote_counter') }}"
-			var xhttp = new XMLHttpRequest();
-		  	xhttp.onload  = function() {
-				var jsonResponse = JSON.parse(this.responseText);
-				document.getElementById("total-val-"+file_id).innerHTML = jsonResponse["total"];
-
-				// Toggle between upvote selected and unselected
-				toggle_class_by_id("downvote-" + file_id, "downvote", "downvote-selected")
-				if(document.getElementById("upvote-" + file_id).className == "upvote-selected") {
-					toggle_class_by_id("upvote-" + file_id, "upvote", "upvote-selected")
-				}
-			}
-		  	xhttp.open("POST", url, true);
-		  	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		  	xhttp.setRequestHeader("X-CSRFToken", csrf_token)
-		  	xhttp.send("image_id=" + file_id);
-		}
-	{% endif %}
+<script>
+	let csrf_token='{{csrf_token()}}';
+	let upvote_url = "{{ url_for('imager.upvote_counter') }}";
+	var downvote_url = "{{ url_for('imager.downvote_counter') }}";
 </script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+{% endif %}
 {% endblock %}

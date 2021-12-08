@@ -76,6 +76,13 @@
 {% endblock %}
 
 {% block js_block %}
+{% if not current_user.is_anonymous %}
 <!-- Gallery js -->
+<script>
+	let csrf_token='{{csrf_token()}}';
+	let upvote_url = "{{ url_for('imager.upvote_counter') }}";
+	var downvote_url = "{{ url_for('imager.downvote_counter') }}";
+</script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+{% endif %}
 {% endblock %}

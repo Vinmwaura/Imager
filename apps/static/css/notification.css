@@ -1,12 +1,11 @@
 /* Notifications */
 .notification-section {
-	position: absolute;
+	position: sticky;
 	top: 4em;
 	left: 0;
 	right: 0;
 	margin: 0 auto;
 	z-index: 2000;
-	width: 30em;
 	height: 2em;
 	text-align: center;
 	font-weight: bold;

@@ -32,10 +32,18 @@ body {
     padding: 0;
 }
 
+.close-modal {
+    color: #FFF;
+    font-size: 3em;
+    position: inherit;
+    top: 0;
+    right: 0;
+}
+
 /**********************************************************
                   MAIN HEADER NAVIGATION
 ***********************************************************/
-#main-header-nav {
+.main-header-nav {
     background-color: #252a3a;
     position: fixed;
     width: 100%;
@@ -49,24 +57,24 @@ body {
     z-index: 3000;
 }
 
-#main-header-nav a, #main-footer-nav a {
+.main-header-nav a, .main-footer-nav a {
     text-decoration-line: none;
     color: #FFF;
     font-weight: bold;
 }
 
-#main-login-options {
+.main-login-options {
    width: 8em;
    display: flex;
    justify-content: space-between;
 }
 
-#main-search-options {
+.main-search-options {
    margin: auto;
    width: 30em;
 }
 
-#main-search-options .search-input {
+.main-search-options .search-input {
     padding-left: 0.4em;
     border: none;
     width: 95%;
@@ -74,7 +82,7 @@ body {
     height: 2.5em;
 }
 
-#main-search-options .search-submit {
+.main-search-options .search-submit {
     width: 5%;
     float: left;
     height: 2.5em;
@@ -88,14 +96,14 @@ body {
                      MAIN CONTENT BODY
 ***********************************************************/
 .main-content {
-    margin-top: 4em;
+    margin: 4em 0;
     padding: 0 5em;
 }
 
 /**********************************************************
                      MAIN CONTENT FOOTER
 ***********************************************************/
-#main-footer-nav {
+.main-footer-nav {
    background-color: #33353b;
    position: fixed;
    width: 100%;
@@ -107,6 +115,7 @@ body {
    flex-direction: row;
    justify-content: space-between;
    align-items: center;
+   z-index: 3000;
 }
 
 /**********************************************************
@@ -147,3 +156,4 @@ body {
     transition: all 0.5s ease;
     display: none;
 }
+
