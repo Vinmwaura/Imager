@@ -7,6 +7,14 @@
 
 {% block content %}
 <div class="gallery-container">
+	<!-- Image Modal -->
+	<div id="image-modal" class="modal">
+		<div id="image-modal-content" class="modal-content">
+			<img id="image-original" src="{{ url_for('imager.load_image_by_id', image_id=image.file_id) }}" />
+		</div>
+	</div>
+
+	<!-- Image Container -->
 	<div class="image-container">
 		{% if current_user.is_anonymous %}
 		<div class="image-metric">
@@ -60,6 +68,7 @@
 		{% endif %}
 
 		<div class="image-section">
+			<!-- Image Details -->
 			<div class="image-details">
 				<div class="image-title">
 					<span>{{image.name}}</span>
@@ -70,7 +79,7 @@
 					</span>
 				</div>
 			</div>
-			<div class="image-panel">
+			<div class="image-panel" onclick="original_image()">
 				<img src="{{ url_for('imager.load_image_by_id', image_id=image.file_id) }}">
 			</div>
 		</div>
@@ -83,6 +92,23 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/gallery.js') }}"></script>
 
 <script type="text/javascript">
+	// Gets the image modal
+	var modal = document.getElementById("image-modal");
+	var modal_content = document.getElementById("image-modal-content");
+	var orig_img = document.getElementById("image-original")
+
+	// When the user clicks anywhere outside of the modal, close it
+	window.onclick = function(event) {
+	  	if (event.target == modal_content || event.target == orig_img) {
+	    	modal.style.display = "none";
+	  	}
+	}
+
+	// Show original image zoom in
+	function original_image() {
+		modal.style.display = "block";
+	}
+
 	function toggle_class_by_id(elem_id, class1, class2) {
 		if(document.getElementById(elem_id).className == class1) {
 			document.getElementById(elem_id).className = class2;
@@ -132,9 +158,6 @@
 		  	xhttp.setRequestHeader("X-CSRFToken", csrf_token)
 		  	xhttp.send("image_id=" + file_id);
 		}
-	{% else %}
-	function upvote() {}
-	function downvote() {}
 	{% endif %}
 </script>
 {% endblock %}

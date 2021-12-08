@@ -16,6 +16,7 @@
     height: 240px;
     width: 240px;
 
+
     display: inline-grid;
     padding-top: 0.2em;
     box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px,
@@ -187,4 +188,36 @@
 
 .user-details-container h1 {
     padding-left: 20px;
+}
+
+/**********************************************************
+                        Picture Modal
+***********************************************************/
+.modal {
+    display: none;
+    z-index: 4000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+    height: 100%;
+    display: flex;
+    
+}
+
+#image-original {
+    margin: auto; 
+}
+
+#image-modal-content img {
+    padding: 2em;
+    cursor: -moz-zoom-out; 
+    cursor: -webkit-zoom-out; 
+    cursor: zoom-out;
 }
