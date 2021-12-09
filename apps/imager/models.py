@@ -74,7 +74,7 @@ class ImageContent(db.Model):
         nullable=False)
     file_location = db.Column(
         db.String(100))
-    name = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(20), nullable=False)
     description = db.Column(db.Text)
     upload_time = db.Column(
         db.DateTime(timezone=True),

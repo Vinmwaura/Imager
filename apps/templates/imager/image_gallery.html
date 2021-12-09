@@ -6,6 +6,14 @@
 {% endblock %}
 
 {% block content %}
+
+{% if image|length == 0 %}
+<div class="no-gallery-container">
+	<div class="no-image">
+		<span>No images uploaded.</span>
+	</div>
+</div>
+{% else %}
 <div class="gallery-container">
 	<!-- Image Modal -->
 	<div id="image-modal" class="modal">
@@ -75,7 +83,7 @@
 			<!-- Image Details -->
 			<div class="image-details">
 				<div class="image-title">
-					<span>{{image.name}}</span>
+					<span>{{image.title}}</span>
 				</div>
 				<div class="image-uploader">
 					<span>
@@ -89,9 +97,31 @@
 		</div>
 	</div>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block js_block %}
+
+<script type="text/javascript">
+	// Gets the image modal
+	var modal = document.getElementById("image-modal");
+	var modal_content = document.getElementById("image-modal-content");
+	var orig_img = document.getElementById("image-original")
+	var close_btn = document.getElementById("image-modal-close")
+
+	// When the user clicks anywhere outside of the modal, close it
+	window.onclick = function(event) {
+	  	if (event.target == modal_content || event.target == orig_img || event.target == close_btn) {
+	    	modal.style.display = "none";
+	  	}
+	}
+
+	// Show original image zoom in
+	function original_image() {
+		modal.style.display = "block";
+	}
+</script>
+
 {% if not current_user.is_anonymous %}
 <!-- Gallery js -->
 <script>

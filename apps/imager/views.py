@@ -25,7 +25,7 @@ def get_image_details(user, images):
     for image in images:
         temp_dict = {}
         temp_dict["uploaded_by"] = image.user_content.user.username
-        temp_dict["name"] = image.name
+        temp_dict["title"] = image.title
         temp_dict["file_id"] = image.file_id
         temp_dict["voter_count"] = image_metric(image.file_id)
 
@@ -83,7 +83,7 @@ def upload_images():
                 return SERVER_ERROR, 500
 
             image_details = {
-                "name": request.form["name"]
+                "title": request.form["title"]
             }
 
             status = save_user_image(
@@ -93,7 +93,7 @@ def upload_images():
             if not status:
                 return SERVER_ERROR, 500
 
-            flash("Image Successfully added.")
+            flash("Image Successfully added.", "info")
             return redirect(url_for('imager.index'))
 
     return render_template(

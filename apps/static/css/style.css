@@ -40,6 +40,7 @@ body {
     right: 0;
 }
 
+
 /**********************************************************
                   MAIN HEADER NAVIGATION
 ***********************************************************/
@@ -157,3 +158,19 @@ body {
     display: none;
 }
 
+/**********************************************************
+                    Add Pic Button
+***********************************************************/
+.main-pic-options {
+    margin: 0 2em;
+}
+
+.add-pic-btn {
+    background-color: #1bb76e;
+    color: #FFF;
+    padding: 0.2em;
+    border: 1px solid #1bb76e;
+    border-radius: 0.1em;
+    font-size: 1.2em;
+    cursor: pointer;
+}

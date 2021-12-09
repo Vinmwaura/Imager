@@ -13,13 +13,13 @@ from wtforms.fields import (
 
 
 class UploadFileForm(FlaskForm):
-    name = StringField(
+    title = StringField(
         'Title',
         validators=[
             InputRequired(),
             Length(
                 min=1,
-                max=100,
+                max=20,
                 message="Name must be between 1 and 20 characters.")
         ])
     file = FileField(

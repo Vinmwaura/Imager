@@ -6,6 +6,13 @@
 {% endblock %}
 
 {% block content %}
+{% if images|length == 0 %}
+<div class="no-gallery-container">
+	<div class="no-image">
+		<span>No images uploaded.</span>
+	</div>
+</div>
+{% else %}
 <div class="gallery-container">
 	<div class="gallery-section">
 		{% for image in images %}
@@ -14,7 +21,7 @@
 				<img src="{{ url_for('imager.load_thumbnail_by_id', image_id=image.file_id) }}">
 
 				<div class="image-detail">
-					<div class="image-label">{{image.name}}</div>
+					<div class="image-label">{{image.title}}</div>
 					<div class="image-metric">
 						{% if current_user.is_anonymous %}
 						<div class="metric-section">
@@ -67,6 +74,7 @@
 		</div>
 		{% endfor %}
 	</div>
+	{% endif %}
 </div>
 {% endblock %}
 
