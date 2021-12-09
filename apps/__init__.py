@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, render_template
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
@@ -9,7 +9,6 @@ from flask_login import LoginManager
 from flask_mail import Mail
 
 from flask_wtf.csrf import CSRFProtect
-
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 STATICFILES_DIRS = (os.path.join(
@@ -33,8 +32,29 @@ mail = Mail()
 csrf = CSRFProtect()
 
 
+def unauthorized(e):
+    return render_template('errors/401.html'), 401
+
+
+def forbidden(e):
+    return render_template('errors/403.html'), 403
+
+
+def page_not_found(e):
+    return render_template('errors/404.html'), 404
+
+
+def internal_server_error(e):
+    return render_template('errors/500.html'), 500
+
+
 def create_app(config=None):
     app = Flask(__name__)
+
+    app.register_error_handler(401, unauthorized)
+    app.register_error_handler(403, forbidden)
+    app.register_error_handler(404, page_not_found)
+    app.register_error_handler(500, internal_server_error)
 
     # Load Configuration variables
     if config:
