@@ -6,38 +6,34 @@
 {% endblock %}
 
 {% block content %}
-	<div class="home-link">
-		<span><i class="fa fa-arrow-left"></i></span> <a href="{{ url_for('imager.index') }}">Go back to homepage</a>
+<div class="centered-form">
+	<div class="main-form" id="login-form">
+		<h1 class="form-title">Upload Image</h1>	
+		<form method="POST" action="{{ url_for('imager.upload_images') }}" enctype="multipart/form-data">
+		    {{ form.csrf_token }}
+
+		    {{ form.title(size=20, placeholder="Image Title") }}
+		    {% if form.title.errors %}
+		    <ul class="errors">
+		    {% for error in form.title.errors %}
+		        <li>{{ error }}</li>
+		    {% endfor %}
+		    </ul>
+			{% endif %}
+
+		    {{ form.file() }}<br/>
+		    {% if form.file.errors %}
+		    <ul class="errors">
+		    {% for error in form.file.errors %}
+		        <li>{{ error }}</li>
+		    {% endfor %}
+		    </ul>
+			{% endif %}
+
+			<div class="submit-btn" id="login-submit">
+				{{ form.submit() }}
+			</div>
+		</form>
 	</div>
-	
-	<div class="centered-form">
-		<div class="main-form" id="login-form">
-			<h1 class="form-title">Upload Image</h1>	
-			<form method="POST" action="{{ url_for('imager.upload_images') }}" enctype="multipart/form-data">
-			    {{ form.csrf_token }}
-
-			    {{ form.title(size=20, placeholder="Image Title") }}
-			    {% if form.title.errors %}
-			    <ul class="errors">
-			    {% for error in form.title.errors %}
-			        <li>{{ error }}</li>
-			    {% endfor %}
-			    </ul>
-				{% endif %}
-
-			    {{ form.file() }}<br/>
-			    {% if form.file.errors %}
-			    <ul class="errors">
-			    {% for error in form.file.errors %}
-			        <li>{{ error }}</li>
-			    {% endfor %}
-			    </ul>
-				{% endif %}
-
-				<div class="submit-btn" id="login-submit">
-					{{ form.submit() }}
-				</div>
-			</form>
-		</div>
-	</div>
+</div>
 {% endblock %}

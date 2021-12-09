@@ -6,74 +6,70 @@
 {% endblock %}
 
 {% block content %}
-	<div class="home-link">
-		<span><i class="fa fa-arrow-left"></i></span> <a href="{{ url_for('imager.index') }}">Go back to homepage</a>
+<div class="centered-form">
+	<div class="main-form" id="registration-form">
+		<h1 class="form-title">Registration</h1>
+		<form method="POST" action="{{ url_for('auth.registration') }}">
+		    {{ form.csrf_token }}
+		    
+		    {{ form.username(size=20, placeholder="Username") }}
+		    {% if form.username.errors %}
+		    <ul class="errors">
+		    {% for error in form.username.errors %}
+		        <li>{{ error }}</li>
+		    {% endfor %}
+		    </ul>
+			{% endif %}
+
+		    {{ form.first_name(size=20, placeholder="FirstName") }}
+		    {% if form.first_name.errors %}
+		    <ul class="errors">
+		    {% for error in form.first_name.errors %}
+		        <li>{{ error }}</li>
+		    {% endfor %}
+		    </ul>
+			{% endif %}
+
+			{{ form.last_name(size=20, placeholder="LastName") }}
+			{% if form.last_name.errors %}
+		    <ul class="errors">
+		    {% for error in form.last_name.errors %}
+		        <li>{{ error }}</li>
+		    {% endfor %}
+		    </ul>
+			{% endif %}
+
+		    {{ form.email(placeholder="Email") }}
+		    {% if form.email.errors %}
+		    <ul class="errors">
+		    {% for error in form.email.errors %}
+		        <li>{{ error }}</li>
+		    {% endfor %}
+		    </ul>
+			{% endif %}
+
+		    {{ form.password(placeholder="Password") }}
+		    {% if form.password.errors %}
+		    <ul class="errors">
+		    {% for error in form.password.errors %}
+		        <li>{{ error }}</li>
+		    {% endfor %}
+		    </ul>
+			{% endif %}
+
+		    {{ form.password_confirmation(placeholder="Retype Password") }}
+		    {% if form.password_confirmation.errors %}
+		    <ul class="errors">
+		    {% for error in form.password_confirmation.errors %}
+		        <li>{{ error }}</li>
+		    {% endfor %}
+		    </ul>
+			{% endif %}
+		    
+		    <div class="submit-btn" id="registration-submit">
+		    	{{ form.submit() }}
+			</div>
+		</form>
 	</div>
-
-	<div class="centered-form">
-		<div class="main-form" id="registration-form">
-			<h1 class="form-title">Registration</h1>
-			<form method="POST" action="{{ url_for('auth.registration') }}">
-			    {{ form.csrf_token }}
-			    
-			    {{ form.username(size=20, placeholder="Username") }}
-			    {% if form.username.errors %}
-			    <ul class="errors">
-			    {% for error in form.username.errors %}
-			        <li>{{ error }}</li>
-			    {% endfor %}
-			    </ul>
-				{% endif %}
-
-			    {{ form.first_name(size=20, placeholder="FirstName") }}
-			    {% if form.first_name.errors %}
-			    <ul class="errors">
-			    {% for error in form.first_name.errors %}
-			        <li>{{ error }}</li>
-			    {% endfor %}
-			    </ul>
-				{% endif %}
-
-				{{ form.last_name(size=20, placeholder="LastName") }}
-				{% if form.last_name.errors %}
-			    <ul class="errors">
-			    {% for error in form.last_name.errors %}
-			        <li>{{ error }}</li>
-			    {% endfor %}
-			    </ul>
-				{% endif %}
-
-			    {{ form.email(placeholder="Email") }}
-			    {% if form.email.errors %}
-			    <ul class="errors">
-			    {% for error in form.email.errors %}
-			        <li>{{ error }}</li>
-			    {% endfor %}
-			    </ul>
-				{% endif %}
-
-			    {{ form.password(placeholder="Password") }}
-			    {% if form.password.errors %}
-			    <ul class="errors">
-			    {% for error in form.password.errors %}
-			        <li>{{ error }}</li>
-			    {% endfor %}
-			    </ul>
-				{% endif %}
-
-			    {{ form.password_confirmation(placeholder="Retype Password") }}
-			    {% if form.password_confirmation.errors %}
-			    <ul class="errors">
-			    {% for error in form.password_confirmation.errors %}
-			        <li>{{ error }}</li>
-			    {% endfor %}
-			    </ul>
-				{% endif %}
-			    
-			    <div class="submit-btn" id="registration-submit">
-			    	{{ form.submit() }}
-				</div>
-			</form>
-		</div>
-	</div>
+</div>
 {% endblock %}

@@ -6,50 +6,44 @@
 {% endblock %}
 
 {% block content %}
-	<div class="home-link">
-		<span><i class="fa fa-arrow-left"></i></span> <a href="{{ url_for('imager.index') }}">Go back to homepage</a>
-	</div>
+<div class="centered-form">
+	<div class="main-form" id="login-form">
+		<h1 class="form-title">Login</h1>
+		<form method="POST" action="{{ url_for('auth.login') }}" novalidate>
+		    {{ form.csrf_token }}
+		    
+		    {{ form.username_email(size=20, placeholder="Username or Email") }}
+		    {% if form.username_email.errors %}
+		    <ul class="errors">
+		    {% for error in form.username_email.errors %}
+		        <li>{{ error }}</li>
+		    {% endfor %}
+		    </ul>
+			{% endif %}
 
-	<div class="centered-form">
-		<div class="main-form" id="login-form">
-			<h1 class="form-title">Login</h1>
-			<form method="POST" action="{{ url_for('auth.login') }}" novalidate>
-			    {{ form.csrf_token }}
-			    
-			    {{ form.username_email(size=20, placeholder="Username or Email") }}
-			    {% if form.username_email.errors %}
-			    <ul class="errors">
-			    {% for error in form.username_email.errors %}
-			        <li>{{ error }}</li>
-			    {% endfor %}
-			    </ul>
-				{% endif %}
+		    {{ form.password(placeholder="Password") }}
+		    {% if form.password.errors %}
+		    <ul class="errors">
+		    {% for error in form.password.errors %}
+		        <li>{{ error }}</li>
+		    {% endfor %}
+		    </ul>
+			{% endif %}
 
-			    {{ form.password(placeholder="Password") }}
-			    {% if form.password.errors %}
-			    <ul class="errors">
-			    {% for error in form.password.errors %}
-			        <li>{{ error }}</li>
-			    {% endfor %}
-			    </ul>
-				{% endif %}
-
-				<div class="submit-btn" id="login-submit">
-					{{ form.submit() }}
-				</div>
-			</form>
-
-			<div id="login-options">
-				<span id="login-registration-option">
-					<a href="{{ url_for('auth.registration') }}">Don't have an account?</a>
-				</span>
-				<span class="separator"></span> 
-				<span id="login-forgot-option">
-					<a href="{{ url_for('auth.forgot_password') }}">Forgot username or password?</a>
-				</span>
+			<div class="submit-btn" id="login-submit">
+				{{ form.submit() }}
 			</div>
-		</div>	
-	</div>
-	
-	
+		</form>
+
+		<div id="login-options">
+			<span id="login-registration-option">
+				<a href="{{ url_for('auth.registration') }}">Don't have an account?</a>
+			</span>
+			<span class="separator"></span> 
+			<span id="login-forgot-option">
+				<a href="{{ url_for('auth.forgot_password') }}">Forgot username or password?</a>
+			</span>
+		</div>
+	</div>	
+</div>
 {% endblock %}

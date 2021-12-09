@@ -9,19 +9,34 @@ html {
 /* Aligns placeholder input text */
 ::-webkit-input-placeholder {
    text-align: center;
+   font-size: 1.2em;
 }
 
 :-moz-placeholder { /* Firefox 18- */
-   text-align: center;  
+   text-align: center;
+   font-size: 1.2em;
 }
 
 ::-moz-placeholder {  /* Firefox 19+ */
-   text-align: center;  
+   text-align: center;
+   font-size: 1.2em;
 }
 
 :-ms-input-placeholder {  
-   text-align: center; 
+   text-align: center;
+   font-size: 1.2em;
 }
+
+::-ms-input-placeholder { /* Microsoft Edge */
+    text-align: center;
+    font-size: 1.2em;
+}
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    text-align: center;
+    font-size: 1.2em;
+}
+
 
 body {
     font-family: 'Open Sans', sans-serif;
@@ -63,7 +78,6 @@ body {
 .main-header-nav a, .main-footer-nav a {
     text-decoration-line: none;
     color: #FFF;
-   
 }
 
 .user-options {
@@ -101,11 +115,28 @@ body {
     width: 95%;
     border: none;
     padding-left: 1em;
-
-
-    background-color: hsla(0,0%,100%,.25);
-    color: #FFF;
+    background-color: rgba(255,255,255,0.25);
     border-radius: 5px 0 0 5px;
+}
+
+.main-search-options ::-webkit-input-placeholder {
+    color: #FFF;  
+}
+
+.main-search-options :-moz-placeholder { /* Firefox 18- */
+    color: #FFF;  
+}
+
+.main-search-options ::-moz-placeholder { /* Firefox 19+ */
+    color: #FFF;
+}
+
+.main-search-options :-ms-input-placeholder { /* Microsoft Edge */
+    color: #FFF;
+}
+
+.main-search-options ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: #FFF;
 }
 
 .main-search-options .search-submit {
@@ -136,8 +167,7 @@ body {
                      MAIN CONTENT BODY
 ***********************************************************/
 .main-content {
-    margin: 4em 0;
-    padding: 0 5em;
+    padding: 4em 5em;
 }
 
 /**********************************************************
@@ -195,41 +225,4 @@ body {
     opacity: 0;
     transition: all 0.5s ease;
     display: none;
-}
-
-
-/* iPads (portrait and landscape) ----------- */
-@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) {
-/* Styles */
-}
-
-/* iPads (landscape) ----------- */
-@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : landscape) {
-/* Styles */
-}
-
-/* iPads (portrait) ----------- */
-@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : portrait) {
-    .main-search-options {
-       margin: auto;
-       width: 20em;
-    }
-
-    .main-search-options .search-input {
-        padding-left: 0.4em;
-        border: none;
-        width: 90%;
-        float: left;
-        height: 2.5em;
-    }
-
-    .main-search-options .search-submit {
-        width: 10%;
-        float: left;
-        height: 2.5em;
-        border: none;
-
-        border-left: none;
-        cursor: pointer;
-    }
 }
