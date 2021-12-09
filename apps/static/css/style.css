@@ -51,45 +51,84 @@ body {
     height: 4em;
     top: 0;
     padding: 0 1em;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
     z-index: 3000;
+    font-weight: bold;
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .main-header-nav a, .main-footer-nav a {
     text-decoration-line: none;
     color: #FFF;
-    font-weight: bold;
+   
+}
+
+.user-options {
+    display: flex;
+    justify-content: space-between;
+}
+
+.user-options div {
+    margin: auto 0.5em;
 }
 
 .main-login-options {
-   width: 8em;
    display: flex;
+   flex-direction: row;
    justify-content: space-between;
 }
 
+.main-login-options span {
+    margin: 0.5em;
+}
+
 .main-search-options {
-   margin: auto;
-   width: 30em;
+    width: 30em;
+}
+
+.search-form {
+    width: 100%;
+    height: 2em;
+
+    display: flex;
+    flex-direction: row;
 }
 
 .main-search-options .search-input {
-    padding-left: 0.4em;
-    border: none;
     width: 95%;
-    float: left;
-    height: 2.5em;
+    border: none;
+    padding-left: 1em;
+
+
+    background-color: hsla(0,0%,100%,.25);
+    color: #FFF;
+    border-radius: 5px 0 0 5px;
 }
 
 .main-search-options .search-submit {
     width: 5%;
-    float: left;
-    height: 2.5em;
     border: none;
+    background-color: hsla(0,0%,100%,.25);
+    color: #FFF;
+    border-radius: 0 5px 5px 0;
+}
 
-    border-left: none;
+.main-search-options .search-input:focus {
+    outline-width: 0;
+}
+
+.main-pic-options a {
+    padding: 0.5em; /* Centers text of link */
+}
+
+.add-pic-btn {
+    background-color: #1bb76e;
+    color: #FFF;
+    border: 1px solid #1bb76e;
+    border-radius: 5px;
     cursor: pointer;
 }
 
@@ -158,19 +197,39 @@ body {
     display: none;
 }
 
-/**********************************************************
-                    Add Pic Button
-***********************************************************/
-.main-pic-options {
-    margin: 0 2em;
+
+/* iPads (portrait and landscape) ----------- */
+@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) {
+/* Styles */
 }
 
-.add-pic-btn {
-    background-color: #1bb76e;
-    color: #FFF;
-    padding: 0.2em;
-    border: 1px solid #1bb76e;
-    border-radius: 0.1em;
-    font-size: 1.2em;
-    cursor: pointer;
+/* iPads (landscape) ----------- */
+@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : landscape) {
+/* Styles */
+}
+
+/* iPads (portrait) ----------- */
+@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : portrait) {
+    .main-search-options {
+       margin: auto;
+       width: 20em;
+    }
+
+    .main-search-options .search-input {
+        padding-left: 0.4em;
+        border: none;
+        width: 90%;
+        float: left;
+        height: 2.5em;
+    }
+
+    .main-search-options .search-submit {
+        width: 10%;
+        float: left;
+        height: 2.5em;
+        border: none;
+
+        border-left: none;
+        cursor: pointer;
+    }
 }

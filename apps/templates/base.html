@@ -38,41 +38,43 @@
 				</form>
 			</div>
 
-			{% block additional_navs %}
-			{% endblock %}
+			<div class="user-options">
+				{% block additional_navs %}
+				{% endblock %}
 
-			<div class="main-pic-options">
-				{% if current_user.is_anonymous %}
-				<a href="{{url_for('auth.login')}}" class="add-pic-btn" onclick="window.href"><i class="fa fa-plus"></i>  <span>Upload</span></a>
-				{% else %}
-				<a href="{{url_for('imager.upload_images')}}" class="add-pic-btn" onclick="window.href"><i class="fa fa-plus"></i>  <span>Upload</span></a>
-				{% endif %}
-			</div>
-
-			{% if current_user.is_anonymous %}
-			<div class="main-login-options">
-				<span class="sign-in-link"><a href="{{ url_for('auth.login') }}">Sign In</a></span>
-				<span class="sign-up-link"><a href="{{ url_for('auth.registration') }}">Sign Up</a></span>
-			</div>
-			{% else %}
-			<div class="main-account-options">
-				<span class="user-account-link">
-					<a href="javascript:void(0)" onclick='toggle_dropdown()'>
-						<span style="color: #FFF;">{{current_user.username}}</span>&emsp;<i class="fa fa-user"></i> <i class="fa fa-caret-down"></i>
-					</a>
-				</span>
-
-				<!-- Dropdown navigation -->
-				<div class="hide-dropdown" id="main-account-dropdown">
-					<a href="{{ url_for('imager.load_images_by_username', username=current_user.username) }}">
-						<span class="user-images-link">My Images</span>
-					</a>
-					<a href="{{ url_for('auth.logout') }}">
-						<span class="sign-out-link"><i class="fa fa-power-off"></i>&emsp;Sign Out</span>
-					</a>
+				<div class="main-pic-options">
+					{% if current_user.is_anonymous %}
+					<a href="{{url_for('auth.login')}}" class="add-pic-btn" onclick="window.href"><i class="fa fa-plus"></i> <span>Upload</span></a>
+					{% else %}
+					<a href="{{url_for('imager.upload_images')}}" class="add-pic-btn" onclick="window.href"><i class="fa fa-plus"></i>  <span>Upload</span></a>
+					{% endif %}
 				</div>
+
+				{% if current_user.is_anonymous %}
+				<div class="main-login-options">
+					<span class="sign-in-link"><a href="{{ url_for('auth.login') }}">Sign In</a></span>
+					<span class="sign-up-link"><a href="{{ url_for('auth.registration') }}">Sign Up</a></span>
+				</div>
+				{% else %}
+				<div class="main-account-options">
+					<span class="user-account-link">
+						<a href="javascript:void(0)" onclick='toggle_dropdown()'>
+							<span style="color: #FFF;">{{current_user.username}}</span>&emsp;<i class="fa fa-user"></i> <i class="fa fa-caret-down"></i>
+						</a>
+					</span>
+
+					<!-- Dropdown navigation -->
+					<div class="hide-dropdown" id="main-account-dropdown">
+						<a href="{{ url_for('imager.load_images_by_username', username=current_user.username) }}">
+							<span class="user-images-link">My Images</span>
+						</a>
+						<a href="{{ url_for('auth.logout') }}">
+							<span class="sign-out-link"><i class="fa fa-power-off"></i>&emsp;Sign Out</span>
+						</a>
+					</div>
+				</div>
+				{% endif %}		
 			</div>
-			{% endif %}
 		</nav>
 
 		<!-- Main Content for the website -->
