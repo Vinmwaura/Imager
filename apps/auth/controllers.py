@@ -660,7 +660,7 @@ def createsuperuser(username, first_name, last_name, email, password):
         "last_name": last_name,
         "email": email,
         "password": password,
-        "active": True  # Admin user have account activated by default
+        "email_confirmed": True  # Admin user have account activated by default
     }
 
     admin_created = account_creation(

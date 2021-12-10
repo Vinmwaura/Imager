@@ -400,8 +400,8 @@ class User(UserMixin, db.Model):
             self.last_name = user_dict['last_name']
             self.email = user_dict['email']
             self.user_role = user_dict['user_role']
-            if "active" in user_dict:
-                self.active = user_dict['active']
+            if "email_confirmed" in user_dict:
+                self.email_confirmed = user_dict['email_confirmed']
 
             # Create salt
             salt = self.create_salt()
