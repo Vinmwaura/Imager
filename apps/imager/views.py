@@ -163,6 +163,49 @@ def load_gallery_image(image_id):
     abort(404)
 
 
+@imager_bp.route("/edit/gallery/<string:image_id>")
+@login_required
+def edit_gallery(image_id):
+    image_content = get_image_content_by_id(image_id)
+    if image_content:
+        edit_image_uploaded = UploadFileForm(
+            title=image_content[0].title)
+        if edit_image_uploaded.validate_on_submit():
+            pass
+        return render_template(
+            "imager/edit_image.html",
+            image=image_content[0],
+            form=edit_image_uploaded)
+    abort(404)
+
+
+@imager_bp.route("/delete/gallery", methods=["GET", "POST"])
+@login_required
+def delete_gallery():
+    if request.method == "GET":
+        image_args = request.args.get("image_ids")
+        if image_args:
+            image_ids = image_args.split(",")
+            image_content_list = []
+            for image_id in image_ids:
+                image_content = load_user_images(
+                    current_user.id, image_id)
+                if image_content:
+                    data_dict = get_image_details(
+                        current_user, image_content)
+                    image_content_list.append(data_dict[0])
+                else:
+                    pass
+            return render_template(
+                "imager/confirm_delete_image.html",
+                images=image_content_list)
+
+        else:
+            abort(400)
+    elif request.method == "POST":
+        pass
+
+
 @imager_bp.route("/gallery/user/<string:username>")
 def load_images_by_username(username):
     page = request.args.get('page', 1, type=int)
@@ -181,6 +224,26 @@ def load_images_by_username(username):
     data_dict = get_image_details(current_user, images)
     return render_template(
         "imager/user_gallery.html",
+        images=data_dict,
+        user=user)
+
+
+@imager_bp.route("/user/profile")
+@login_required
+def load_user_profile():
+    page = request.args.get('page', 1, type=int)
+
+    user, image_content = get_image_contents_by_user(current_user.username)
+
+    # If user has no uploaded images, return empty images
+    if image_content is None:
+        images = []
+    else:
+        images = image_content_pagination(image_content, page=page)
+
+    data_dict = get_image_details(current_user, images)
+    return render_template(
+        "imager/user_profile.html",
         images=data_dict,
         user=user)
 

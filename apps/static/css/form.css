@@ -73,3 +73,48 @@
 .main-form .errors li {
     color: #F00;
 }
+
+/**********************************************************
+                        Edit Form
+***********************************************************/
+.edit-form {
+    width: 100%;
+    padding: 1em;
+    border-radius: 0 0 0.5em 0.5em;
+
+    display: flex;
+    justify-content: center;
+}
+
+.edit-form .image-panel {
+    margin-bottom: 1em;
+}
+
+.edit-form label {
+    font-weight: bolder;
+}
+
+.delete-form {
+    width: 50%;
+    height: 10em;
+}
+
+.confirm-delete {
+    display: flex;
+    justify-content: center;
+}
+
+.cancel-btn {
+    padding: 0.7em 2em;
+    color: white;
+    background-color: #0F0;
+    text-decoration-line: none;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.disabled {
+    pointer-events: none;
+    cursor: default;
+    color: #FFF !important;
+}

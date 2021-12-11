@@ -106,6 +106,30 @@ def get_image_content_by_id(image_id):
     return image_content
 
 
+def load_user_images(user_id, image_id):
+    """
+    Loads ImageContent of user by image_id if any.
+
+    Args:
+      user_id: User id.
+      image_id: File id representing the image.
+
+    Returns:
+      ImageContent object if any else empty list.
+    """
+    user_content_id = models.UserContent().query.filter_by(
+        user_id=user_id).first()
+
+    if user_content_id:
+        image_content = models.ImageContent().query.filter_by(
+            user_content=user_content_id,
+            file_id=image_id).all()
+    else:
+        image_content = []
+
+    return image_content
+
+
 def create_user_content(user, directory_name):
     """
     Saves a record in UserContent with user and directory

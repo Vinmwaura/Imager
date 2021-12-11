@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class="centered-form">
-	<div class="main-form" id="login-form">
+	<div class="main-form" id="upload-form">
 		<h1 class="form-title">Upload Image</h1>	
 		<form method="POST" action="{{ url_for('imager.upload_images') }}" enctype="multipart/form-data">
 		    {{ form.csrf_token }}

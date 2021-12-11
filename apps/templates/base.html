@@ -65,6 +65,9 @@
 
 					<!-- Dropdown navigation -->
 					<div class="hide-dropdown" id="main-account-dropdown">
+						<a href="{{ url_for('imager.load_user_profile') }}">
+							<span class="user-images-link">User Profile</span>
+						</a>
 						<a href="{{ url_for('imager.load_images_by_username', username=current_user.username) }}">
 							<span class="user-images-link">My Images</span>
 						</a>

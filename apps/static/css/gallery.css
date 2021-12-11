@@ -1,6 +1,88 @@
 /**********************************************************
+                    User Profile Page
+***********************************************************/
+.edit-profile a {
+    color: #FFF;
+}
+
+.gallery-select-multiple {
+    transform: scale(1.5);
+}
+
+.gallery-select-individual {
+    transform: scale(1.5);
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.profile_options {
+    display: flex;
+    width: 100%;
+}
+
+.select-action {
+    width: 10em;
+    border-radius: 5px;
+    border: none;
+}
+
+.delete-btn {
+    background-color: #F00;
+    color: #FFF;
+    border-radius: 5px;
+    padding: 0.5em;
+    text-decoration-line: none;
+}
+
+.action-options {
+    margin: 1em 0;
+}
+
+.action-options:not(:first-of-type) {
+    display: none;
+    margin: 1em 1.5em;
+}
+
+.checkbox-section {
+    display: none;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1001;
+    position: absolute;
+    cursor: pointer;
+}
+
+.checkbox-section label {
+    display: block;
+    width: inherit;
+    height: inherit;
+}
+
+
+/**********************************************************
                         Image Gallery
 ***********************************************************/
+.gallery-checkbox {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transform: scale(1.5);
+}
+
+.gallery-options {
+    display: block;
+    padding: 1.5em 0 0;
+    height: 3em;
+}
+
+.gallery-options .option {
+    padding: 0 2em;
+    display: inline-block;
+}
+
 .no-gallery-container {
     min-height: calc(100vh - 10em);
     width: 100%;
@@ -38,7 +120,11 @@
 }
 
 .gallery-image:hover {
-    box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
+                rgba(0, 0, 0, 0.12) 0px -12px 30px,
+                rgba(0, 0, 0, 0.12) 0px 4px 6px,
+                rgba(0, 0, 0, 0.17) 0px 12px 13px,
+                rgba(0, 0, 0, 0.09) 0px -3px 5px;
 }
 
 .gallery-link {
@@ -51,8 +137,39 @@
     height: 100%;
 }
 
-/* Overlay of image */
-.image-overlay {
+/* Top Overlay of image */
+.image-overlay-top {
+    z-index: 1000;
+    background-color: rgba(0,0,0,0.4);
+    overflow: hidden;
+
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 4em;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.image-overlay-top .image-options {
+    padding: 0 1em;
+    margin-bottom: 0.5em;
+}
+
+.image-overlay-top .delete,
+.image-overlay-top .edit {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.image-overlay-top .delete:hover,
+.image-overlay-top .edit:hover {
+    color: rgba(255, 255, 255, 1.0);
+}
+
+/* Bottom Overlay of image */
+.image-overlay-bottom {
     z-index: 1000;
     background-color: #333;
     height: 4em;
@@ -64,18 +181,18 @@
     bottom: 0;
 }
 
-.image-overlay .image-label,
-.image-overlay .image-metric {
+.image-overlay-bottom .image-label,
+.image-overlay-bottom .image-metric {
     height: 50%;
 }
 
-.image-overlay .image-label {
+.image-overlay-bottom .image-label {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.image-overlay .image-metric {
+.image-overlay-bottom .image-metric {
     display: flex;
     justify-content: center;
 }
@@ -248,4 +365,3 @@
     cursor: -webkit-zoom-out; 
     cursor: zoom-out;
 }
-
