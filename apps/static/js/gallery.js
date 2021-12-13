@@ -98,7 +98,6 @@ function add_hidden_inputs(parent_elem_id, name, args) {
 /* Removes hidden inputs in the form */
 function remove_hidden_inputs(elem_id) {
 	let input_elem = document.getElementById(elem_id);
-	console.log(input_elem)	
 	// Removes element.
 	input_elem.remove();
 }
@@ -144,28 +143,6 @@ function toggle_delete(image_id) {
 			toggle_class(select_gallery[i], "show", "hide");
 		}	
 	}
-	/*
-	let select_gallery = document.getElementsByClassName('checkbox-section');
-	let select_options = document.getElementsByClassName('toggle');
-
-	if(checkbox.checked == true) {
-		for (let i=0; i<select_gallery.length; i++) {
-			select_gallery[i].style.display = "block";
-		}
-
-		for (let i=0; i<select_options.length; i++) {
-			select_options[i].style.display = "block";
-		}
-    } else {
-    	for (let i=0; i<select_gallery.length; i++) {
-			select_gallery[i].style.display = "none";
-		}
-
-		for (let i=0; i<select_options.length; i++) {
-			select_options[i].style.display = "none";
-		}
-   	}
-   	*/
 }
 
 /* Append hiddent inputs to forms before submitting */
