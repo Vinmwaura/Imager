@@ -68,12 +68,23 @@ def upload_images():
     if upload_file_form.validate_on_submit():
         uploaded_file = upload_file_form.file.data
         filename = secure_filename(uploaded_file.filename)
+
         if filename != "":
+            # File Extension from filename
             file_ext = os.path.splitext(filename)[1]
-            if file_ext not in current_app.config['UPLOAD_EXTENSIONS'] or \
-                    file_ext != validate_image(uploaded_file.stream):
-                flash("Invalid file type!")
-                # abort(400)
+
+            image_extensions = current_app.config['UPLOAD_EXTENSIONS']
+
+            if file_ext not in image_extensions:
+                flash(
+                    "Image type is not valid, only supports {}!".format(
+                        ", ".join(image_extensions)), "error")
+                return redirect(url_for('imager.upload_images'))
+
+            # Security check to ensure image type matches data uploaded
+            if file_ext != validate_image(uploaded_file.stream):
+                flash("File uploaded is not valid!", "error")
+                return redirect(url_for('imager.upload_images'))
 
             # Check if user has a folder for storing their content.
             # Create a folder for user if first time posting content.
@@ -91,9 +102,10 @@ def upload_images():
                 uploaded_file,
                 image_details)
             if not status:
-                return SERVER_ERROR, 500
-
-            flash("Image Successfully added.", "info")
+                # return SERVER_ERROR, 500
+                flash(SERVER_ERROR, "error")
+            else:
+                flash("Image Successfully added.", "info")
             return redirect(url_for('imager.index'))
 
     return render_template(
@@ -163,15 +175,38 @@ def load_gallery_image(image_id):
     abort(404)
 
 
-@imager_bp.route("/edit/gallery/<string:image_id>")
+@imager_bp.route("/edit/gallery/<string:image_id>", methods=["GET", "POST"])
 @login_required
 def edit_gallery(image_id):
     image_content = get_image_content_by_id(image_id)
     if image_content:
-        edit_image_uploaded = UploadFileForm(
+        edit_image_uploaded = EditImageForm(
             title=image_content[0].title)
+
         if edit_image_uploaded.validate_on_submit():
-            pass
+            gallery_title = request.form["title"]
+
+            if gallery_title != image_content[0].title:
+                image_content[0].title = gallery_title
+
+                try:
+                    # Commit Session
+                    db.session.commit()
+                    flash(
+                        "Successfully updated to \'{}\'".format(
+                            image_content[0].title), "success")
+                except Exception as e:
+                    # Rollback session
+                    db.session.rollback()
+                    # TODO: Log error message properly
+                    print("An error occured while commiting Role: ", e)
+                    flash("An error occured while updating {}.".format(
+                        image_content[0].title))
+            else:
+                flash("No change detected", "info")
+
+            return redirect(url_for('imager.user_profile'))
+
         return render_template(
             "imager/edit_image.html",
             image=image_content[0],

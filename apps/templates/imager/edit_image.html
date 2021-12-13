@@ -37,6 +37,7 @@
 			    <div class="image-panel" onclick="original_image()">
 					<img src="{{ url_for('imager.load_image_by_id', image_id=image.file_id) }}">
 				</div>
+				<input id="file" name="file" type="hidden" value="{{ url_for('imager.load_image_by_id', image_id=image.file_id) }}">
 
 			    {{ form.title.label }}{{ form.title(size=20, placeholder="Image Title") }}
 			    {% if form.title.errors %}
@@ -49,7 +50,7 @@
 
 
 				<div class="submit-btn" id="login-submit">
-					{{ form.submit() }}
+					{{ form.change() }}
 				</div>
 			</form>
 		</div>

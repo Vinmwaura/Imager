@@ -21,19 +21,145 @@
 		    </ul>
 			{% endif %}
 
-		    {{ form.file() }}<br/>
-		    {% if form.file.errors %}
-		    <ul class="errors">
-		    {% for error in form.file.errors %}
-		        <li>{{ error }}</li>
-		    {% endfor %}
-		    </ul>
-			{% endif %}
+			<!-- File Upload -->
+			<div class="file-upload" id="file-container">
+				<div class="image-upload-container show" id="upload-container">
+					{{ form.file(class="file-upload-input", id="file-upload", onchange="upload_img(this);") }}
 
+					<div class="drag-text">
+						<h3>Drag and drop or Click to add Image</h3>
+					</div>
+				</div>
+				{% if form.file.errors %}
+               	<ul class="errors">
+               	{% for error in form.file.errors %}
+                   <li>{{ error }}</li>
+               	{% endfor %}
+               	</ul>
+               	{% endif %}
+
+				<div class="file-upload-preview hide" id="upload-preview">
+					<div class="image-title-wrap">
+						<button type="button" onclick="remove_upload()" class="remove-image">Remove <span class="image-title">Uploaded Image</span></button>
+					</div>
+					<img class="file-upload-image" src="#" alt="your image" id="upload-image"/>
+				</div>
+			</div>
 			<div class="submit-btn" id="login-submit">
-				{{ form.submit() }}
+				{{ form.upload() }}
 			</div>
 		</form>
 	</div>
 </div>
+{% endblock %}
+
+{% block js_block %}
+<script type="text/javascript">
+	function upload_img(img_input) {
+		if (img_input.files && img_input.files[0]) {
+			var reader = new FileReader();
+
+			reader.onload = function(e) {
+				let upload_container = document.getElementById("upload-container");
+				let upload_preview = document.getElementById("upload-preview");
+				let upload_image = document.getElementById("upload-image");
+				let image_title = document.getElementById("image-title");
+
+				/* Toggle Upload Image  */
+				upload_container.classList.remove("show");
+				upload_container.classList.add("hide");
+
+				/* Add uploaded image to Preview Section */
+				upload_image.setAttribute("src", e.target.result);
+
+				/* Toggle Preview Section  */
+				upload_preview.classList.remove("hide");
+				upload_preview.classList.add("show");
+			};
+
+			reader.readAsDataURL(img_input.files[0]);
+		} else {
+			remove_upload();
+		}
+	}
+
+	function remove_upload() {		
+		// Clears uploaded file from input.
+		let file_upload = document.getElementById('file-upload')
+		file_upload.value = null;
+
+		// Remove preview image.
+		let upload_image = document.getElementById("upload-image");
+		upload_image.setAttribute("src", "#");
+
+		// Toggle preview options to be hidden.
+		let upload_preview = document.getElementById("upload-preview");
+		upload_preview.classList.remove("show");
+		upload_preview.classList.add("hide");
+		
+		// Toggle upload options to be shown.
+		let upload_container = document.getElementById("upload-container");
+		upload_container.classList.remove("hide");
+		upload_container.classList.add("show");
+	}
+	/*
+	function readURL(input_) {
+		if (input_.files && input_.files[0]) {
+			var reader = new FileReader();
+
+			reader.onload = function(e) {
+				let upload_container = document.getElementById("upload-container");
+				let upload_conent = document.getElementById("upload-content");
+				let upload_image = document.getElementById("upload-image");
+
+				upload_container.classList.remove("show");
+				upload_container.classList.add("hide");
+
+				upload_image.setAttribute("src", e.target.result);
+				upload_conent.classList.add("show");
+			};
+
+			reader.readAsDataURL(input_.files[0]);
+
+			// Show Title
+			let image_title = document.getElementById("image-title");
+			image_title.classList.remove("hide");
+			image_title.classList.add("show");
+
+		} else {
+			removeUpload();
+		}
+	}
+
+	function removeUpload() {
+		// Resets image
+		let img_elem = document.createElement("img");
+		img_elem.setAttribute("src", "#");
+		img_elem.setAttribute("class", "file-upload-image");
+		img_elem.setAttribute("alt", "your image");
+		img_elem.setAttribute("id", "upload-image");
+
+		document.getElementById('file-upload').value = null;
+
+		let upload_container = document.getElementById("upload-container");
+		let file_upload = document.getElementById("file-upload");
+		let upload_content = document.getElementById("upload-content");
+		let upload_image = document.getElementById("upload-image");
+
+		upload_content.removeChild(upload_image);
+		upload_content.appendChild(img_elem);
+
+		upload_content.classList.remove("show");
+		upload_content.classList.add("hide");
+
+		upload_container.classList.remove("hide");
+		upload_container.classList.add("show");
+
+		// Hide Title
+		let image_title = document.getElementById("image-title");
+		image_title.classList.remove("show");
+		image_title.classList.add("hide");
+	}
+	*/
+</script>
 {% endblock %}

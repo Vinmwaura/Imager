@@ -37,7 +37,7 @@ def validate_image(stream):
     format = imghdr.what(None, header)
     if not format:
         return None
-    return '.' + (format if format != 'jpeg' else 'jpg')
+    return '.' + format
 
 
 def create_content_directory(file_path, directory_name=None):
