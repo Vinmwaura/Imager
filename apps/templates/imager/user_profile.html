@@ -3,6 +3,19 @@
 {% block css_block %}
 <!-- Gallery css -->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/gallery.css') }}">
+
+<!-- Form css -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
+
+<style type="text/css">
+	.user-details-container {
+		height: 5em;
+	}
+
+	.no-gallery-container {
+		min-height: calc(100vh - 15em);
+	}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -10,6 +23,9 @@
 	<span class="profile_pic">
 		<img src="data:image/png;base64,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"/>
 	</span>
+	<a class="edit" href="#" id="edit-profile-pic" style="color: #00F">
+		<span><i class="fa fa-edit"></i></span>
+	</a>
 	{% if current_user == user %}
 	<h1>{{user.username}} <sup>(You)</sup></h1>
 	{% else %}
@@ -24,38 +40,37 @@
 	</div>
 </div>
 {% else %}
+
 {% if current_user == user %}
-<div class="profile_options">
-	<div class="action-options">
-		<input type="checkbox" class="gallery-select-multiple" id="select-multiple" name="select-multiple" onchange='toggle_select_multiple(this);'>
-		<label for="select-multiple"> Select multiple</label>	
-	</div>
-
-	<div class="action-options toggle">
-		<label for="actions">Action:</label>
-
-		<select class="select-action" name="actions">
-		  <option value="delete">Delete</option>
-		</select>
-	</div>
-
-	<div class="action-options toggle">
-		<a href="javascript:void(0)" onclick="delete_multiple()" class="delete-btn">Delete</a>
+<div class="hide" id="form-container">
+	<div class="profile_options">
+		<form method="POST" action="{{url_for('imager.user_profile')}}" id="delete-form" style="display: flex; align-items: center;" novalidate>
+			{{ form.csrf_token }}
+			<p>Selected images for deletion: <span style="color:#F00"><span id="delete-count">0</span>  images selected.</span></p>
+			<div class="action-options">
+				{{form.delete(class="delete-btn", onclick="pre_submit()")}}
+				{#
+				<a href="javascript:void(0)" onclick="" class="delete-btn">Delete</a>
+				#}
+			</div>
+		</form>
 	</div>
 </div>
 {% endif %}
 
+<!-- Gallery -->
 <div class="gallery-container">
 	<div class="gallery-section">
 		{% for image in images %}
 		<div class="gallery-image">
 			<div class="image-thumbnail">
-				<div class="checkbox-section">
+				<div class="checkbox-section hide">
 					<label>
-						<input type="checkbox" class="gallery-select-individual" id="checkbox-{{image.file_id}}" name="checkbox-{{image.file_id}}" value="{{image.file_id}}">
+						<input type="checkbox" class="gallery-select-individual" id="checkbox-{{image.file_id}}" name="{{image.title}}" value="{{image.file_id}}" onclick="count_selected_items();" autocomplete=off>
 					</label>
 				</div>
 				<a class="gallery-link" href="{{ url_for('imager.load_gallery_image', image_id=image.file_id) }}">
+					<!-- Thumbnail Image -->
 					<img src="{{ url_for('imager.load_thumbnail_by_id', image_id=image.file_id) }}">
 
 					<!-- Image Overlay -->
@@ -67,7 +82,7 @@
 						</div>
 
 						<div class="image-options">
-							<a class="delete" href="{{ url_for('imager.delete_gallery', image_ids=image.file_id) }}" id="delete-{{image.file_id}}">
+							<a class="delete" href="javascript:void(0)" id="delete-{{image.file_id}}" onclick="toggle_delete('{{image.file_id}}')">
 								<span><i class="fa fa-trash"></i></span>
 							</a>
 						</div>
@@ -126,8 +141,7 @@
 						</div>
 					</div>
 				</a>
-			</div>
-			
+			</div>	
 		</div>
 		{% endfor %}
 	</div>
@@ -136,85 +150,26 @@
 {% endblock %}
 
 {% block js_block %}
-<script type="text/javascript">
-	window.onload = adjust_gallery_width();
-
-	//listen for window resize event
-	window.addEventListener('resize', function(event) {
-		adjust_gallery_width();
-	})
-
-	function delete_multiple() {
-		let selected_images = document.getElementsByClassName('gallery-select-individual');
-		if (selected_images.length > 0) {
-			image_obj = []
-			for (let i=0; i<selected_images.length; i++) {
-				if( selected_images[i].checked) {
-					image_obj.push(selected_images[i].value)	
-				}
-			}
-			args = image_obj.join(",")
-			if(args.length > 0) {
-				window.location.href = "{{url_for('imager.delete_gallery')}}?image_ids=" + args;
-			} else {
-				alert("No image was selected.");	
-			}
-		} else {
-			alert("No image was selected.");
-		}
-
-	}
-
-	function toggle_select_multiple(checkbox) {
-		let select_gallery = document.getElementsByClassName('checkbox-section');
-		let select_options = document.getElementsByClassName('toggle');
-
-		if(checkbox.checked == true) {
-			for (let i=0; i<select_gallery.length; i++) {
-				select_gallery[i].style.display = "block";
-			}
-
-			for (let i=0; i<select_options.length; i++) {
-				select_options[i].style.display = "block";
-			}
-	    } else {
-	    	for (let i=0; i<select_gallery.length; i++) {
-				select_gallery[i].style.display = "none";
-			}
-
-			for (let i=0; i<select_options.length; i++) {
-				select_options[i].style.display = "none";
-			}
-	   	}
-	}
-
-	function adjust_gallery_width() {
-		let margin = 10; // Margin of gallery image
-		let image_width = 240; // Thumbnail width of images
-
-		let gallery_container = document.getElementsByClassName('gallery-section');
-		gallery_width = gallery_container[0].offsetWidth;
-		console.log("Old Width: ", gallery_width)
-		let maxBoxPerRow = Math.floor(gallery_width / (image_width + (margin * 2)));
-		new_gallery_width = (maxBoxPerRow * (image_width + (margin * 2)));
-		console.log("New width: ", new_gallery_width);
-		if (gallery_width == new_gallery_width) {
-			/* Hack to make gallery resize when screen size increases */
-			gallery_container[0].style.width = "100%"
-			adjust_gallery_width();
-		} else {
-			gallery_container[0].style.width = new_gallery_width + 'px';
-		}
-	}
-</script>
-
 {% if not current_user.is_anonymous %}
-<!-- Gallery js -->
+<!-- Gallery js constants -->
 <script>
 	let csrf_token='{{csrf_token()}}';
 	let upvote_url = "{{ url_for('imager.upvote_counter') }}";
 	var downvote_url = "{{ url_for('imager.downvote_counter') }}";
 </script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/gallery.js') }}"></script>
 {% endif %}
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+
+<script type="text/javascript">
+	function test() {
+		console.log("Hello World!");
+	}
+	window.onload = adjust_gallery_width();
+
+	// Listen for window resize event
+	window.addEventListener('resize', function(event) {
+		adjust_gallery_width();
+	});
+</script>
 {% endblock %}

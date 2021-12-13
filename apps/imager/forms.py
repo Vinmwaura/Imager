@@ -30,3 +30,7 @@ class UploadFileForm(FlaskForm):
                 ["jpg", "png", "jpeg"],
                 message='Images only!')])
     submit = SubmitField("Submit")
+
+
+class DeleteForms(FlaskForm):
+    delete = SubmitField("Delete")

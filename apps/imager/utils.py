@@ -120,3 +120,45 @@ def get_image_file_paths(image_content, upload_path):
     image_filenames = [
         os.path.basename(fname) for fname in glob.glob(file_regex)]
     return folder_path, image_filenames
+
+
+def delete_image_file(file_path, directory_name, file_id):
+    """
+    Removes images and thumbnail image in their respective folder.
+
+    Args:
+      file_path: File path where images are stored.
+      directory_name: Directory name of the user content.
+      file_id: File name.
+
+    Returns:
+      Boolean indicating result of operation.
+    """
+
+    # Directory Path of user content.
+    dir_path = os.path.join(file_path, directory_name)
+
+    # Check if folder exists, and if return False.
+    is_dir = os.path.isdir(dir_path)
+    if not is_dir:
+        return False
+
+    # Image file regex.
+    file_regex = os.path.join(dir_path, file_id + ".*")
+    image_del_list = glob.glob(file_regex)
+
+    # Thumbnail file regex.
+    thumbnail_regex = os.path.join(*[dir_path, 'thumbnails', file_id + ".*"])
+    image_del_list += glob.glob(thumbnail_regex)
+
+    try:
+        # Remove image file and thumbnail from location.
+        for image in image_del_list:
+            os.remove(image)
+
+        return True
+
+    except Exception as e:
+        # TODO: Log error messages properly to a file.
+        print("An error occured while removing files in the server: ", e)
+        return False

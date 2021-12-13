@@ -405,3 +405,41 @@ def image_metric(image_file_id):
         return metric_dict
     else:
         return None
+
+
+def delete_user_content(user, image_id):
+    user_content = models.UserContent().query.filter_by(
+        user_id=user.id).first()
+
+    if user_content:
+        image_content = models.ImageContent().query.filter_by(
+            file_id=image_id)
+        user_directory = user_content.content_location
+        if image_content.first():
+            # Gets title name of image to delete.
+            image_name = image_content.first().title
+
+            # Confirms if logged in user owns the image.
+            image_content = image_content.filter_by(
+                user_content_id=user_content.id)
+            if image_content:
+                try:
+                    # Delete image content.
+                    image_content.delete()
+
+                    # Commit session.
+                    db.session.commit()
+
+                    return True, image_name, user_directory
+                except Exception as e:
+                    # Rollback session.
+                    db.session.rollback()
+
+                    print("An error occured while deleting image: ", e)
+                    return False, image_name, user_directory
+            else:
+                return False, image_name, user_directory
+        else:
+            return False, None, None
+    else:
+        return False, None, None

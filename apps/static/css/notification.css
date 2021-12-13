@@ -13,7 +13,8 @@
 }
 
 .notification-message-list {
-	border-radius: 5em;
+	overflow-y: auto;
+	max-height: 20em;
 }
 
 .notification-message-list div {

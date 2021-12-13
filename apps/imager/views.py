@@ -179,33 +179,6 @@ def edit_gallery(image_id):
     abort(404)
 
 
-@imager_bp.route("/delete/gallery", methods=["GET", "POST"])
-@login_required
-def delete_gallery():
-    if request.method == "GET":
-        image_args = request.args.get("image_ids")
-        if image_args:
-            image_ids = image_args.split(",")
-            image_content_list = []
-            for image_id in image_ids:
-                image_content = load_user_images(
-                    current_user.id, image_id)
-                if image_content:
-                    data_dict = get_image_details(
-                        current_user, image_content)
-                    image_content_list.append(data_dict[0])
-                else:
-                    pass
-            return render_template(
-                "imager/confirm_delete_image.html",
-                images=image_content_list)
-
-        else:
-            abort(400)
-    elif request.method == "POST":
-        pass
-
-
 @imager_bp.route("/gallery/user/<string:username>")
 def load_images_by_username(username):
     page = request.args.get('page', 1, type=int)
@@ -228,9 +201,45 @@ def load_images_by_username(username):
         user=user)
 
 
-@imager_bp.route("/user/profile")
+@imager_bp.route("/user/profile", methods=["GET", "POST"])
 @login_required
-def load_user_profile():
+def user_profile():
+    delete_form = DeleteForms()
+    if delete_form.validate_on_submit():
+        if "image_id" in request.form:
+            image_args = request.form["image_id"]
+            image_ids = image_args.split(",")
+            try:
+                for image_id in image_ids:
+                    status, image_name, user_directory = delete_user_content(
+                        current_user, image_id)
+                    if status is True and image_name:
+                        flash(
+                            "Successfully deleted image \'{}\'".format(
+                                image_name),
+                            "success")
+
+                        # Delete image file from server
+                        file_path = current_app.config["UPLOAD_PATH"]
+                        status = delete_image_file(
+                            file_path,
+                            user_directory,
+                            image_id)
+                    elif status is False and image_name:
+                        flash(
+                            "An error occured and image \'{}\' couldn't be \
+                            deleted.".format(
+                                image_name), "error")
+                    else:
+                        flash(
+                            "An error occured on the server, and operation \
+                            couldn't be performed.", "error")
+            except Exception as e:
+                print("An exception occured while deleting images: ", e)
+                flash("An error occured while deleting", "error")
+            return redirect(url_for('imager.user_profile'))
+        else:
+            flash("No arguments passed!", "error")
     page = request.args.get('page', 1, type=int)
 
     user, image_content = get_image_contents_by_user(current_user.username)
@@ -245,7 +254,8 @@ def load_user_profile():
     return render_template(
         "imager/user_profile.html",
         images=data_dict,
-        user=user)
+        user=user,
+        form=delete_form)
 
 
 @imager_bp.route("/gallery/tag/<string:tag_name>")

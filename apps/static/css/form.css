@@ -70,13 +70,21 @@
     padding: 0 1em;
 }
 
-.main-form .errors li {
+.errors li {
     color: #F00;
 }
 
 /**********************************************************
                         Edit Form
 ***********************************************************/
+.hide {
+    display: none;
+}
+
+.show {
+    display: block !important;
+}
+
 .edit-form {
     width: 100%;
     padding: 1em;
@@ -94,13 +102,9 @@
     font-weight: bolder;
 }
 
-.delete-form {
-    width: 50%;
-    height: 10em;
-}
-
 .confirm-delete {
     display: flex;
+    align-items: center;
     justify-content: center;
 }
 
@@ -117,4 +121,28 @@
     pointer-events: none;
     cursor: default;
     color: #FFF !important;
+}
+
+.form-container {
+    /*display: none;*/
+    z-index: 1002;
+    background-color: #FFF;
+    border: 1px solid;
+    border-radius: 0.5em;
+    padding: 1em;
+    width: 50%;
+    min-width: 55em;
+}
+
+.form-container form .action-btn input {
+    background-color: #5C69FF;
+    border: none;
+    border-radius: 10px;
+    color: #FFF;
+    padding: 1em 2em;
+    cursor: pointer;
+}
+
+.form-container form .action-btn input[value="Delete"] {
+    background-color: #F00;
 }
