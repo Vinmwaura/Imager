@@ -33,41 +33,64 @@ function text_overflow(class_name) {
 	}
 }
 
-function upvote(image_id) {
-	var xhttp = new XMLHttpRequest();
-	xhttp.onload  = function() {
-		var jsonResponse = JSON.parse(this.responseText);
-		document.getElementById("total-val-"+image_id).innerHTML = jsonResponse["total"];
+function upvote(upvote_elem) {
+	if (upvote_elem) {
+		let image_id = upvote_elem.id.replace("upvote-", "");
 
-		// Toggle between upvote selected and unselected
-		toggle_class_by_id("upvote-" + image_id, "upvote", "upvote-selected");
-		if(document.getElementById("downvote-" + image_id).className == "downvote-selected") {
-			toggle_class_by_id("downvote-" + image_id, "downvote", "downvote-selected");
-		}
-	};
+		var xhttp = new XMLHttpRequest();
+		xhttp.open("POST", upvote_url, true);
+	  	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	  	xhttp.setRequestHeader("X-CSRFToken", csrf_token);
+	  	xhttp.send("image_id=" + image_id);
 
-	xhttp.open("POST", upvote_url, true);
-  	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-  	xhttp.setRequestHeader("X-CSRFToken", csrf_token);
-  	xhttp.send("image_id=" + image_id);
+	  	xhttp.onload  = function() {
+			var jsonResponse = JSON.parse(this.responseText);
+
+			// Updates total score for image
+			let total_score = document.getElementById("total-val-"+image_id);
+			if (total_score) {
+				total_score.innerHTML = jsonResponse["total"];
+			}
+
+			// Unselects downvote if already toggled.
+			let downvote_elem = document.getElementById("downvote-" + image_id);
+			if ( downvote_elem.classList.contains("downvote-selected") ) {
+				downvote_elem.classList.toggle("downvote-selected");
+			}
+			// Toggles upvote.
+			upvote_elem.classList.toggle("upvote-selected");
+		};
+	}
 }
 
-function downvote(image_id) {
-	var xhttp = new XMLHttpRequest();
-  	xhttp.onload  = function() {
-		var jsonResponse = JSON.parse(this.responseText);
-		document.getElementById("total-val-"+image_id).innerHTML = jsonResponse["total"];
+function downvote(downvote_elem) {
+	if (downvote_elem) {
+		let image_id = downvote_elem.id.replace("downvote-", "");
 
-		// Toggle between downvote selected and unselected
-		toggle_class_by_id("downvote-" + image_id, "downvote", "downvote-selected");
-		if(document.getElementById("upvote-" + image_id).className == "upvote-selected") {
-			toggle_class_by_id("upvote-" + image_id, "upvote", "upvote-selected")
-		}
+		var xhttp = new XMLHttpRequest();
+		xhttp.open("POST", downvote_url, true);
+	  	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	  	xhttp.setRequestHeader("X-CSRFToken", csrf_token);
+	  	xhttp.send("image_id=" + image_id);
+
+	  	xhttp.onload  = function() {
+			var jsonResponse = JSON.parse(this.responseText);
+
+			// Updates total score for image
+			let total_score = document.getElementById("total-val-" + image_id);
+			if (total_score) {
+				total_score.innerHTML = jsonResponse["total"];
+			}
+
+			// Unselects upvote if already toggled.
+			let upvote_elem = document.getElementById("upvote-" + image_id);
+			if ( upvote_elem.classList.contains("upvote-selected") ) {
+				upvote_elem.classList.toggle("upvote-selected");
+			}
+			// Toggles downvote.
+			downvote_elem.classList.toggle("downvote-selected");
+		};
 	}
-  	xhttp.open("POST", downvote_url, true);
-  	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-  	xhttp.setRequestHeader("X-CSRFToken", csrf_token)
-  	xhttp.send("image_id=" + image_id);
 }
 
 /* Adjusts Gallery width */

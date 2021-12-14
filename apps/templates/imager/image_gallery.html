@@ -51,11 +51,11 @@
 		<div class="image-metric">
 			<div class="metric-section">
 				{% if image.personal_vote and image.personal_vote == 1 %}
-				<a href="javascript:void(0)" id="upvote-{{image.file_id}}" class="upvote-selected" onclick="upvote('{{image.file_id}}')">
+				<a href="javascript:void(0)" id="upvote-{{image.file_id}}" class="upvote upvote-selected" onclick="upvote(this)">
 					<span><i class="fa fa-arrow-up"></i></span>
 				</a>
 				{% else %}
-				<a href="javascript:void(0)" id="upvote-{{image.file_id}}" class="upvote" onclick="upvote('{{image.file_id}}')">
+				<a href="javascript:void(0)" id="upvote-{{image.file_id}}" class="upvote" onclick="upvote(this)">
 					<span><i class="fa fa-arrow-up"></i></span>
 				</a>
 				{% endif %}
@@ -67,11 +67,11 @@
 
 			<div class="metric-section">
 				{% if image.personal_vote and image.personal_vote == -1 %}
-				<a href="javascript:void(0)" id="downvote-{{image.file_id}}" class="downvote-selected" onclick="downvote('{{image.file_id}}')">
+				<a href="javascript:void(0)" id="downvote-{{image.file_id}}" class="downvote downvote-selected" onclick="downvote(this)">
 					<span><i class="fa fa-arrow-down"></i></span>
 				</a>
 				{% else %}
-				<a href="javascript:void(0)" id="downvote-{{image.file_id}}" class="downvote" onclick="downvote('{{image.file_id}}')">
+				<a href="javascript:void(0)" id="downvote-{{image.file_id}}" class="downvote" onclick="downvote(this)">
 					<span><i class="fa fa-arrow-down"></i></span>
 				</a>
 				{% endif %}
