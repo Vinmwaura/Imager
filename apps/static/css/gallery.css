@@ -1,12 +1,9 @@
 /**********************************************************
                     User Profile Page
 ***********************************************************/
-.edit-profile a {
-    color: #FFF;
-}
-
-.gallery-select-multiple {
-    transform: scale(1.5);
+.profile-options {
+    display: flex;
+    width: 100%;
 }
 
 .gallery-select-individual {
@@ -14,17 +11,6 @@
     position: absolute;
     top: 0;
     left: 0;
-}
-
-.profile_options {
-    display: flex;
-    width: 100%;
-}
-
-.select-action {
-    width: 10em;
-    border-radius: 5px;
-    border: none;
 }
 
 .delete-btn {
@@ -56,29 +42,14 @@
     height: inherit;
 }
 
+.delete-profile-form {
+    display: flex;
+    align-items: center;
+}
 
 /**********************************************************
                         Image Gallery
 ***********************************************************/
-.gallery-checkbox {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1000;
-    transform: scale(1.5);
-}
-
-.gallery-options {
-    display: block;
-    padding: 1.5em 0 0;
-    height: 3em;
-}
-
-.gallery-options .option {
-    padding: 0 2em;
-    display: inline-block;
-}
-
 .no-gallery-container {
     min-height: calc(100vh - 10em);
     width: 100%;
@@ -181,30 +152,58 @@
     height: 50%;
 }
 
-.image-overlay-bottom .image-label {
+.image-overlay-bottom .image-label,
+.image-overlay-bottom .image-metric  {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.image-overlay-bottom .image-metric {
-    display: flex;
-    justify-content: center;
-}
-
-.image-label {
-    padding: 0 1em;
-}
-
 .image-label,
 .image-metric {
     color: #FFF;
-    font-weight: bolder;
+    font-weight: 200;
+    font: inherit;
     font-size: 1em;
 }
 
+/* Text Scroll */
+.scroll {
+    /* Animation properties */
+    -moz-transform: translateX(100%);
+    -webkit-transform: translateX(100%);
+    transform: translateX(100%);
+  
+    -moz-animation: my-animation 15s linear infinite;
+    -webkit-animation: my-animation 15s linear infinite;
+    animation: my-animation 15s linear infinite;
+}
+/* for Firefox */
+@-moz-keyframes my-animation {
+    from { -moz-transform: translateX(100%); }
+    to { -moz-transform: translateX(-100%); }
+}
+
+/* for Chrome */
+@-webkit-keyframes my-animation {
+    from { -webkit-transform: translateX(100%); }
+    to { -webkit-transform: translateX(-100%); }
+}
+
+@keyframes my-animation {
+    from {
+        -moz-transform: translateX(100%);
+        -webkit-transform: translateX(100%);
+        transform: translateX(100%);
+    }
+    to {
+        -moz-transform: translateX(-100%);
+        -webkit-transform: translateX(-100%);
+        transform: translateX(-100%);
+    }
+}
+
 .image-metric .metric-section {
-    display: inline-block;
     padding: 0 1em;
 }
 
@@ -227,6 +226,7 @@
 /**********************************************************
                     Picture Panel
 ***********************************************************/
+
 .image-container {
     width: 100%;
     display: flex;
@@ -254,83 +254,50 @@
     align-items: center;
 }
 
+
 .image-container .image-section {
     width: 800px;
     height: auto;
     min-height: 600px;
 }
 
-.image-container .image-section .image-details {
+.image-container .image-details {
     background-color: #333;
     width: 100%;
-    height: 20%;
+    height: 4em;
     max-height: 80px;
 }
 
-.image-container .image-section .image-details .image-title,
-.image-container .image-section .image-details .image-uploader {
+.image-container .image-title,
+.image-container .image-uploader {
+    font-weight: 200;
     padding-left: 30px;
-    text-align: left;
-}
-
-.image-container .image-section .image-details .image-title {
-    font-size: xxx-large;
-}
-
-.image-container .image-section .image-details .image-uploader a {
+    height: 50%;
     color: #FFF;
+    display: flex;
+    align-items: center;
 }
 
-.image-container .image-section .image-details .image-title,
-.image-container .image-section .image-details .image-uploader {
+.image-container .image-uploader a {
     color: #FFF;
-    font-weight: bolder;
 }
 
 .image-container .image-section .image-panel {
+    min-height: 600px;
     background-color: rgba(0, 0, 0, 0.1);
-    height: inherit;
-    min-height: 500px;
-    width: 100%;
     display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.image-container .image-section .image-panel > img {
-    margin: auto;
-    max-width: 100%;
+.image-container .image-panel > img {
     cursor: -moz-zoom-in; 
     cursor: -webkit-zoom-in; 
     cursor: zoom-in;
 }
 
-
 /**********************************************************
-                    User Gallery Panel
-***********************************************************/
-.profile_pic {
-    display: flex;
-    align-items: center;
-}
-
-.profile_pic img {
-    height: 50px;
-    width: 50px;
-    border-radius: 50%;
-    background-color: #FFF;
-}
-
-.user-details-container {
-    border-bottom: 1px solid;
-    display: flex;
-    align-content: baseline;
-}
-
-.user-details-container h1 {
-    padding-left: 20px;
-}
-
-/**********************************************************
-                        Picture Modal
+                    Picture Modal
 ***********************************************************/
 .modal {
     display: none;
@@ -347,16 +314,52 @@
 .modal-content {
     height: 100%;
     display: flex;
-    
+    justify-content: center;
+    align-items: center;
 }
 
-#image-original {
-    margin: auto; 
+.modal-content .close-modal {
+    color: #FFF;
+    font-size: 3em;
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
 }
 
-#image-modal-content img {
-    padding: 2em;
+.modal-content > img {
     cursor: -moz-zoom-out; 
     cursor: -webkit-zoom-out; 
     cursor: zoom-out;
+}
+
+/**********************************************************
+                    User Gallery Panel
+***********************************************************/
+.user-details-container {
+    display: flex;
+    align-items: flex-end;
+    padding: 1em 0;
+    border-bottom: 1px solid #000;
+}
+
+.profile-pic {
+    display: flex;
+    align-items: center;
+}
+
+.profile-pic img {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    background-color: #FFF;
+}
+
+.profile-details h1 {
+    margin: 0 0.2em;
+}
+
+.profile-edit .edit {
+    color: #00F;
+    text-decoration-line: none;
 }

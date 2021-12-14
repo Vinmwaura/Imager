@@ -242,7 +242,6 @@
 }
 
 .form-container {
-    /*display: none;*/
     z-index: 1002;
     background-color: #FFF;
     border: 1px solid;

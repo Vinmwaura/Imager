@@ -23,41 +23,51 @@ function toggle_class(elem, class1, class2) {
 	}
 }
 
-function upvote(file_id) {
+function text_overflow(class_name) {
+	let text_div = document.getElementsByClassName(class_name);
+
+	for(let i=0; i<text_div.length; i++) {
+		if (text_div[i].scrollWidth > text_div[i].clientWidth) {
+			text_div[i].classList.add("scroll");
+		}
+	}
+}
+
+function upvote(image_id) {
 	var xhttp = new XMLHttpRequest();
 	xhttp.onload  = function() {
 		var jsonResponse = JSON.parse(this.responseText);
-		document.getElementById("total-val-"+file_id).innerHTML = jsonResponse["total"];
+		document.getElementById("total-val-"+image_id).innerHTML = jsonResponse["total"];
 
 		// Toggle between upvote selected and unselected
-		toggle_class_by_id("upvote-" + file_id, "upvote", "upvote-selected")
-		if(document.getElementById("downvote-" + file_id).className == "downvote-selected") {
-			toggle_class_by_id("downvote-" + file_id, "downvote", "downvote-selected")
+		toggle_class_by_id("upvote-" + image_id, "upvote", "upvote-selected");
+		if(document.getElementById("downvote-" + image_id).className == "downvote-selected") {
+			toggle_class_by_id("downvote-" + image_id, "downvote", "downvote-selected");
 		}
 	};
 
 	xhttp.open("POST", upvote_url, true);
   	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-  	xhttp.setRequestHeader("X-CSRFToken", csrf_token)
-  	xhttp.send("image_id=" + file_id);
+  	xhttp.setRequestHeader("X-CSRFToken", csrf_token);
+  	xhttp.send("image_id=" + image_id);
 }
 
-function downvote(file_id) {
+function downvote(image_id) {
 	var xhttp = new XMLHttpRequest();
   	xhttp.onload  = function() {
 		var jsonResponse = JSON.parse(this.responseText);
-		document.getElementById("total-val-"+file_id).innerHTML = jsonResponse["total"];
+		document.getElementById("total-val-"+image_id).innerHTML = jsonResponse["total"];
 
 		// Toggle between downvote selected and unselected
-		toggle_class_by_id("downvote-" + file_id, "downvote", "downvote-selected")
-		if(document.getElementById("upvote-" + file_id).className == "upvote-selected") {
-			toggle_class_by_id("upvote-" + file_id, "upvote", "upvote-selected")
+		toggle_class_by_id("downvote-" + image_id, "downvote", "downvote-selected");
+		if(document.getElementById("upvote-" + image_id).className == "upvote-selected") {
+			toggle_class_by_id("upvote-" + image_id, "upvote", "upvote-selected")
 		}
 	}
   	xhttp.open("POST", downvote_url, true);
   	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
   	xhttp.setRequestHeader("X-CSRFToken", csrf_token)
-  	xhttp.send("image_id=" + file_id);
+  	xhttp.send("image_id=" + image_id);
 }
 
 /* Adjusts Gallery width */
@@ -119,8 +129,6 @@ function count_selected_items() {
 		if (count == 0) {
 			toggle_delete();
 		}
-	} else {
-		// Toggle 
 	}
 }
 
@@ -136,7 +144,7 @@ function toggle_delete(image_id) {
 
 	let form_container = document.getElementById("form-container");
 	toggle_class(form_container, "show", "hide");
-	
+
 	let select_gallery = document.getElementsByClassName('checkbox-section');
 	if(select_gallery) {
 		for(let i=0; i<select_gallery.length; i++) {

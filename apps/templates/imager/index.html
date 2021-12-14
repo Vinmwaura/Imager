@@ -84,7 +84,10 @@
 
 {% block js_block %}
 <script type="text/javascript">
-	window.onload = adjust_gallery_width();
+	window.onload = function() {
+		adjust_gallery_width();
+		text_overflow("image-label");
+	}
 
 	//listen for window resize event
 	window.addEventListener('resize', function(event) {
