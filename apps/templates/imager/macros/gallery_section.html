@@ -1,0 +1,108 @@
+{% macro gallery_section(img_link) %}
+<div class="gallery-image">
+	<a class="gallery-link" href="{{ img_link }}">
+		<div class="image-thumbnail">
+			{{ caller() }}
+		</div>
+	</a>
+</div>
+{% endmacro %}
+
+{% macro gallery_modal(img_src) %}
+<!-- Image Modal -->
+<div id="image-modal" class="modal">
+	<div id="image-modal-content" class="modal-content">
+		<img id="image-original" src="{{ img_src }}" />
+
+		<span class="close-modal" id="image-modal-close">&#10799;</span>
+	</div>
+</div>
+{% endmacro %}
+
+{% macro upvote_metric(id, upvote=false, active=false, upvote_link="javascript:void(0)") %}
+<div class="metric-section">
+    <a href="{{ upvote_link }}" id="{{ id }}" class="upvote {% if upvote %} upvote-selected {% endif %}" {% if active %} onclick="upvote(this)" {% endif %}>
+        <span><i class="fa fa-arrow-up"></i></span>
+    </a>
+</div>
+{% endmacro %}
+
+{% macro downvote_metric(id, downvote=false, active=false, downvote_link="javascript:void(0)") %}
+<div class="metric-section">
+    <a href="{{ downvote_link }}" id="{{ id }}" class="downvote {% if downvote %} downvote-selected {% endif %}" {% if active %} onclick="downvote(this)" {% endif %}>
+        <span><i class="fa fa-arrow-down"></i></span>
+    </a>
+</div>
+{% endmacro %}
+
+{% macro total_metric(id, total_score) %}
+<div class="metric-section">
+    <span id="{{ id }}" class="total-score">{{ total_score }}</span>
+</div>
+{% endmacro %}
+
+{% macro edit_option(id, edit_link) %}
+<div class="image-options">
+    <a class="edit" href="{{ edit_link }}" id="{{ id }}">
+        <span><i class="fa fa-edit"></i></span>
+    </a>
+</div>
+{% endmacro %}
+
+{% macro delete_option(id) %}
+<div class="image-options">
+    <a class="edit" href="javascript:void(0)" id="{{ id }}" onclick="toggle_delete(this)">
+        <span><i class="fa fa-trash"></i></span>
+    </a>
+</div>
+{% endmacro %}
+
+{% macro vote_section(metric_dict) %}
+<div class="image-metric">
+	{% if metric_dict.is_anon %}
+	{# Upvote Section #}
+	{{ upvote_metric(
+		id="upvote-" + metric_dict.image_id,
+		upvote_link=metric_dict.login_url) }}
+	
+	{# Total Section #}
+	{{ total_metric(
+		id="total-val-" + metric_dict.image_id,
+		total_score=metric_dict.total_score) }}
+
+	{# Downvote Section #}
+	{{ downvote_metric(
+		id="downvote-" + metric_dict.image_id,
+		downvote_link=metric_dict.login_url) }}
+	{% else %}
+	{% set active=true %}
+	{% if metric_dict.personal_vote == 1 %}
+		{% set upvote=true %}
+		{% set downvote=false %}
+	{% elif metric_dict.personal_vote == -1 %}
+		{% set upvote=false %}
+		{% set downvote=true %}
+	{% else %}
+		{% set upvote=false %}
+		{% set downvote=false %}
+	{% endif %}
+
+	{# Upvote Section #}
+	{{ upvote_metric(
+		id="upvote-" + metric_dict.image_id,
+		active=active,
+		upvote=upvote ) }}
+
+	{# Total Section #}
+	{{ total_metric(
+		id="total-val-" + metric_dict.image_id,
+		total_score=metric_dict.total_score) }}
+
+	{# Downvote Section #}
+	{{ downvote_metric(
+		id="downvote-" + metric_dict.image_id,
+		active=active,
+		downvote=downvote) }}
+	{% endif %}
+</div>
+{% endmacro %}

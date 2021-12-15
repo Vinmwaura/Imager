@@ -62,94 +62,51 @@
 {% endif %}
 
 <!-- Gallery -->
+{% import 'imager/macros/gallery_section.html' as gallery %}
+
 <div class="gallery-container">
 	<div class="gallery-section">
-		{% for image in images %}
-		<div class="gallery-image">
-			<div class="image-thumbnail">
-				<div class="checkbox-section hide">
-					<label>
-						<input type="checkbox" class="gallery-select-individual" id="checkbox-{{image.file_id}}" name="{{image.title}}" value="{{image.file_id}}" onclick="count_selected_items();" autocomplete=off>
-					</label>
-				</div>
-				<a class="gallery-link" href="{{ url_for('imager.load_gallery_image', image_id=image.file_id) }}">
-					<!-- Thumbnail Image -->
-					<img src="{{ url_for('imager.load_thumbnail_by_id', image_id=image.file_id) }}">
-
-					<!-- Image Overlay -->
-					<div class="image-overlay-top">
-						<div class="image-options">
-							<a class="edit" href="{{ url_for('imager.edit_gallery', image_id=image.file_id) }}" id="edit-{{image.file_id}}">
-								<span><i class="fa fa-edit"></i></span>
-							</a>
-						</div>
-
-						<div class="image-options">
-							<a class="delete" href="javascript:void(0)" id="delete-{{image.file_id}}" onclick="toggle_delete('{{image.file_id}}')">
-								<span><i class="fa fa-trash"></i></span>
-							</a>
-						</div>
-					</div>
-					
-					<!-- Image Overlay -->
-					<div class="image-overlay-bottom">
-						<div class="image-label">{{image.title}}</div>
-						
-						<div class="image-metric">
-							{% if current_user.is_anonymous %}
-							<div class="metric-section">
-								<a href="{{ url_for('auth.login') }}" id="upvote-{{image.file_id}}" class="upvote">
-									<span><i class="fa fa-arrow-up"></i></span>
-								</a>
-							</div>
-
-							<div class="metric-section">
-								<span id="total-val-{{image.file_id}}" class="total-score">{{image.voter_count["total"]}}</span>
-							</div>
-
-							<div class="metric-section">
-								<a href="{{ url_for('auth.login') }}" id="downvote-{{image.file_id}}" class="downvote">
-									<span><i class="fa fa-arrow-down"></i></span>
-								</a>
-							</div>
-							{% else %}
-							<div class="metric-section">
-								{% if image.personal_vote and image.personal_vote == 1 %}
-								<a href="javascript:void(0)" id="upvote-{{image.file_id}}" class="upvote-selected" onclick="upvote(this)">
-									<span><i class="fa fa-arrow-up"></i></span>
-								</a>
-								{% else %}
-								<a href="javascript:void(0)" id="upvote-{{image.file_id}}" class="upvote" onclick="upvote(this)">
-									<span><i class="fa fa-arrow-up"></i></span>
-								</a>
-								{% endif %}	
-							</div>
-
-							<div class="metric-section">
-								<span id="total-val-{{image.file_id}}" class="total-score">{{image.voter_count["total"]}}</span>
-							</div>
-
-							<div class="metric-section">
-								{% if image.personal_vote and image.personal_vote == -1 %}
-								<a href="javascript:void(0)" id="downvote-{{image.file_id}}" class="downvote-selected" onclick="downvote(this)">
-									<span><i class="fa fa-arrow-down"></i></span>
-								</a>
-								{% else %}
-								<a href="javascript:void(0)" id="downvote-{{image.file_id}}" class="downvote" onclick="downvote(this)">
-									<span><i class="fa fa-arrow-down"></i></span>
-								</a>
-								{% endif %}
-							</div>
-							{% endif %}
-						</div>
-					</div>
-				</a>
-			</div>	
+	{% for image in images %}
+	{% call gallery.gallery_section(url_for('imager.load_gallery_image', image_id=image.file_id)) %}
+		<div class="checkbox-section hide">
+			<label>
+				<input type="checkbox" class="gallery-select-individual" id="checkbox-{{image.file_id}}" name="{{image.title}}" value="{{image.file_id}}" onclick="count_selected_items();" autocomplete=off>
+			</label>
 		</div>
+
+		<a class="gallery-link" href="{{ url_for('imager.load_gallery_image', image_id=image.file_id) }}">
+			<!-- Thumbnail Image -->
+			<img src="{{ url_for('imager.load_thumbnail_by_id', image_id=image.file_id) }}">
+
+			{# Overlays #}
+			<!-- Image Overlay -->
+			<div class="image-overlay-top">
+				{{ gallery.edit_option(
+					id="edit-" + image.file_id,
+					edit_link=url_for('imager.edit_gallery', image_id=image.file_id)) }}
+				{{ gallery.delete_option(
+					id="delete-" + image.file_id) }}
+			</div>
+
+			<!-- Image Overlay -->
+			<div class="image-overlay-bottom">
+				<div class="image-label">{{image.title}}</div>
+				{% set metric_data = {
+					'is_anon': current_user.is_anonymous,
+					'login_url': url_for('auth.login'),
+					'total_score': image.voter_count["total"],
+					'image_id': image.file_id,
+					'personal_vote': image.personal_vote
+				} %}
+				{{ gallery.vote_section(metric_data) }}
+			</div>
+		</a>
+		{% endcall %}
 		{% endfor %}
 	</div>
 </div>
 {% endif %}
+
 {% endblock %}
 
 {% block js_block %}
