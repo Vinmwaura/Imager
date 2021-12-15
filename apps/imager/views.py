@@ -244,6 +244,7 @@ def user_profile():
         if "image_id" in request.form:
             image_args = request.form["image_id"]
             image_ids = image_args.split(",")
+            print(image_ids)
             try:
                 for image_id in image_ids:
                     status, image_name, user_directory = delete_user_content(
@@ -272,9 +273,10 @@ def user_profile():
             except Exception as e:
                 print("An exception occured while deleting images: ", e)
                 flash("An error occured while deleting", "error")
-            return redirect(url_for('imager.user_profile'))
         else:
             flash("No arguments passed!", "error")
+
+        return redirect(url_for('imager.user_profile'))
     page = request.args.get('page', 1, type=int)
 
     user, image_content = get_image_contents_by_user(current_user.username)

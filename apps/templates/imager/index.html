@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block meta_block %}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
+
 {% block css_block %}
 <!-- Gallery css -->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/gallery.css') }}">
@@ -26,13 +30,14 @@
 		<!-- Overlay -->
 		<div class="image-overlay-bottom">
 			<div class="image-label">{{image.title}}</div>
-
 			{% set metric_data = {
 				'is_anon': current_user.is_anonymous,
-				'login_url': url_for('auth.login'),
 				'total_score': image.voter_count["total"],
 				'image_id': image.file_id,
-				'personal_vote': image.personal_vote
+				'personal_vote': image.personal_vote,
+				'login_url': url_for('auth.login'),
+				'upvote_link': url_for('imager.upvote_counter'),
+				'downvote_link': url_for('imager.downvote_counter')
 			} %}
 			{{ gallery.vote_section(metric_data) }}
 		</div>
@@ -44,44 +49,17 @@
 {% endblock %}
 
 {% block js_block %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+
 <script type="text/javascript">
 	window.onload = function() {
 		adjust_gallery_width();
 		text_overflow("image-label");
 	}
 
-	//listen for window resize event
+	// Listen for window resize event.
 	window.addEventListener('resize', function(event) {
 		adjust_gallery_width();
 	})
-
-	function adjust_gallery_width() {
-		let margin = 10; // Margin of gallery image
-		let image_width = 240; // Thumbnail width of images
-
-		var gallery_container = document.getElementsByClassName('gallery-section');
-		gallery_width = gallery_container[0].offsetWidth;
-		console.log("Old Width: ", gallery_width)
-		var maxBoxPerRow = Math.floor(gallery_width / (image_width + (margin * 2)));
-		new_gallery_width = (maxBoxPerRow * (image_width + (margin * 2)));
-		console.log("New width: ", new_gallery_width);
-		if (gallery_width == new_gallery_width) {
-			/* Hack to make gallery resize when screen size increases */
-			gallery_container[0].style.width = "100%"
-			adjust_gallery_width();
-		} else {
-			gallery_container[0].style.width = new_gallery_width + 'px';
-		}
-	}
 </script>
-
-{% if not current_user.is_anonymous %}
-<!-- Gallery js -->
-<script>
-	let csrf_token='{{csrf_token()}}';
-	let upvote_url = "{{ url_for('imager.upvote_counter') }}";
-	var downvote_url = "{{ url_for('imager.downvote_counter') }}";
-</script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/gallery.js') }}"></script>
-{% endif %}
 {% endblock %}

@@ -1,28 +1,5 @@
-function toggle_class_by_id(elem_id, class1, class2) {
-	let elem = document.getElementById(elem_id);
-	if(elem) {
-		if(elem.className.includes(class1) == true) {
-			elem.classList.remove(class1);
-			elem.classList.add(class2);
-		} else {
-			elem.classList.remove(class2);
-			elem.classList.add(class1);
-		}
-	}
-}
 
-function toggle_class(elem, class1, class2) {
-	if(elem) {
-		if(elem.className.includes(class1) == true) {
-			elem.classList.remove(class1);
-			elem.classList.add(class2);
-		} else {
-			elem.classList.remove(class2);
-			elem.classList.add(class1);
-		}
-	}
-}
-
+// Enables text to scroll when text overflow detected.
 function text_overflow(class_name) {
 	let text_div = document.getElementsByClassName(class_name);
 
@@ -33,9 +10,11 @@ function text_overflow(class_name) {
 	}
 }
 
-function upvote(upvote_elem) {
+// Sends upvotes data to server.
+function upvote(upvote_elem, upvote_url) {
 	if (upvote_elem) {
 		let image_id = upvote_elem.id.replace("upvote-", "");
+		let csrf_token = document.querySelector('meta[name="csrf-token"]').content;
 
 		var xhttp = new XMLHttpRequest();
 		xhttp.open("POST", upvote_url, true);
@@ -56,16 +35,19 @@ function upvote(upvote_elem) {
 			let downvote_elem = document.getElementById("downvote-" + image_id);
 			if ( downvote_elem.classList.contains("downvote-selected") ) {
 				downvote_elem.classList.toggle("downvote-selected");
+				downvote_elem.classList.toggle("downvote");
 			}
 			// Toggles upvote.
-			upvote_elem.classList.toggle("upvote-selected");
+			upvote_elem.classList.toggle("upvote");
+			upvote_elem.classList.toggle("upvote-selected")
 		};
 	}
 }
 
-function downvote(downvote_elem) {
+function downvote(downvote_elem, downvote_url) {
 	if (downvote_elem) {
 		let image_id = downvote_elem.id.replace("downvote-", "");
+		let csrf_token = document.querySelector('meta[name="csrf-token"]').content;
 
 		var xhttp = new XMLHttpRequest();
 		xhttp.open("POST", downvote_url, true);
@@ -86,8 +68,10 @@ function downvote(downvote_elem) {
 			let upvote_elem = document.getElementById("upvote-" + image_id);
 			if ( upvote_elem.classList.contains("upvote-selected") ) {
 				upvote_elem.classList.toggle("upvote-selected");
+				upvote_elem.classList.toggle("upvote");
 			}
 			// Toggles downvote.
+			downvote_elem.classList.toggle("downvote")
 			downvote_elem.classList.toggle("downvote-selected");
 		};
 	}
@@ -150,14 +134,16 @@ function count_selected_items() {
 		document.getElementById("delete-count").innerHTML = count;
 
 		if (count == 0) {
-			toggle_delete();
+			toggle_delete(null);
 		}
 	}
 }
 
 /* Toggles select multiple checkbox option */
-function toggle_delete(image_id) {
-	if (image_id) {
+function toggle_delete(elem) {
+	if (elem) {
+		let image_id = elem.id.replace("delete-", "");
+
 		let checkbox = document.getElementById('checkbox-' + image_id);
 		if(checkbox) {
 			checkbox.checked = true;
@@ -166,17 +152,19 @@ function toggle_delete(image_id) {
 	}
 
 	let form_container = document.getElementById("form-container");
-	toggle_class(form_container, "show", "hide");
+	form_container.classList.toggle("show");
+	form_container.classList.toggle("hide");
 
 	let select_gallery = document.getElementsByClassName('checkbox-section');
 	if(select_gallery) {
 		for(let i=0; i<select_gallery.length; i++) {
-			toggle_class(select_gallery[i], "show", "hide");
+			select_gallery[i].classList.toggle("show");
+			select_gallery[i].classList.toggle("hide");
 		}	
 	}
 }
 
-/* Append hiddent inputs to forms before submitting */
+/* Append hidden inputs to forms before submitting */
 function pre_submit() {
 	args = "";
 	let select_gallery = document.getElementsByClassName('gallery-select-individual');

@@ -19,24 +19,24 @@
 </div>
 {% endmacro %}
 
-{% macro upvote_metric(id, upvote=false, active=false, upvote_link="javascript:void(0)") %}
+{% macro upvote_metric(id, upvote_link, upvote=false, active=false) %}
 <div class="metric-section">
-    <a href="{{ upvote_link }}" id="{{ id }}" class="upvote {% if upvote %} upvote-selected {% endif %}" {% if active %} onclick="upvote(this)" {% endif %}>
+    <a href="{% if not active %} {{upvote_link}} {% else %}javascript:void(0){% endif %}" id="{{ id }}" class="{%- if upvote -%}upvote-selected{%- else -%}upvote{%- endif -%}" {% if active %} onclick="upvote(this, '{{upvote_link}}')" {% endif %}>
         <span><i class="fa fa-arrow-up"></i></span>
     </a>
 </div>
 {% endmacro %}
 
-{% macro downvote_metric(id, downvote=false, active=false, downvote_link="javascript:void(0)") %}
+{% macro downvote_metric(id, downvote_link, downvote=false, active=false) %}
 <div class="metric-section">
-    <a href="{{ downvote_link }}" id="{{ id }}" class="downvote {% if downvote %} downvote-selected {% endif %}" {% if active %} onclick="downvote(this)" {% endif %}>
+    <a href="{% if not active %} {{downvote_link}} {% else %} javascript:void(0) {% endif %}" id="{{ id }}" class="{% if- downvote -%}downvote-selected{%- else -%}downvote{%- endif -%}" {% if active %} onclick="downvote(this, '{{downvote_link}}')" {% endif %}>
         <span><i class="fa fa-arrow-down"></i></span>
     </a>
 </div>
 {% endmacro %}
 
 {% macro total_metric(id, total_score) %}
-<div class="metric-section">
+<div class="metric-section score">
     <span id="{{ id }}" class="total-score">{{ total_score }}</span>
 </div>
 {% endmacro %}
@@ -91,7 +91,8 @@
 	{{ upvote_metric(
 		id="upvote-" + metric_dict.image_id,
 		active=active,
-		upvote=upvote ) }}
+		upvote=upvote,
+		upvote_link=metric_dict.upvote_link) }}
 
 	{# Total Section #}
 	{{ total_metric(
@@ -102,7 +103,8 @@
 	{{ downvote_metric(
 		id="downvote-" + metric_dict.image_id,
 		active=active,
-		downvote=downvote) }}
+		downvote=downvote,
+		downvote_link=metric_dict.downvote_link) }}
 	{% endif %}
 </div>
 {% endmacro %}

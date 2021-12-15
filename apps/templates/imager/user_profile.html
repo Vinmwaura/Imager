@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block meta_block %}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
+
 {% block css_block %}
 <!-- Gallery css -->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/gallery.css') }}">
@@ -50,7 +54,7 @@
 {% if current_user == user %}
 <div class="hide" id="form-container">
 	<div class="profile-options">
-		<form method="POST" action="{{url_for('imager.user_profile')}}" class="delete-profile-form" novalidate>
+		<form method="POST" action="{{url_for('imager.user_profile')}}" class="delete-profile-form" id="delete-form" novalidate>
 			{{ form.csrf_token }}
 			<p>Selected images for deletion: <span style="color:#F00"><span id="delete-count">0</span>  images selected.</span></p>
 			<div class="action-options">
@@ -93,10 +97,12 @@
 				<div class="image-label">{{image.title}}</div>
 				{% set metric_data = {
 					'is_anon': current_user.is_anonymous,
-					'login_url': url_for('auth.login'),
 					'total_score': image.voter_count["total"],
 					'image_id': image.file_id,
-					'personal_vote': image.personal_vote
+					'personal_vote': image.personal_vote,
+					'login_url': url_for('auth.login'),
+					'upvote_link': url_for('imager.upvote_counter'),
+					'downvote_link': url_for('imager.downvote_counter')
 				} %}
 				{{ gallery.vote_section(metric_data) }}
 			</div>
@@ -110,15 +116,6 @@
 {% endblock %}
 
 {% block js_block %}
-{% if not current_user.is_anonymous %}
-<!-- Gallery js constants -->
-<script>
-	let csrf_token='{{csrf_token()}}';
-	let upvote_url = "{{ url_for('imager.upvote_counter') }}";
-	var downvote_url = "{{ url_for('imager.downvote_counter') }}";
-</script>
-{% endif %}
-
 <script type="text/javascript" src="{{ url_for('static', filename='js/gallery.js') }}"></script>
 
 <script type="text/javascript">

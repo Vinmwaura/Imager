@@ -204,7 +204,7 @@
 }
 
 .image-metric .metric-section {
-    padding: 0 1em;
+    margin: 0 0.5em;
 }
 
 .upvote,
@@ -213,14 +213,20 @@
     text-decoration-line: none;
 }
 
+.score {
+    width: 4em;
+    text-align: center;
+    overflow: hidden;
+}
+
 .metric-section .upvote:hover,
 .metric-section .upvote-selected {
-    color: #0F0  !important;
+    color: #0F0;
 }
 
 .metric-section .downvote:hover,
 .metric-section .downvote-selected {
-    color: #F00  !important;
+    color: #F00;
 }
 
 /**********************************************************
@@ -235,7 +241,7 @@
 
 .image-container .image-metric {
     position: sticky;
-    top: 8em;
+    top: 4em;
 }
 
 .image-container .total-score {
@@ -244,8 +250,8 @@
 
 .image-container .image-metric .metric-section {
     padding: 1em 0;
-    width: 50px;
-    margin-right: 2em;
+    width: 4em;
+    /*margin-right: 2em;*/
     background-color: #333;
     border: none;
 

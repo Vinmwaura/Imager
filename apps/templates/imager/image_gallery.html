@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block meta_block %}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
+
 {% block css_block %}
 <!-- Gallery css -->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/gallery.css') }}">
@@ -22,10 +26,12 @@
 	<div class="image-container">
 		{% set metric_data = {
 			'is_anon': current_user.is_anonymous,
-			'login_url': url_for('auth.login'),
 			'total_score': image.voter_count["total"],
 			'image_id': image.file_id,
-			'personal_vote': image.personal_vote
+			'personal_vote': image.personal_vote,
+			'login_url': url_for('auth.login'),
+			'upvote_link': url_for('imager.upvote_counter'),
+			'downvote_link': url_for('imager.downvote_counter')
 		} %}
 
 		<div class="image-metric">
@@ -55,34 +61,24 @@
 {% endblock %}
 
 {% block js_block %}
-
+<script type="text/javascript" src="{{ url_for('static', filename='js/gallery.js') }}"></script>
 <script type="text/javascript">
-	// Gets the image modal
+	// Gets the image modal.
 	var modal = document.getElementById("image-modal");
 	var modal_content = document.getElementById("image-modal-content");
 	var orig_img = document.getElementById("image-original")
 	var close_btn = document.getElementById("image-modal-close")
 
-	// When the user clicks anywhere outside of the modal, close it
+	// When the user clicks anywhere outside of the modal, close it.
 	window.onclick = function(event) {
 	  	if (event.target == modal_content || event.target == orig_img || event.target == close_btn) {
 	    	modal.style.display = "none";
 	  	}
 	}
 
-	// Show original image zoom in
+	// Show original image zoom in.
 	function original_image() {
 		modal.style.display = "block";
 	}
 </script>
-
-{% if not current_user.is_anonymous %}
-<!-- Gallery js -->
-<script>
-	let csrf_token='{{csrf_token()}}';
-	let upvote_url = "{{ url_for('imager.upvote_counter') }}";
-	var downvote_url = "{{ url_for('imager.downvote_counter') }}";
-</script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/gallery.js') }}"></script>
-{% endif %}
 {% endblock %}

@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block meta_block %}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
+
 {% block css_block %}
 <!-- Form css -->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
@@ -102,64 +106,5 @@
 		upload_container.classList.remove("hide");
 		upload_container.classList.add("show");
 	}
-	/*
-	function readURL(input_) {
-		if (input_.files && input_.files[0]) {
-			var reader = new FileReader();
-
-			reader.onload = function(e) {
-				let upload_container = document.getElementById("upload-container");
-				let upload_conent = document.getElementById("upload-content");
-				let upload_image = document.getElementById("upload-image");
-
-				upload_container.classList.remove("show");
-				upload_container.classList.add("hide");
-
-				upload_image.setAttribute("src", e.target.result);
-				upload_conent.classList.add("show");
-			};
-
-			reader.readAsDataURL(input_.files[0]);
-
-			// Show Title
-			let image_title = document.getElementById("image-title");
-			image_title.classList.remove("hide");
-			image_title.classList.add("show");
-
-		} else {
-			removeUpload();
-		}
-	}
-
-	function removeUpload() {
-		// Resets image
-		let img_elem = document.createElement("img");
-		img_elem.setAttribute("src", "#");
-		img_elem.setAttribute("class", "file-upload-image");
-		img_elem.setAttribute("alt", "your image");
-		img_elem.setAttribute("id", "upload-image");
-
-		document.getElementById('file-upload').value = null;
-
-		let upload_container = document.getElementById("upload-container");
-		let file_upload = document.getElementById("file-upload");
-		let upload_content = document.getElementById("upload-content");
-		let upload_image = document.getElementById("upload-image");
-
-		upload_content.removeChild(upload_image);
-		upload_content.appendChild(img_elem);
-
-		upload_content.classList.remove("show");
-		upload_content.classList.add("hide");
-
-		upload_container.classList.remove("hide");
-		upload_container.classList.add("show");
-
-		// Hide Title
-		let image_title = document.getElementById("image-title");
-		image_title.classList.remove("show");
-		image_title.classList.add("hide");
-	}
-	*/
 </script>
 {% endblock %}

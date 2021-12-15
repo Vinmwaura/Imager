@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block meta_block %}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
+
 {% block css_block %}
 <!-- Gallery css -->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/gallery.css') }}">
@@ -11,22 +15,15 @@
 {% block content %}
 <!-- Image Container -->
 <div class="image-container">
-	<!-- Image Modal -->
-	<div id="image-modal" class="modal">
-		<div id="image-modal-content" class="modal-content">
-			<img id="image-original" src="{{ url_for('imager.load_image_by_id', image_id=image.file_id) }}" />
 
-			<span class="close-modal" id="image-modal-close">
-				&#10799;
-			</span>
-		</div>
-	</div>
+	{% import 'imager/macros/gallery_section.html' as gallery %}
+	{{ gallery.gallery_modal(url_for('imager.load_image_by_id', image_id=image.file_id)) }}
 
 	<div class="image-section">
 		<!-- Image Details -->
-		<div class="image-details" style="height: auto">
-			<div class="image-title">
-				<span>Edit Gallery</span>
+		<div class="image-details">
+			<div class="image-title" style="height: 100%; text-align: center;">
+				<h1 style="margin: 0;">Edit Gallery</h1>
 			</div>
 		</div>
 
@@ -35,7 +32,7 @@
 			    {{ form.csrf_token }}
 
 			    <div class="image-panel" onclick="original_image()">
-					<img src="{{ url_for('imager.load_image_by_id', image_id=image.file_id) }}">
+					<img src="{{ url_for('imager.load_image_by_id', image_id=image.file_id) }}" style="height:500px">
 				</div>
 				<input id="file" name="file" type="hidden" value="{{ url_for('imager.load_image_by_id', image_id=image.file_id) }}">
 
@@ -54,13 +51,12 @@
 				</div>
 			</form>
 		</div>
-
-		
 	</div>
 </div>
 {% endblock %}
 
 {% block js_block %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/gallery.js') }}"></script>
 
 <script type="text/javascript">
 	// Gets the image modal
@@ -81,14 +77,4 @@
 		modal.style.display = "block";
 	}
 </script>
-
-{% if not current_user.is_anonymous %}
-<!-- Gallery js -->
-<script>
-	let csrf_token='{{csrf_token()}}';
-	let upvote_url = "{{ url_for('imager.upvote_counter') }}";
-	var downvote_url = "{{ url_for('imager.downvote_counter') }}";
-</script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/gallery.js') }}"></script>
-{% endif %}
 {% endblock %}
