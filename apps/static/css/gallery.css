@@ -283,6 +283,7 @@
 }
 
 .image-container .image-section .image-panel {
+
     min-height: 600px;
     background-color: rgba(0, 0, 0, 0.1);
     display: flex;
@@ -291,6 +292,7 @@
 }
 
 .image-container .image-panel > img {
+    max-width: 100%;
     cursor: -moz-zoom-in; 
     cursor: -webkit-zoom-in; 
     cursor: zoom-in;
@@ -328,6 +330,7 @@
 }
 
 .modal-content > img {
+    margin: auto;
     cursor: -moz-zoom-out; 
     cursor: -webkit-zoom-out; 
     cursor: zoom-out;
