@@ -67,12 +67,12 @@ def upload_images():
     upload_file_form = UploadFileForm()
     if upload_file_form.validate_on_submit():
         uploaded_file = upload_file_form.file.data
+
         filename = secure_filename(uploaded_file.filename)
 
         if filename != "":
             # File Extension from filename
             file_ext = os.path.splitext(filename)[1]
-
             image_extensions = current_app.config['UPLOAD_EXTENSIONS']
 
             if file_ext not in image_extensions:
@@ -82,7 +82,13 @@ def upload_images():
                 return redirect(url_for('imager.upload_images'))
 
             # Security check to ensure image type matches data uploaded
-            if file_ext != validate_image(uploaded_file.stream):
+            image_format = validate_image(uploaded_file.stream)
+
+            # .JPG == .JPEG (Interchangeable)
+            jpg_formats = [".jpg", ".jpeg"]
+            if image_format in jpg_formats and file_ext in jpg_formats:
+                pass
+            elif file_ext != image_format:
                 flash("File uploaded is not valid!", "error")
                 return redirect(url_for('imager.upload_images'))
 
