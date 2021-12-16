@@ -422,8 +422,16 @@ def delete_user_content(user, image_id):
             # Confirms if logged in user owns the image.
             image_content = image_content.filter_by(
                 user_content_id=user_content.id)
+
+            # TODO: Implement cascade delete to avoid this.
+            # VoteCounter records for image.
+            vote_counter = models.VoteCounter().query.filter_by(
+                image_file_id=image_content.first().file_id)
             if image_content:
                 try:
+                    # Deletes Vote counter for image content.
+                    vote_counter.delete()
+
                     # Delete image content.
                     image_content.delete()
 
