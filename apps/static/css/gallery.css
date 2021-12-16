@@ -289,12 +289,15 @@
 }
 
 .image-container .image-section .image-panel {
-
     min-height: 600px;
     background-color: rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.image-container .image-section .hide-image-panel {
+    display: none;
 }
 
 .image-container .image-panel > img {
@@ -319,6 +322,10 @@
     background-color: rgba(0, 0, 0, 0.7);
 }
 
+.show-modal {
+    display: block;
+}
+
 .modal-content {
     height: 100%;
     display: flex;
@@ -328,6 +335,8 @@
 
 .modal-content .close-modal {
     color: #FFF;
+    background-color: rgba(0, 0, 0, 0.4);
+
     font-size: 3em;
     position: absolute;
     top: 0;
@@ -336,6 +345,7 @@
 }
 
 .modal-content > img {
+    padding: 2em 0;
     margin: auto;
     cursor: -moz-zoom-out; 
     cursor: -webkit-zoom-out; 

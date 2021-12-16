@@ -1,3 +1,31 @@
+// Picture Modal
+function load_picture_modal(pic) {
+	let image_modal = document.getElementById("image-modal");
+	let image_elem = document.getElementById("image-original");
+
+	original_pic = pic.querySelector("img");
+	if (original_pic) {
+		image_elem.src = original_pic.src;
+		image_elem.alt = original_pic.alt;
+
+		image_modal.classList.toggle("show-modal");
+		original_pic.classList.toggle("hide-image-panel");
+	}
+}
+
+function close_picture_modal() {
+	let image_modal = document.getElementById("image-modal");
+	let image_elem = document.getElementById("image-original");
+
+	let original_pic = document.getElementById("image-panel")
+	original_pic = original_pic.querySelector("img");
+
+	image_elem.src = "#";
+	image_elem.alt = " ";
+
+	image_modal.classList.toggle("show-modal");
+	original_pic.classList.toggle("hide-image-panel");
+}
 
 // Enables text to scroll when text overflow detected.
 function text_overflow(class_name) {

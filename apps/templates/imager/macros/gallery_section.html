@@ -8,13 +8,11 @@
 </div>
 {% endmacro %}
 
-{% macro gallery_modal(img_src) %}
+{% macro gallery_modal() %}
 <!-- Image Modal -->
 <div id="image-modal" class="modal">
-	<div id="image-modal-content" class="modal-content">
-		<img id="image-original" src="{{ img_src }}" />
-
-		<span class="close-modal" id="image-modal-close">&#10799;</span>
+	<div id="image-modal-content" class="modal-content" onclick="close_picture_modal()">
+		<img id="image-original" src="#" alt=""/>
 	</div>
 </div>
 {% endmacro %}

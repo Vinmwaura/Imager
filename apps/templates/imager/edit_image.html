@@ -17,7 +17,7 @@
 <div class="image-container">
 
 	{% import 'imager/macros/gallery_section.html' as gallery %}
-	{{ gallery.gallery_modal(url_for('imager.load_image_by_id', image_id=image.file_id)) }}
+	{{ gallery.gallery_modal() }}
 
 	<div class="image-section">
 		<!-- Image Details -->
@@ -31,8 +31,8 @@
 			<form method="POST" action="{{ url_for('imager.edit_gallery', image_id=image.file_id) }}" novalidate>
 			    {{ form.csrf_token }}
 
-			    <div class="image-panel" onclick="original_image()">
-					<img src="{{ url_for('imager.load_image_by_id', image_id=image.file_id) }}" style="height:500px">
+			    <div class="image-panel" id="image-panel" onclick="load_picture_modal(this)">
+					<img src="{{ url_for('imager.load_image_by_id', image_id=image.file_id) }}" alt="{{image.title}}" style="height:500px">
 				</div>
 				<input id="file" name="file" type="hidden" value="{{ url_for('imager.load_image_by_id', image_id=image.file_id) }}">
 
@@ -57,24 +57,4 @@
 
 {% block js_block %}
 <script type="text/javascript" src="{{ url_for('static', filename='js/gallery.js') }}"></script>
-
-<script type="text/javascript">
-	// Gets the image modal
-	var modal = document.getElementById("image-modal");
-	var modal_content = document.getElementById("image-modal-content");
-	var orig_img = document.getElementById("image-original")
-	var close_btn = document.getElementById("image-modal-close")
-
-	// When the user clicks anywhere outside of the modal, close it
-	window.onclick = function(event) {
-	  	if (event.target == modal_content || event.target == orig_img || event.target == close_btn) {
-	    	modal.style.display = "none";
-	  	}
-	}
-
-	// Show original image zoom in
-	function original_image() {
-		modal.style.display = "block";
-	}
-</script>
 {% endblock %}
