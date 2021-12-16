@@ -92,6 +92,31 @@
 				<div class="notification-message-list">
 					{% for category, message in messages %}
 					<div class="notification-message {{category}}">
+						<div class="notification-message-body">
+							<span class="notification-icon">
+								{% if category == "info" %}
+								<i class="fa fa-info-circle"></i>
+								{% elif category == "success" %}
+								<i class="fa fa-check-circle"></i>
+								{% elif category == "error" %}
+								<i class="fa fa-exclamation-triangle"></i>
+								{% endif %}	
+								
+							</span>
+							<span class="notification-content">
+								<p>{{ message }}</p>
+							</span>
+							<span class="notication-close" onclick="close_notification(this)">
+								<span>&#x2715;</span>
+							</span>
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+				{#
+				<div class="notification-message-list">
+					{% for category, message in messages %}
+					<div class="notification-message {{category}}">
 						<div class="notification-message-header">
 							<span class="close-notification" id='main-close' onclick='close_notification(this)'>
 								&#10799;
@@ -99,11 +124,12 @@
 						</div>
 
 						<div class="notification-message-body">
-							{{ message }}
+							<i class="fa fa-info-circle"></i>{{ message }}
 						</div>
 					</div>
 					{% endfor %}
 				</div>
+				#}
 				{% endif %}
 				{% endwith %}
 			</div>

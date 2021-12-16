@@ -105,7 +105,7 @@ def upload_images():
                 # return SERVER_ERROR, 500
                 flash(SERVER_ERROR, "error")
             else:
-                flash("Image Successfully added.", "info")
+                flash("Image Successfully added.", "success")
             return redirect(url_for('imager.index'))
 
     return render_template(
