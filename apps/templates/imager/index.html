@@ -53,13 +53,20 @@
 
 <script type="text/javascript">
 	window.onload = function() {
-		adjust_gallery_width();
-		text_overflow("image-label");
+		let gallery_container = document.getElementsByClassName('gallery-section');
+		let text_div = document.getElementsByClassName("image-label");
+		if (gallery_container.length > 0) {
+			adjust_gallery_width(gallery_container[0]);
+		}
+		text_overflow(text_div);
 	}
 
 	// Listen for window resize event.
 	window.addEventListener('resize', function(event) {
-		adjust_gallery_width();
+		let gallery_container = document.getElementsByClassName('gallery-section');
+		if (gallery_container.length > 0) {
+			adjust_gallery_width(gallery_container[0]);
+		}
 	})
 </script>
 {% endblock %}

@@ -28,9 +28,7 @@ function close_picture_modal() {
 }
 
 // Enables text to scroll when text overflow detected.
-function text_overflow(class_name) {
-	let text_div = document.getElementsByClassName(class_name);
-
+function text_overflow(text_div) {
 	for(let i=0; i<text_div.length; i++) {
 		if (text_div[i].scrollWidth > text_div[i].clientWidth) {
 			text_div[i].classList.add("scroll");
@@ -106,23 +104,20 @@ function downvote(downvote_elem, downvote_url) {
 }
 
 /* Adjusts Gallery width */
-function adjust_gallery_width(margin=10, image_width=240, recursion_hack=false) {
-	let gallery_container = document.getElementsByClassName('gallery-section');
-
-	if(gallery_container) {
+function adjust_gallery_width(gallery_container, margin=10, image_width=240, recursion_hack=false) {
+	if (gallery_container) {
 		// Get width of gallery window on the broswer
-		gallery_width = gallery_container[0].offsetWidth;
-		// console.log("Old Width: ", gallery_width)
+		gallery_width = gallery_container.offsetWidth;
+		//console.log("Old Width: ", gallery_width)
 		let maxBoxPerRow = Math.floor(gallery_width / (image_width + (margin * 2)));
 		new_gallery_width = (maxBoxPerRow * (image_width + (margin * 2)));
-		
-		// console.log("New width: ", new_gallery_width);
+		//console.log("New width: ", new_gallery_width);
 		if (gallery_width == new_gallery_width && recursion_hack == false) {
 			/* Hack to make gallery resize when screen size increases */
-			gallery_container[0].style.width = "100%"
-			adjust_gallery_width(margin, image_width, true);
+			gallery_container.style.width = "100%"
+			adjust_gallery_width(gallery_container, margin, image_width, true);
 		} else {
-			gallery_container[0].style.width = new_gallery_width + 'px';
+			gallery_container.style.width = new_gallery_width + 'px';
 		}
 	}
 }
