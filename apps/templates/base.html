@@ -62,7 +62,7 @@
 				<div class="main-account-options">
 					<span class="user-account-link">
 						<a href="javascript:void(0)" onclick='toggle_dropdown()'>
-							<span style="color: #FFF;">{{current_user.username}}</span>&emsp;<i class="fa fa-user"></i> <i class="fa fa-caret-down"></i>
+							<span style="color: #FFF;" id>{{current_user.username}}&emsp;<i class="fa fa-user"></i> <i class="fa fa-caret-down"></i></span>
 						</a>
 					</span>
 
@@ -113,23 +113,6 @@
 					</div>
 					{% endfor %}
 				</div>
-				{#
-				<div class="notification-message-list">
-					{% for category, message in messages %}
-					<div class="notification-message {{category}}">
-						<div class="notification-message-header">
-							<span class="close-notification" id='main-close' onclick='close_notification(this)'>
-								&#10799;
-							</span>
-						</div>
-
-						<div class="notification-message-body">
-							<i class="fa fa-info-circle"></i>{{ message }}
-						</div>
-					</div>
-					{% endfor %}
-				</div>
-				#}
 				{% endif %}
 				{% endwith %}
 			</div>
@@ -149,6 +132,10 @@
 		</footer>
 		
 		<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+		{% if not current_user.is_anonymous %}
+		<script type="text/javascript" src="{{ url_for('static', filename='js/authenticated_user.js') }}"></script>
+		{% endif %}
+
 		{% block js_block %}
 		{% endblock %}
 	</body>
