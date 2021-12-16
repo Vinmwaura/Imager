@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class="error-handler">
+		<h1>413 - Uploaded file too large, max file size: {{ (config.MAX_CONTENT_LENGTH/1000000) |round(2, 'floor')}} MB</h1>
+		<a class="home-link" href="{{ url_for('imager.index') }}">Return to homepage.</a>
+	</div>
+{% endblock %}

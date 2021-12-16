@@ -44,6 +44,10 @@ def page_not_found(e):
     return render_template('errors/404.html'), 404
 
 
+def request_entity_too_large_error(e):
+    return render_template('errors/413.html'), 413
+
+
 def internal_server_error(e):
     return render_template('errors/500.html'), 500
 
@@ -54,6 +58,7 @@ def create_app(config=None):
     app.register_error_handler(401, unauthorized)
     app.register_error_handler(403, forbidden)
     app.register_error_handler(404, page_not_found)
+    app.register_error_handler(413, request_entity_too_large_error)
     app.register_error_handler(500, internal_server_error)
 
     # Load Configuration variables
