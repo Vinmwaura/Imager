@@ -107,6 +107,9 @@ def create_app(config=None):
     from .imager import imager_bp
     app.register_blueprint(imager_bp)
 
+    from .api import api_bp
+    app.register_blueprint(api_bp)
+
     # Flask extensions
     db.init_app(app)
     migrate.init_app(app, db)
