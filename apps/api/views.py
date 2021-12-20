@@ -15,13 +15,16 @@ def load_gallery(category="upload_time", category_filter=None):
     message = "Successful."
     api_status = 200
 
+    # Request Arguments
+    page = request.args.get("p", default=1, type=int)
+
     if category == "upload_time":
         if category_filter is None:
-            category_filter = "desc"  # Default value if no parameter passed.
+            category_filter = "desc"  # Default value if no parameter.
         image_contents = get_image_contents_by_time(category_filter)
     elif category == "score":
         if category_filter is None:
-            category_filter = "desc"  # Default value if no parameter passed.
+            category_filter = "desc"  # Default value if no parameter.
         image_contents = get_image_contents_by_score(category_filter)
     elif category == "image":
         if category_filter is None:
@@ -45,6 +48,7 @@ def load_gallery(category="upload_time", category_filter=None):
     api_data = []
     if image_contents:
         try:
+            image_contents = image_content_pagination(image_contents, page)
             for image_content in image_contents:
                 data_dict = {}
                 data_dict["title"] = image_content.title

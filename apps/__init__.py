@@ -97,7 +97,11 @@ def create_app(config=None):
 
         app.config["TEST_EMAIL_CONFIG"] = os.getenv("TEST_EMAIL_CONFIG")
 
-    # Apps Blueprint Registration
+        # API configurations.
+        app.config["API_PER_PAGE"] = os.getenv("API_PER_PAGE") or 20
+        app.config["API_MAX_PER_PAGE"] = os.getenv("API_MAX_PER_PAGE") or 50
+
+    # Apps Blueprint Registration.
     from .auth import auth_bp
     app.register_blueprint(auth_bp)
 

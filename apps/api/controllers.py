@@ -1,13 +1,32 @@
 from .. import auth
 from .. import imager
 
-# from flask import current_app
+from flask import current_app
 from sqlalchemy.sql import func
 from sqlalchemy import asc, desc, nulls_first, nulls_last
 
 
 imager_models = imager.models
 auth_models = auth.models
+
+
+def image_content_pagination(obj, page=1):
+    """
+    Takes Models objects and paginates it.
+
+    Args:
+      obj: Model object to be paginated.
+      page: Integer of the page to be loaded.
+
+    Returns:
+      List from the pagination object.
+    """
+    image_pagination = obj.paginate(
+        page=page,
+        per_page=current_app.config["API_PER_PAGE"],
+        error_out=False,
+        max_per_page=current_app.config["API_MAX_PER_PAGE"])
+    return image_pagination.items
 
 
 def get_image_contents_by_id(id):
