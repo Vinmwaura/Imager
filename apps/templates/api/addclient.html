@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block css_block %}
+<!-- Form css -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
+{% endblock %}
+
+{% block content %}
+{% if client %}
+<div class="centered-form">
+	<pre>	
+		<strong>Client Info</strong>
+		{%- for key in client.client_info %}
+		<strong>{{ key }}: </strong>{{ client.client_info[key] }}
+		{%- endfor %}
+		<hr>
+		<strong>Client Metadata</strong>
+	  	{%- for key in client.client_metadata %}
+	  	<strong>{{ key }}: </strong>{{ client.client_metadata[key] }}
+	  	{%- endfor %}
+	</pre>
+</div>
+{% else %}
+	<div class="centered-form">
+		<div class="main-form" id="addclient-form">
+			<h1 class="form-title">Register an Application</h1>
+			<form method="POST" action="" novalidate>
+			    {{ form.csrf_token }}
+
+			    {{ form.application_name.label }}
+			    {{ form.application_name() }}
+			    {% if form.application_name.errors %}
+			    <ul class="errors">
+			    {% for error in form.application_name.errors %}
+			        <li>{{ error }}</li>
+			    {% endfor %}
+			    </ul>
+				{% endif %}
+
+				<fieldset>
+					<legend>Allowed Grant Types</legend>
+					{{ form.grant_types() }}
+					<br>
+				</fieldset>
+				{% if form.grant_types.errors %}
+			    <ul class="errors">
+			    {% for error in form.grant_types.errors %}
+			        <li>{{ error }}</li>
+			    {% endfor %}
+			    </ul>
+				{% endif %}
+				{#
+				<label>{{ form.scope.label }}</label>
+			    {{ form.scope() }}
+			    {% if form.scope.errors %}
+			    <ul class="errors">
+			    {% for error in form.scope.errors %}
+			        <li>{{ error }}</li>
+			    {% endfor %}
+			    </ul>
+				{% endif %}
+				#}
+				{{ form.redirect_uris.label }} <em>(Optional)</em>
+			    {{ form.redirect_uris() }}
+			    {% if form.redirect_uris.errors %}
+			    <ul class="errors">
+			    {% for error in form.redirect_uris.errors %}
+			        <li>{{ error }}</li>
+			    {% endfor %}
+			    </ul>
+				{% endif %}
+				{#
+				<label>{{ form.response_types.label }}</label>
+			    {{ form.response_types() }}
+			    {% if form.response_types.errors %}
+			    <ul class="errors">
+			    {% for error in form.response_types.errors %}
+			        <li>{{ error }}</li>
+			    {% endfor %}
+			    </ul>
+				{% endif %}
+				#}
+				{{ form.token_endpoint_auth_method.label }}<br>
+			    {{ form.token_endpoint_auth_method() }}
+			    {% if form.token_endpoint_auth_method.errors %}
+			    <ul class="errors">
+			    {% for error in form.token_endpoint_auth_method.errors %}
+			        <li>{{ error }}</li>
+			    {% endfor %}
+			    </ul>
+				{% endif %}
+
+				<div class="submit-btn" id="addclient-submit">
+					{{ form.submit() }}
+				</div>
+			</form>
+		</div>	
+	</div>
+{% endif %}
+{% endblock %}

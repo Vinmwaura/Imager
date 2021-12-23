@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block css_block %}
+<!-- API css -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/settings.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="tab">
+  	<button class="tablinks active" onclick="openTab(event, 'account')">Account</button>
+  	<button class="tablinks" onclick="openTab(event, 'application')">Application</button>
+</div>
+
+
+<div class="settings-body">
+	<div id="account" class="tabcontent">
+	 	<h3>Username</h3>
+	 	<span>{{current_user.username}}</span>
+	</div>
+
+	<div id="application" class="tabcontent">
+	 	<table class="conversion-rate-table">
+			<thead>
+				<tr>
+				    <th>Application Name</th>
+				    <th>Client ID</th>
+				    <th>Client Secret</th>
+				    <th>Issued at</th>
+				    <th>Secret Key expires at</th>
+				    <th>Redirect URIs</th>
+				    <th>Token endpoint auth method</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for client in clients %}
+				<tr>
+					<td>{{ client.client_metadata['application_name']  }}</td>
+					<td>{{ client.client_info['client_id']  }}</td>
+					<td>{{ client.client_info['client_secret']  }}</td>
+					<td>{{ client.client_info['client_id_issued_at']  }}</td>
+					<td>{{ client.client_info['client_secret_expires_at']  }}</td>
+					<td>{{ client.client_metadata['redirect_uris']  }}</td>
+					<td>{{ client.client_metadata['token_endpoint_auth_method']  }}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>	
+</div>
+{% endblock %}
+
+{% block js_block %}
+<script type="text/javascript">
+	function openTab(evt, tabName) {
+  		// Declare all variables
+  		var i, tabcontent, tablinks;
+
+  		// Get all elements with class="tabcontent" and hide them
+  		tabcontent = document.getElementsByClassName("tabcontent");
+  		for (i = 0; i < tabcontent.length; i++) {
+    		tabcontent[i].style.display = "none";
+  		}
+
+  		// Get all elements with class="tablinks" and remove the class "active"
+  		tablinks = document.getElementsByClassName("tablinks");
+  		for (i = 0; i < tablinks.length; i++) {
+    		tablinks[i].className = tablinks[i].className.replace(" active", "");
+  		}
+
+  		// Show the current tab, and add an "active" class to the link that opened the tab
+  		document.getElementById(tabName).style.display = "block";
+  		evt.currentTarget.className += " active";
+	}
+</script>
+{% endblock %}

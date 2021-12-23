@@ -74,6 +74,9 @@
 						<a href="{{ url_for('imager.load_images_by_username', username=current_user.username) }}">
 							<span class="user-images-link">My Images</span>
 						</a>
+						<a href="{{ url_for('imager.settings') }}">
+							<span class="settings-link"><i class="fa fa-cog"></i>&emsp;Settings</span>
+						</a>
 						<a href="{{ url_for('auth.logout') }}">
 							<span class="sign-out-link"><i class="fa fa-power-off"></i>&emsp;Sign Out</span>
 						</a>
@@ -127,6 +130,7 @@
 			<nav class="main-footer-nav">
 				<div class="main-footer-options">
 					<span class="about-link"><a href="javascript:void()">About</a></span>
+					<span class="api-link"><a href="{{ url_for('api.api_index') }}">Api</a></span>
 				</div>
 			</nav>
 		</footer>

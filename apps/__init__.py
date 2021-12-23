@@ -121,4 +121,7 @@ def create_app(config=None):
     mail.init_app(app)
     csrf.init_app(app)
 
+    from .oauth2_config import config_oauth
+    config_oauth(app)
+
     return app

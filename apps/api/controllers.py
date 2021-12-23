@@ -1,14 +1,62 @@
+import time
+
 from .. import auth
 from .. import imager
+from . import models
+
+from .. import db
+
+from .. import oauth2_config
+from authlib.oauth2 import OAuth2Error
+from authlib.integrations.flask_oauth2 import current_token
 
 from flask import current_app
 from sqlalchemy.sql import func
 from sqlalchemy import asc, desc, nulls_first, nulls_last
 
+from werkzeug.security import gen_salt
 
 imager_models = imager.models
 auth_models = auth.models
+api_models = models
 
+def load_clients(user):
+    clients = models.OAuth2Client.query.filter_by(user_id=user.id).all()
+    return clients
+
+def issue_token():
+    return oauth2_config.authorization.create_token_response()
+
+def revoke_token():
+    return oauth2_config.authorization.create_endpoint_response('revocation')
+
+# TODO: Implement proper grant authorization code
+def authorize(user):
+    pass
+
+def create_auth_client(user, client_metadata):
+    try:
+        client_id = gen_salt(24)
+        client_id_issued_at = int(time.time())
+        client = api_models.OAuth2Client(
+            client_id=client_id,
+            client_id_issued_at=client_id_issued_at,
+            user_id=user.get_user_id(),)
+        client.set_client_metadata(client_metadata)
+
+        if client_metadata['token_endpoint_auth_method'] == 'none':
+            client.client_secret = ''
+        else:
+            client.client_secret = gen_salt(48)
+
+        db.session.add(client)
+        db.session.commit()
+        return client
+    except Exception as e:
+        db.session.rollback()
+        print("An error occured while creating auth client: ", e)
+        return None
+    
 
 def image_content_pagination(obj, page=1):
     """

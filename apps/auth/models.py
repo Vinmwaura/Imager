@@ -63,6 +63,9 @@ class User(UserMixin, db.Model):
         "Role",
         lazy='joined')
 
+    def get_user_id(self):
+        return self.id
+
     def is_active(self):
         """
         Gets active field value.

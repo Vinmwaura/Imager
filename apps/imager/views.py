@@ -60,6 +60,14 @@ def index():
         images=data_dict)
 
 
+@imager_bp.route("/settings")
+@login_required
+def settings():
+    from .. import api
+    clients = api.controllers.load_clients(current_user)
+    return render_template('imager/settings.html', clients=clients)
+
+
 @imager_bp.route("/upload", methods=["GET", "POST"])
 @login_required
 @can_post_main_dashboard

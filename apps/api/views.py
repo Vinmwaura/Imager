@@ -1,15 +1,33 @@
+import time
 from flask import (
     jsonify,
+    render_template,
     url_for,
+    redirect,
     request)
 
 from . import api_bp
 from .controllers import *
+from .forms import *
+
+from .. import csrf
+
+from flask_login import (
+    login_required,
+    current_user)
+
+from authlib.integrations.flask_oauth2 import current_token
+from .. import oauth2_config as oauth2
 
 
-@api_bp.route("/api/v1/gallery/")
-@api_bp.route("/api/v1/gallery/<string:category>")
-@api_bp.route("/api/v1/gallery/<string:category>/<string:category_filter>")
+@api_bp.route('/')
+def api_index():
+    return render_template('api/api_index.html')
+
+
+@api_bp.route("/gallery")
+@api_bp.route("/gallery/<string:category>")
+@api_bp.route("/gallery/<string:category>/<string:category_filter>")
 def load_gallery(category="upload_time", category_filter=None):
     # Assumes no issue will occur otherwise will be changed.
     message = "Successful."
@@ -71,3 +89,52 @@ def load_gallery(category="upload_time", category_filter=None):
         "status": api_status
     }
     return jsonify(api_dict)
+
+
+@api_bp.route('/create_client', methods=['GET', 'POST'])
+@login_required
+def create_client():
+    client = []
+    addclient_form = AddClientForm()
+    if addclient_form.validate_on_submit():
+        form = request.form
+        client_metadata = {
+            "application_name": form["application_name"],
+            "grant_types": form.getlist('grant_types'),
+            "redirect_uris": form["redirect_uris"],
+            "response_types": "code",
+            "token_endpoint_auth_method": form["token_endpoint_auth_method"]
+        }
+        client = create_auth_client(current_user, client_metadata)
+        if client is None:
+            flash("An Error occured creating application, \
+                please try again in a while.")
+        # return redirect(url_for("api.create_client"), client=client)
+    return render_template(
+        "api/addclient.html",
+        form=addclient_form,
+        client=client)
+
+
+@api_bp.route('/oauth/authorize', methods=['GET', 'POST'])
+def oauth_authorize():
+    pass
+
+
+@api_bp.route('/oauth/token', methods=['POST'])
+@csrf.exempt
+def oauth_token():
+    return issue_token()
+
+
+@api_bp.route('/oauth/revoke')
+@csrf.exempt
+def oauth_revoke():
+    return revoke_token()
+
+
+@api_bp.route('/me')
+@oauth2.require_oauth()
+def api_me():
+    user = current_token.user
+    return jsonify(id=user.id, username=user.username)
