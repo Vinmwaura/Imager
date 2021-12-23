@@ -100,8 +100,7 @@ def create_client():
         form = request.form
         client_metadata = {
             "application_name": form["application_name"],
-            "grant_types": form.getlist('grant_types'),
-            "redirect_uris": form["redirect_uris"],
+            "grant_types": ['client_credentials'],
             "response_types": "code",
             "token_endpoint_auth_method": form["token_endpoint_auth_method"]
         }
@@ -109,16 +108,11 @@ def create_client():
         if client is None:
             flash("An Error occured creating application, \
                 please try again in a while.")
-        # return redirect(url_for("api.create_client"), client=client)
+
     return render_template(
-        "api/addclient.html",
+        "api/add_client.html",
         form=addclient_form,
         client=client)
-
-
-@api_bp.route('/oauth/authorize', methods=['GET', 'POST'])
-def oauth_authorize():
-    pass
 
 
 @api_bp.route('/oauth/token', methods=['POST'])

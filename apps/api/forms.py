@@ -14,15 +14,15 @@ class AddClientForm(FlaskForm):
     # scope = StringField(
     #    "Scope:",
     #    validators=[InputRequired()])
-    redirect_uris = StringField(
-        "Redirection URI:",
-        validators=[])
-    grant_types = SelectMultipleField(
-        choices=[
-            ('authorization_code', 'Authorization Code'),
-            ('password', 'Password'),
-            ('client_credentials', 'Client Credentials')],
-        validators=[InputRequired()])
+    #redirect_uris = StringField(
+    #    "Redirection URI:",
+    #    validators=[])
+    # grant_types = SelectMultipleField(
+    #    choices=[
+    #        ('authorization_code', 'Authorization Code'),
+    #        ('password', 'Password'),
+    #        ('client_credentials', 'Client Credentials')],
+    #    validators=[InputRequired()])
     token_endpoint_auth_method = SelectField(
         'Token Endpoint Auth Method',
         choices=[

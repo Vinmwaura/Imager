@@ -22,24 +22,19 @@
 				This is version 1.0 of the API and is a RESTful API based on HTTP requests and JSON responses. It gives the user the ability to do many of the functionalities that they would be able to do on the website through various API endpoints.
 			</p>
 			<p>
-				It uses <a href="https://datatracker.ietf.org/doc/html/rfc6749" target="_blank">OAuth 2.0</a> which means all requests will need to be encrypted and sent via HTTPS for security reasons. OAuth 2.0 access requests are initiated by the client (Third-Party application) e.g mobile phone, website etc and may require the user(Resource Owner) to grant them access.
+				It uses <a href="https://datatracker.ietf.org/doc/html/rfc6749" target="_blank">OAuth 2.0</a> which means all requests will need to be encrypted and sent via HTTPS for security reasons. This allows anyone to programatically use the API endpoints to perform any operation that they could have performed on the website.
 			</p>
 		</section>
 
 		<section id="app-creation">
 			<h2>Creating an App/Registration</h2>
 			<p>
-				Before you can begin, using the API you will need to first <a href="{{ url_for('api.create_client') }}">register</a> a new application (Client) with server. When registering a new app you need to put basic information such as application name and optionally a redirect URI to be used for redirecting users to other pages, websites ot mobile apps where required. 
+				Before you can begin, using the API you will need to first <a href="{{ url_for('api.create_client') }}">register</a> a new application (Client) with server. When registering a new app you need to enter a valid application name and chose an token endpoint authentication method that will determine how authorization request will be performed. Once submitted you will be presented with details of the client including client_id and possibly client_secret, note them down or you can view a list of applications created in the application tab <a href="{{ url_for('imager.settings') }}">here</a>.
 			</p>
 			<p>
-				In addition to the above information, OAuth 2.0 requires one or more Authorization Grant to be specified for creating an app. An Authorization Grant is a credential representing the Resource Owner's (Users) authorization (to access its protected resources) used by the client (Third-Party application) to obtain an access token, they include the following (refer to OAuth documentation above for more information):
-				<ol>
-					<li><b>Authorization Code</b>: Used for applications running on a web server, browser-based and mobile apps, may require Redirect URI to be used to redirect Resource Owner (User) to an Authorization Server which in turn directs them back to the client with the authorization code.</li>
-					<li><b>Password</b>: Used for apps requiring only username and password for logging (i.e for first-party apps).</li>
-					<li><b>Client Credentials</b>: Used for application access without a user present, typically when the client is acting on its own behalf or is requesting access to protected resources based on an authorization previously arranaged with the authorization server.</li>
-				</ol>
+				The grant type that the application will use by default is the <b>Client Credentials</b>. This does not require a resource owner(User) approval like with other grants but allows the client(Third party application) to access protected resources i.e API endpoints based on whether they have the authorization scope of the client.
 
-				Lastly there's the client authentication methods, this determines how the client will communicate with the authorization server after the app is created. After creating an app, two tokens will be created <b>client_id</b> and possibly a <b>client_secret</b> if not none. They include the following options:
+				Then there's the client authentication methods, this determines how the client will communicate with the authorization server after the app is created. After creating an app, two tokens will be created <b>client_id</b> and possibly a <b>client_secret</b> if not none. They include the following options:
 				<ol>
 					<li><b>client_secret_post</b>:Both client_id and client_secret tokens are required to be presented as a parameter of any request to the Authorization server where they'll be checked if they're valid for that specific client.
 					</li>
@@ -79,32 +74,11 @@
 			</p>
 
 			<p>
-				The following steps are needed in the case where an <b>Authorization grant type</b> is used for a client to be authorized to access the resource server (API):
+				The following steps are needed to be done by a client to be authorized to access the resource server (API) after an application has been created:
 				<ol>
-					<li>The client requests authorization to access service resources from the user.</li>
-					<li>If the user authorized the request, the application receives an authorization grant.</li>
-					<li>The client requests an access token from the authorization server by presenting authentication of its own identity, and the authorization grant</li>
-					<li>If the application identity is authenticated and the authorization grant is valid, the authorization server issues an access token to the client. Authorization is complete.</li>
-					<li>The client requests the resource from the resource server (API) and presents the access token for authentication.</li>
-					<li>If the access token is valid, the resource server(API) serves the resource to the client.</li>
-				</ol>
-			</p>
-
-			<p>
-				The following steps are needed in the case where an <b>Client Credentials</b> grant type:
-				<ol>
-					<li>The application requests and access token by sending its credentials, its <b>client_id</b> and possibly its <b>client_secret</b> to the authorization server.</li>
-					<li>If the application credentials check out, the authorization server returns an access token to the application.</li>
-					<li>Now the application is authorized to use its own account.</li>
-				</ol>
-			</p>
-
-			<p>
-				The following steps are needed in the case for <b>Pasword</b> grant type:
-				<ol>
-					<li>The application requests an access token using users credentials as parameters and including <b>client_id</b> and <b>client_secret</b> to the authorization server.</li>
-					<li>If the user credentials check out, the authorization server returns an access token to the application.</li>
-					<li>Now the application is authorized to use users account.</li>
+					<li>The client must first request for an access token from the Authorization Server by sending its credentials, this include its <b>client_id</b> and possibly its <b>client_secret</b>.</li>
+					<li>If the client's credentials check out, the authorization server returns an access token and a refresh token to the client.</li>
+					<li>Now the client is authorized to use its own account, and will need to append the access token in the header to access various API endpoints.</li>
 				</ol>
 			</p>
 		</section>
