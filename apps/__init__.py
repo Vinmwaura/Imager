@@ -100,6 +100,8 @@ def create_app(config=None):
         # API configurations.
         app.config["API_PER_PAGE"] = os.getenv("API_PER_PAGE") or 20
         app.config["API_MAX_PER_PAGE"] = os.getenv("API_MAX_PER_PAGE") or 50
+        app.config["OAUTH2_REFRESH_TOKEN_GENERATOR"] = os.getenv(
+            "OAUTH2_REFRESH_TOKEN_GENERATOR") or True
 
     # Apps Blueprint Registration.
     from .auth import auth_bp

@@ -124,13 +124,15 @@ def oauth_authorize():
 @api_bp.route('/oauth/token', methods=['POST'])
 @csrf.exempt
 def oauth_token():
-    return issue_token()
+    token = issue_token()
+    return token
 
 
 @api_bp.route('/oauth/revoke')
 @csrf.exempt
 def oauth_revoke():
-    return revoke_token()
+    revoke = revoke_token()
+    return revoke
 
 
 @api_bp.route('/me')
