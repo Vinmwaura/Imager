@@ -19,7 +19,6 @@ class AddClientForm(FlaskForm):
         validators=[])
     grant_types = SelectMultipleField(
         choices=[
-            ('refresh_token', 'Refresh Token'),
             ('authorization_code', 'Authorization Code'),
             ('password', 'Password'),
             ('client_credentials', 'Client Credentials')],
