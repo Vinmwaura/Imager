@@ -20,6 +20,22 @@ imager_models = imager.models
 auth_models = auth.models
 api_models = models
 
+
+def validate_consent_request(user):
+    try:
+        grant = oauth2_config.authorization.validate_consent_request(end_user=user)
+        return grant
+    except OAuth2Error as error:
+        print("An error occured while validating consent request: ", error.error)
+        return error.error
+
+
+def create_authorization_response(grant_user):
+    auth_response = oauth2_config.authorization.create_authorization_response(
+        grant_user=grant_user)
+    return auth_response
+
+
 def load_clients(user):
     clients = models.OAuth2Client.query.filter_by(user_id=user.id).all()
     return clients
@@ -30,9 +46,6 @@ def issue_token():
 def revoke_token():
     return oauth2_config.authorization.create_endpoint_response('revocation')
 
-# TODO: Implement proper grant authorization code
-def authorize(user):
-    pass
 
 def create_auth_client(user, client_metadata):
     try:

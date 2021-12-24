@@ -60,7 +60,7 @@
 			    {% endfor %}
 			    </ul>
 				{% endif %}
-				
+				#}
 				{{ form.redirect_uris.label }} <em>(Optional)</em>
 			    {{ form.redirect_uris() }}
 			    {% if form.redirect_uris.errors %}
@@ -70,7 +70,7 @@
 			    {% endfor %}
 			    </ul>
 				{% endif %}
-				#}
+				
 				{#
 				<label>{{ form.response_types.label }}</label>
 			    {{ form.response_types() }}

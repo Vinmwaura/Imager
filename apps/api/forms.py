@@ -14,9 +14,9 @@ class AddClientForm(FlaskForm):
     # scope = StringField(
     #    "Scope:",
     #    validators=[InputRequired()])
-    #redirect_uris = StringField(
-    #    "Redirection URI:",
-    #    validators=[])
+    redirect_uris = StringField(
+        "Redirection URI:",
+        validators=[])
     # grant_types = SelectMultipleField(
     #    choices=[
     #        ('authorization_code', 'Authorization Code'),

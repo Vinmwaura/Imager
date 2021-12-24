@@ -2,6 +2,7 @@ import time
 from flask import (
     jsonify,
     render_template,
+    current_app,
     url_for,
     redirect,
     request)
@@ -22,7 +23,29 @@ from .. import oauth2_config as oauth2
 
 @api_bp.route('/')
 def api_index():
-    return render_template('api/api_index.html')
+    return render_template('api/api_docs.html')
+
+
+@api_bp.route('/oauth/authorize', methods=['GET', 'POST'])
+@csrf.exempt
+@login_required
+def oauth_authorize():
+    if request.method == 'GET':
+        grant = validate_consent_request(current_user)
+        if isinstance(grant, str):
+            return grant
+        else:
+            return render_template(
+                'api/authorize.html',
+                user=current_user,
+                grant=grant)
+    elif request.method == 'POST':
+        if request.form['submit'] == 'allow':
+            grant_user = current_user
+        elif request.form['submit'] == 'deny':
+            grant_user = None
+        auth_resp = create_authorization_response(grant_user)
+        return auth_resp
 
 
 @api_bp.route("/gallery")
@@ -99,8 +122,10 @@ def create_client():
     if addclient_form.validate_on_submit():
         form = request.form
         client_metadata = {
-            "application_name": form["application_name"],
-            "grant_types": ['client_credentials'],
+            "client_name": form["application_name"],
+            "redirect_uris": [form["redirect_uris"] or url_for(
+                'imager.index')],
+            "grant_types": ['authorization_code'],
             "response_types": "code",
             "token_endpoint_auth_method": form["token_endpoint_auth_method"]
         }

@@ -32,7 +32,7 @@
 				Before you can begin, using the API you will need to first <a href="{{ url_for('api.create_client') }}">register</a> a new application (Client) with server. When registering a new app you need to enter a valid application name and chose an token endpoint authentication method that will determine how authorization request will be performed. Once submitted you will be presented with details of the client including client_id and possibly client_secret, note them down or you can view a list of applications created in the application tab <a href="{{ url_for('imager.settings') }}">here</a>.
 			</p>
 			<p>
-				The grant type that the application will use by default is the <b>Client Credentials</b>. This does not require a resource owner(User) approval like with other grants but allows the client(Third party application) to access protected resources i.e API endpoints based on whether they have the authorization scope of the client.
+				The grant type that the application will use by default is the <b>Authorization Code</b>. This is may require a redirect URI to be used to redirect the Resource owner (User) to the Authorization Server which after submiting response will redirect the user back to the client with the authorized code.
 
 				Then there's the client authentication methods, this determines how the client will communicate with the authorization server after the app is created. After creating an app, two tokens will be created <b>client_id</b> and possibly a <b>client_secret</b> if not none. They include the following options:
 				<ol>
@@ -74,11 +74,14 @@
 			</p>
 
 			<p>
-				The following steps are needed to be done by a client to be authorized to access the resource server (API) after an application has been created:
+				The following steps are needed in the case where an <b>Authorization grant type</b> is used for a client to be authorized to access the resource server (API):
 				<ol>
-					<li>The client must first request for an access token from the Authorization Server by sending its credentials, this include its <b>client_id</b> and possibly its <b>client_secret</b>.</li>
-					<li>If the client's credentials check out, the authorization server returns an access token and a refresh token to the client.</li>
-					<li>Now the client is authorized to use its own account, and will need to append the access token in the header to access various API endpoints.</li>
+					<li>The client requests authorization to access service resources from the user.</li>
+					<li>If the user authorized the request, the application receives an authorization grant.</li>
+					<li>The client requests an access token from the authorization server by presenting authentication of its own identity, and the authorization grant</li>
+					<li>If the application identity is authenticated and the authorization grant is valid, the authorization server issues an access token to the client. Authorization is complete.</li>
+					<li>The client requests the resource from the resource server (API) and presents the access token for authentication.</li>
+					<li>If the access token is valid, the resource server(API) serves the resource to the client.</li>
 				</ol>
 			</p>
 		</section>
