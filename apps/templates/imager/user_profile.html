@@ -22,6 +22,15 @@
 </style>
 {% endblock %}
 
+{% block middle_nav_options %}
+<div class="main-search-options">
+	<form class="search-form" action="">
+		<input placeholder="Search for image by name/tag/image id" type="text" class="search-input" id="image-search-input">
+		<button type="submit" class="search-submit"><i class="fa fa-search"></i></button>
+	</form>
+</div>
+{% endblock %}
+
 {% block content %}
 <div class="user-details-container">
 	<div class="profile-pic">

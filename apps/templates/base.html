@@ -34,17 +34,11 @@
 				<span class="home-link"><a href="{{ url_for('imager.index') }}">Home</a></span>
 			</div>
 
-			<div class="main-search-options">
-				<form class="search-form" action="">
-					<input placeholder="Search for image by name/tag/image id" type="text" class="search-input" id="image-search-input">
-					<button type="submit" class="search-submit"><i class="fa fa-search"></i></button>
-				</form>
-			</div>
+			{% block middle_nav_options %}
+			{% endblock %}
 
 			<div class="user-options">
 				{% block additional_navs %}
-				{% endblock %}
-
 				<div class="main-pic-options">
 					{% if current_user.is_anonymous %}
 					<a href="{{url_for('auth.login')}}" class="add-pic-btn" onclick="window.href"><i class="fa fa-plus"></i> <span>Upload</span></a>
@@ -52,6 +46,7 @@
 					<a href="{{url_for('imager.upload_images')}}" class="add-pic-btn" onclick="window.href"><i class="fa fa-plus"></i>  <span>Upload</span></a>
 					{% endif %}
 				</div>
+				{% endblock %}
 
 				{% if current_user.is_anonymous %}
 				<div class="main-login-options">

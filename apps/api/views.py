@@ -147,11 +147,11 @@ def oauth_token():
     return token
 
 
-@api_bp.route('/oauth/revoke')
+@api_bp.route('/oauth/revoke', methods=['POST'])
 @csrf.exempt
 def oauth_revoke():
     revoke = revoke_token()
-    return revoke
+    return jsonify(status=revoke.status_code, message=revoke.status)
 
 
 @api_bp.route('/me')

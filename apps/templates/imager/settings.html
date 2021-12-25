@@ -6,70 +6,119 @@
 {% endblock %}
 
 {% block content %}
-<div class="tab">
-  	<button class="tablinks active" onclick="openTab(event, 'account')">Account</button>
-  	<button class="tablinks" onclick="openTab(event, 'application')">Application</button>
-</div>
+<div class="settings-container">
+    <div class="settings-menu">
+        <ul>
+            <li><a class="anchor" id="account-link" href="#account" onClick="open_tab(this)">Account</a></li>
+            <li><a class="anchor" id="application-link" href="#application" onClick="open_tab(this)">Application</a></li>
+        </ul>
+    </div>
 
+    <div class="settings-body">
+        <div class="tab" id="account">
+            <h3>Username</h3>
+            <span>{{current_user.username}}</span>
 
-<div class="settings-body">
-	<div id="account" class="tabcontent">
-	 	<h3>Username</h3>
-	 	<span>{{current_user.username}}</span>
-	</div>
+            <h3>First Name</h3>
+            <span>{{current_user.first_name}}</span>
+            
+            <h3>Last Name</h3>
+            <span>{{current_user.last_name}}</span>
 
-	<div id="application" class="tabcontent">
-	 	<table class="conversion-rate-table">
-			<thead>
-				<tr>
-				    <th>Application Name</th>
-				    <th>Client ID</th>
-				    <th>Client Secret</th>
-				    <th>Issued at</th>
-				    <th>Secret Key expires at</th>
-				    <th>Redirect URIs</th>
-				    <th>Token endpoint auth method</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for client in clients %}
-				<tr>
-					<td>{{ client.client_metadata['application_name']  }}</td>
-					<td>{{ client.client_info['client_id']  }}</td>
-					<td>{{ client.client_info['client_secret']  }}</td>
-					<td>{{ client.client_info['client_id_issued_at']  }}</td>
-					<td>{{ client.client_info['client_secret_expires_at']  }}</td>
-					<td>{{ client.client_metadata['redirect_uris']  }}</td>
-					<td>{{ client.client_metadata['token_endpoint_auth_method']  }}</td>
-				</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-	</div>	
+            <h3>Email</h3>
+            <span>{{current_user.email}}</span>
+
+            <h3>Account Verification</h3>
+            <span>Your account is {% if current_user.email_confirmed %}<span style="color: #0F0">verified</span>{% else %}<span style="color: #F00">not verified</span>{% endif %}!</span>
+        </div>
+
+        <div class="tab" id="application">
+            <h3>Created Apps</h3>
+            {% if created_clients %}
+            <table class="conversion-rate-table">
+                <thead>
+                    <tr>
+                        <th>Client Name</th>
+                        <th>Client ID</th>
+                        <th>Client Secret</th>
+                        <th>Issued at</th>
+                        <th>Secret Key expires at</th>
+                        <th>Redirect URIs</th>
+                        <th>Token endpoint auth method</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    {% for client in created_clients %}
+                    <tr>
+                        <td>{{ client.client_metadata['client_name']  }}</td>
+                        <td>{{ client.client_info['client_id']  }}</td>
+                        <td>{{ client.client_info['client_secret']  }}</td>
+                        <td>{{ client.client_info['client_id_issued_at']  }}</td>
+                        <td>{{ client.client_info['client_secret_expires_at']  }}</td>
+                        <td>{{ client.client_metadata['redirect_uris']  }}</td>
+                        <td>{{ client.client_metadata['token_endpoint_auth_method']  }}</td>
+                        <td style="text-align: center"><a href="{{ url_for('imager.settings_delete_client', client_id=client.client_info['client_id']) }}"><i class="fa fa-trash"></i></a></td></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No Apps created</p>
+            {% endif %}
+
+            <h3>Apps Used</h3>
+            {% if clients_used %}
+            <table class="conversion-rate-table">
+                <thead>
+                    <tr>
+                        <th>Client Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients_used %}
+                    <tr>
+                        <td>{{ client['name']  }}</td>
+                        <td>
+                            <a href="{{ url_for('imager.settings_revoke_client', token_id=client['token_id']) }}">Revoke access</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No apps have been authorized.</p>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block js_block %}
 <script type="text/javascript">
-	function openTab(evt, tabName) {
-  		// Declare all variables
-  		var i, tabcontent, tablinks;
+    function toggle_body(elem, anchor_link) {
+        let tab_elements = document.getElementsByClassName("tab");
+        let anchor_elements = document.getElementsByClassName("anchor");
 
-  		// Get all elements with class="tabcontent" and hide them
-  		tabcontent = document.getElementsByClassName("tabcontent");
-  		for (i = 0; i < tabcontent.length; i++) {
-    		tabcontent[i].style.display = "none";
-  		}
+        for (let i = 0; i < tab_elements.length; i++) {
+            tab_elements[i].style.display = "none";
+            if(anchor_elements[i].className.includes("active")) {
+                anchor_elements[i].className = anchor_elements[i].className.replace(" active", "");
+            }
+        }
+        document.getElementById(anchor_link).style.display = "block";
+        document.getElementById(anchor_link + '-link').className += " active";
+    }
 
-  		// Get all elements with class="tablinks" and remove the class "active"
-  		tablinks = document.getElementsByClassName("tablinks");
-  		for (i = 0; i < tablinks.length; i++) {
-    		tablinks[i].className = tablinks[i].className.replace(" active", "");
-  		}
+    function open_tab(elem) {
+        anchor_link = elem.href.split('#')[1];
+        toggle_body(elem, anchor_link);
+    }
 
-  		// Show the current tab, and add an "active" class to the link that opened the tab
-  		document.getElementById(tabName).style.display = "block";
-  		evt.currentTarget.className += " active";
-	}
+    window.onload = function(event) {
+        anchor_link = window.location.href.split('#')[1];
+        elem = document.getElementById(anchor_link + '-link')
+        toggle_body(elem, anchor_link);
+    }
 </script>
 {% endblock %}

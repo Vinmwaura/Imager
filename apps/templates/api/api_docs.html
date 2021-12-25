@@ -4,15 +4,31 @@
 {% block css_block %}
 <!-- API css -->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/api.css') }}">
+
+<style type="text/css">
+	code {
+		font-family: Consolas,"courier new";
+		background-color: #f1f1f1;
+		display: block;
+		padding: 20px;
+	}
+</style>
+{% endblock %}
+
+{% block middle_nav_options %}
+{% endblock %}
+
+{% block additional_navs %}
 {% endblock %}
 
 {% block content %}
 <div class="api-container">
 	<div class="api-section">
 		<h3>API Doc</h3>
-		<a href="#introduction">Introduction</a>
-		<a href="#app-creation">Creating an App</a>
-		<a href="#authorization">Authorization</a>
+		<a class="anchor" href="#introduction">Introduction</a>
+		<a class="anchor" href="#app-creation">Creating an App</a>
+		<a class="anchor" href="#authorization">Authorization</a>
+		<a class="anchor" href="#authorization-code-flow">Authorization Code flow example</a>
 	</div>
 	<div class="api-content">
 		<h1>API</h1>
@@ -29,7 +45,7 @@
 		<section id="app-creation">
 			<h2>Creating an App/Registration</h2>
 			<p>
-				Before you can begin, using the API you will need to first <a href="{{ url_for('api.create_client') }}">register</a> a new application (Client) with server. When registering a new app you need to enter a valid application name and chose an token endpoint authentication method that will determine how authorization request will be performed. Once submitted you will be presented with details of the client including client_id and possibly client_secret, note them down or you can view a list of applications created in the application tab <a href="{{ url_for('imager.settings') }}">here</a>.
+				Before you can begin, using the API you will need to first <a href="{{ url_for('api.create_client') }}" target="_blank">register</a> a new application (Client) with server. When registering a new app you need to enter a valid application name and chose an token endpoint authentication method that will determine how authorization request will be performed. Once submitted you will be presented with details of the client including client_id and possibly client_secret, note them down or you can view a list of applications created in the application tab <a href="{{ url_for('imager.settings') }}#application" target="_blank">here</a>.
 			</p>
 			<p>
 				The grant type that the application will use by default is the <b>Authorization Code</b>. This is may require a redirect URI to be used to redirect the Resource owner (User) to the Authorization Server which after submiting response will redirect the user back to the client with the authorized code.
@@ -82,6 +98,38 @@
 					<li>If the application identity is authenticated and the authorization grant is valid, the authorization server issues an access token to the client. Authorization is complete.</li>
 					<li>The client requests the resource from the resource server (API) and presents the access token for authentication.</li>
 					<li>If the access token is valid, the resource server(API) serves the resource to the client.</li>
+				</ol>
+			</p>
+		</section>
+
+		<section id="authorization-code-flow">
+			<h2>Authorization Code flow example</h2>
+			
+			<p>
+				An example of the various steps one has to perform to be able to utilize the API endpoints include:
+				<ol>
+					<li>After having registered an application from the <a href="#app-creation">previous section</a>, note the <b>client_id</b> of the app.</li>
+					<li>Open a new tab/window and enter the following, replace '${}' with appropriate values:</li>
+					<code>
+						${Domain-Name}/api/v1/oauth/authorize?response_type=code&client_id=${client_id}
+					</code>
+					<li>This will take the user to an authorization page, where they will have to grant authorization to the client.</li>
+					<li>After granting authorization, the user will be redirected to <code>${redirect_uri}/?code=${code}</code>If no redirect_uri was specified the redirect will by default go to the homepage. Note down the code as this is the authorization code needed to obtain an <b>access_token</b> from the Authorization Server.</li>
+					<li>
+						To get an access token, you will need to make a POST request, where you use the <b>client_id</b> and/or <b>client_secret</b> as authentication as discussed in the <a href="#app-creation">previous section</a>. An example of this using <strong>cURL</strong> and with the application using <strong>client_secret_post</strong> token enpoint authentication method. Replace '${}' with appropriate values.
+						<code>
+							$ curl -u ${client_id}:${client_secret} -XPOST ${Domain-Name}/oauth/token -F grant_type=authorization_code -F code=${code}
+						</code>
+					</li>
+					<li>
+						The output of the previous command should provide a JSON response with an access_token, including additional information such <strong>expires_in</strong> and <strong>token_type</strong>. You will now be able to access most API endpoints by embeding the access token in any request's header i.e <code>Authorization: Bearer ${access_token}</code>.
+					</li>
+					<li>
+						An example of accessing an API endpoint using cURL would be:
+						<code>
+							$ curl -H "Authorization: Bearer ${access_token}" ${Domain-Name}/api/v1/${API-Endpoint}
+						</code>
+					</li>
 				</ol>
 			</p>
 		</section>

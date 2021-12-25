@@ -10,6 +10,7 @@ from authlib.integrations.sqla_oauth2 import (
 )
 from authlib.oauth2.rfc6749 import grants
 from authlib.oauth2.rfc7636 import CodeChallenge
+from authlib.oauth2.rfc7009 import RevocationEndpoint
 
 from . import db
 from .auth.models import User
@@ -74,7 +75,6 @@ class RefreshTokenGrant(grants.RefreshTokenGrant):
         credential.revoked = True
         db.session.add(credential)
         db.session.commit()
-
 
 query_client = create_query_client_func(db.session, OAuth2Client)
 save_token = create_save_token_func(db.session, OAuth2Token)

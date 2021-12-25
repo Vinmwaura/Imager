@@ -21,6 +21,50 @@ auth_models = auth.models
 api_models = models
 
 
+def delete_client(user, client_id):
+    try:
+        client = models.OAuth2Client.query.filter_by(
+            user_id=user.id,
+            client_id=client_id).one_or_none()
+        # tokens = models.OAuth2Token.query.filter_by(
+        #    user_id=user.id,
+        #    client_id=client.client_id)
+        if client is None:
+            return False
+        else:
+            db.session.delete(client)
+            # db.session.delete(tokens)
+            models.OAuth2Token.__table__.delete().where(
+                models.OAuth2Token.query.filter_by(
+                    user_id=user.id,
+                    client_id=client.client_id)
+            )
+            db.session.commit()
+            return True
+    except Exception as e:
+        db.session.rollback()
+        print("An error occured while deleting client {}: {}".format(
+            client_id,
+            e))
+        return False
+
+def manual_revoke_token(user, token_id):
+    try:
+        token = models.OAuth2Token.query.filter_by(
+            user_id=user.id,
+            id=token_id).one_or_none()
+        if token is None:
+            return False
+        else:
+            token.revoked = True
+            db.session.delete(token)
+            db.session.commit()
+            return True
+    except Exception as e:
+        db.session.rollback()
+        print("An error occured while revoking token: ", e)
+        return False
+
 def validate_consent_request(user):
     try:
         grant = oauth2_config.authorization.validate_consent_request(end_user=user)
@@ -36,9 +80,24 @@ def create_authorization_response(grant_user):
     return auth_response
 
 
-def load_clients(user):
+def load_clients_created(user):
     clients = models.OAuth2Client.query.filter_by(user_id=user.id).all()
     return clients
+
+def load_clients_used(user):
+    client_created = models.OAuth2Token.query.filter_by(
+        user_id=user.id,
+        revoked=False).all()
+    clients_used = models.OAuth2Client.query.filter(
+        models.OAuth2Client.client_id.in_(
+            (x_.client_id for x_ in client_created))).all()
+    data = []
+    for index, _ in enumerate(clients_used):
+        data.append({
+            "name": clients_used[index].client_metadata['client_name'],
+            "token_id": client_created[index].id
+        })
+    return data
 
 def issue_token():
     return oauth2_config.authorization.create_token_response()

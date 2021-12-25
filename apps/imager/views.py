@@ -64,8 +64,46 @@ def index():
 @login_required
 def settings():
     from .. import api
-    clients = api.controllers.load_clients(current_user)
-    return render_template('imager/settings.html', clients=clients)
+    created_clients = api.controllers.load_clients_created(current_user)
+    clients_used = api.controllers.load_clients_used(current_user)
+    return render_template(
+        'imager/settings.html',
+        created_clients=created_clients,
+        clients_used=clients_used)
+
+
+@imager_bp.route("/settings/delete/<string:client_id>")
+@login_required
+def settings_delete_client(client_id):
+    from .. import api
+    user = current_user
+    status = api.controllers.delete_client(user, client_id)
+    if status:
+        flash("Successfully deleted client: {}".format(client_id), 'success')
+        return redirect(url_for('imager.settings'))
+    else:
+        flash("An error occured deleting client: {}".format(
+            client_id), 'error')
+        return redirect(url_for('imager.settings'))
+
+
+@imager_bp.route("/settings/revoke/<string:token_id>")
+@login_required
+def settings_revoke_client(token_id):
+    """
+    models.OAuth2Token.query.filter_by(
+        user_id=user.id,
+        revoked=False).all()
+    """
+    from .. import api
+    user = current_user
+    status = api.controllers.manual_revoke_token(user, token_id)
+    if status:
+        flash('Successfully revoked token', 'success')
+        return redirect(url_for('imager.settings'))
+    else:
+        flash('An error occured revoking token', 'error')
+        return redirect(url_for('imager.settings'))
 
 
 @imager_bp.route("/upload", methods=["GET", "POST"])

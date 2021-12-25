@@ -9,8 +9,16 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/gallery.css') }}">
 {% endblock %}
 
-{% block content %}
+{% block middle_nav_options %}
+<div class="main-search-options">
+	<form class="search-form" action="">
+		<input placeholder="Search for image by name/tag/image id" type="text" class="search-input" id="image-search-input">
+		<button type="submit" class="search-submit"><i class="fa fa-search"></i></button>
+	</form>
+</div>
+{% endblock %}
 
+{% block content %}
 {% if image|length == 0 %}
 <div class="no-gallery-container">
 	<div class="no-image">
