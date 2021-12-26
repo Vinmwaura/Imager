@@ -33,7 +33,7 @@
         </div>
 
         <div class="tab" id="application">
-            <h3>Created Apps</h3>
+            <h3>Created Clients</h3>
             {% if created_clients %}
             <table class="conversion-rate-table">
                 <thead>
@@ -65,10 +65,10 @@
                 </tbody>
             </table>
             {% else %}
-            <p>No Apps created</p>
+            <p>No Clients created. <a href="{{ url_for('api.create_client') }}">Create Client</a></p>
             {% endif %}
 
-            <h3>Apps Used</h3>
+            <h3>Clients Used</h3>
             {% if clients_used %}
             <table class="conversion-rate-table">
                 <thead>
@@ -87,7 +87,7 @@
                 </tbody>
             </table>
             {% else %}
-            <p>No apps have been authorized.</p>
+            <p>No clients have been authorized.</p>
             {% endif %}
         </div>
     </div>
@@ -117,8 +117,14 @@
 
     window.onload = function(event) {
         anchor_link = window.location.href.split('#')[1];
-        elem = document.getElementById(anchor_link + '-link')
-        toggle_body(elem, anchor_link);
+        if (anchor_link == undefined) {
+            anchor_list = document.querySelector('.settings-menu>ul');
+            anchor_link = anchor_list.firstElementChild.firstElementChild.click();
+        } else {
+            elem = document.getElementById(anchor_link + '-link')
+            toggle_body(elem, anchor_link);    
+        }
+        
     }
 </script>
 {% endblock %}
