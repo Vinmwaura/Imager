@@ -80,11 +80,11 @@ def settings_delete_client(client_id):
     status = api.controllers.delete_client(user, client_id)
     if status:
         flash("Successfully deleted client: {}".format(client_id), 'success')
-        return redirect(url_for('imager.settings'))
+        return redirect(url_for('imager.settings') + '#application')
     else:
         flash("An error occured deleting client: {}".format(
             client_id), 'error')
-        return redirect(url_for('imager.settings'))
+        return redirect(url_for('imager.settings') + '#application')
 
 
 @imager_bp.route("/settings/revoke/<string:token_id>")

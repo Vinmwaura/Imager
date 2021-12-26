@@ -32,24 +32,42 @@ INVALID_FIELD_LENGTH = lambda field_min, field_max: 'Field must be between {} an
                         field_min, field_max)
 
 def delete_client(user, client_id):
+    """
+    Manually deletes Clients and tokens in the database.
+
+    Args:
+      user: Current User object logged in.
+      client_id: Client id to be deleted.
+
+    Returns:
+      Boolean indicating status of the operation.
+    """
     try:
         client = models.OAuth2Client.query.filter_by(
             user_id=user.id,
             client_id=client_id).one_or_none()
-        # tokens = models.OAuth2Token.query.filter_by(
-        #    user_id=user.id,
-        #    client_id=client.client_id)
+
         if client is None:
             return False
         else:
+            # Hack to allow cascade delete.
+            tokens = models.OAuth2Token.query.filter_by(
+                user_id=user.id,
+                client_id=client.client_id).all()
+            for token in tokens:
+                db.session.delete(token)
+
+            codes = models.OAuth2AuthorizationCode.query.filter_by(
+                user_id=user.id,
+                client_id=client.client_id).all()
+            for code in codes:
+                db.session.delete(code)
+
             db.session.delete(client)
-            # db.session.delete(tokens)
-            models.OAuth2Token.__table__.delete().where(
-                models.OAuth2Token.query.filter_by(
-                    user_id=user.id,
-                    client_id=client.client_id)
-            )
+
+            # Commit delete operations.
             db.session.commit()
+
             return True
     except Exception as e:
         db.session.rollback()
@@ -59,15 +77,26 @@ def delete_client(user, client_id):
         return False
 
 def manual_revoke_token(user, token_id):
+    """
+    Revokes access token in use.
+
+    Args:
+      user: Current User object logged in.
+      token_id: Token id to be revoked.
+
+    Returns:
+      Boolean indicating status of the operation.
+    """
     try:
         token = models.OAuth2Token.query.filter_by(
             user_id=user.id,
             id=token_id).one_or_none()
+
         if token is None:
             return False
         else:
             token.revoked = True
-            db.session.delete(token)
+            db.session.add(token)
             db.session.commit()
             return True
     except Exception as e:
@@ -76,6 +105,15 @@ def manual_revoke_token(user, token_id):
         return False
 
 def validate_consent_request(user):
+    """
+    Validates user consent.
+
+    Args:
+      user: Current User object who needs to grant access.
+
+    Returns:
+      Grant object or error if exception occurs.
+    """
     try:
         grant = oauth2_config.authorization.validate_consent_request(end_user=user)
         return grant
@@ -85,16 +123,43 @@ def validate_consent_request(user):
 
 
 def create_authorization_response(grant_user):
+    """
+    Creates authorization response.
+
+    Args:
+      grant_user: Resource Owner(User) object who is granting client access.
+
+    Returns:
+      Response dict.
+    """
     auth_response = oauth2_config.authorization.create_authorization_response(
         grant_user=grant_user)
     return auth_response
 
 
 def load_clients_created(user):
+    """
+    Loads clients created by the user.
+
+    Args:
+      user: Current logged in user.
+
+    Returns:
+      Clients owned by the user.
+    """
     clients = models.OAuth2Client.query.filter_by(user_id=user.id).all()
     return clients
 
 def load_clients_used(user):
+    """
+    Loads clients granted access by the user.
+
+    Args:
+      user: Current logged in user.
+
+    Returns:
+      Clients owned by the user and given access.
+    """
     client_created = models.OAuth2Token.query.filter_by(
         user_id=user.id,
         revoked=False).all()
@@ -110,13 +175,35 @@ def load_clients_used(user):
     return data
 
 def issue_token():
+    """
+    Issues a token to the user.
+
+    Returns:
+      Repsonse.
+    """
     return oauth2_config.authorization.create_token_response()
 
 def revoke_token():
+    """
+    Revokes a token.
+
+    Returns:
+      Repsonse.
+    """
     return oauth2_config.authorization.create_endpoint_response('revocation')
 
 
 def create_auth_client(user, client_metadata):
+    """
+    Loads clients granted access by the user.
+
+    Args:
+      user: Current logged in user.
+      client_metadata: Dict containing client details
+
+    Returns:
+      Created client or None if error occurs.
+    """
     try:
         client_id = gen_salt(24)
         client_id_issued_at = int(time.time())
