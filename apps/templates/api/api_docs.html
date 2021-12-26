@@ -26,7 +26,7 @@
 	<div class="api-section">
 		<h3>API Doc</h3>
 		<a class="anchor" href="#introduction">Introduction</a>
-		<a class="anchor" href="#app-creation">Creating an App</a>
+		<a class="anchor" href="#client-creation">Creating a Client</a>
 		<a class="anchor" href="#authorization">Authorization</a>
 		<a class="anchor" href="#authorization-code-flow">Authorization Code flow example</a>
 	</div>
@@ -38,28 +38,33 @@
 				This is version 1.0 of the API and is a RESTful API based on HTTP requests and JSON responses. It gives the user the ability to do many of the functionalities that they would be able to do on the website through various API endpoints.
 			</p>
 			<p>
-				It uses <a href="https://datatracker.ietf.org/doc/html/rfc6749" target="_blank">OAuth 2.0</a> which means all requests will need to be encrypted and sent via HTTPS for security reasons. This allows anyone to programatically use the API endpoints to perform any operation that they could have performed on the website.
+				It uses <a href="https://datatracker.ietf.org/doc/html/rfc6749" target="_blank">OAuth 2.0</a> which means all requests will need to be encrypted and sent via HTTPS for security reasons.
 			</p>
 		</section>
 
-		<section id="app-creation">
-			<h2>Creating an App/Registration</h2>
+		<section id="client-creation">
+			<h2>Creating/Registering a Client</h2>
 			<p>
-				Before you can begin, using the API you will need to first <a href="{{ url_for('api.create_client') }}" target="_blank">register</a> a new application (Client) with server. When registering a new app you need to enter a valid application name and chose an token endpoint authentication method that will determine how authorization request will be performed. Once submitted you will be presented with details of the client including client_id and possibly client_secret, note them down or you can view a list of applications created in the application tab <a href="{{ url_for('imager.settings') }}#application" target="_blank">here</a>.
+				Before you can begin, using the API you will need to first <a href="{{ url_for('api.create_client') }}" target="_blank">create/register</a> a new client with the Authorization Server. When creating/registering a new client you need to enter a valid client name, optional redirect uri, and choose a token endpoint authentication method that will determine how authorization request will be performed. Once submitted you will be presented with details of the client including client_id and possibly client_secret, note them down or you can view a list of applications created in the application tab <a href="{{ url_for('imager.settings') }}#application" target="_blank">here</a>.
 			</p>
 			<p>
-				The grant type that the application will use by default is the <b>Authorization Code</b>. This is may require a redirect URI to be used to redirect the Resource owner (User) to the Authorization Server which after submiting response will redirect the user back to the client with the authorized code.
-
-				Then there's the client authentication methods, this determines how the client will communicate with the authorization server after the app is created. After creating an app, two tokens will be created <b>client_id</b> and possibly a <b>client_secret</b> if not none. They include the following options:
+				The grant type used by the client will by default will be the <strong>Authorization Code</strong> and the response type will by default be <strong>code</strong>, more information about this configuration can be founnd in the OAuth 2.0 specification specified <a href="#introduction">here</a>.
+			</p>
+			<p>
+				Redirect URIs field is optional and if nothing is specified it will default to the imager homepage. This field will be used by the Authorization Server to redirect the Resource Owner (User) when they request for an authorization code which will be passed as a query field in the URL.
+			</p>
+			<p>
+				Then there's the token endpoint authentication method field, this determines how the client will communicate with the Authorization Server after being registered. When a client is created, the user will be provided with information about the client including possibly two token depending on the options chose, <strong>client_id</strong> and <strong>client_secret</strong>.The following token(s) will be used in the client authentication process and will depend on the method chosen as follows:
 				<ol>
-					<li><b>client_secret_post</b>:Both client_id and client_secret tokens are required to be presented as a parameter of any request to the Authorization server where they'll be checked if they're valid for that specific client.
+					<li><b>client_secret_post</b>:
+						Both <strong>client_id</strong> and <strong>client_secret</strong> tokens are required to be presented as a parameter of any request to the Authorization server where they'll be checked if they're valid for that specific client.
 					</li>
 
 					<li><b>client_secret_basic</b>:
-						Here a string is created joining the client_id and client_secret for example: "{client_id}:{client_secret}". Next the string will be encoded with <a href="https://tools.ietf.org/html/rfc4648" target="_blank">BASE64</a>. Finally, embed the BASE64 encoded string in the Authorization header in a token request for example: Authorization: Basic {BASE64-encoded Credentials}
+						Here a string is created joining the <strong>client_id</strong> and <strong>client_secret</strong> for example: <code>"${client_id}:${client_secret}"</code>Next the string will be encoded with <a href="https://tools.ietf.org/html/rfc4648" target="_blank">BASE64</a>. Finally, embed the BASE64 encoded string in the Authorization header in a token request for example: <code>Authorization: Basic ${BASE64-encoded Credentials}</code>
 					</li>
 
-					<li><b>none</b>: Client authentication is not required so any request will go through.</li>
+					<li><b>none</b>: Client authentication is not required so any request will go through. The <strong>client_secret</strong> will not be created here.</li>
 				</ol>
 			</p>
 		</section>
@@ -67,11 +72,11 @@
 		<section id="authorization">
 			<h2>Authorization</h2>
 			<p>
-				Once the application is registered, the service will issue client credentials in the form of a <b>client_id</b> and a <b>client_secret</b>. client_id is a publicly exposed string that's used by the service API to identify the application, and is also used to build authorization URLs that are presented to users. The client_secret however is used to authenticate the identity of the application to the service API when the application requests to access a user's account, and must be kept private between the application and the API.
+				Once the client is created/registered, the service will issue client credentials in the form of a <strong>client_id</strong> and a <strong>client_secret</strong>. <strong>client_id</strong> is a publicly exposed string that's used by the service API to identify the application, and is also used to build authorization URLs that are presented to users. The <strong>client_secret</strong> is used to authenticate the identity of the application to the service API when the application requests to access a user's account, and must be kept private between the client and the API.
 			</p>
 
 			<p>
-				Using the client_id and possibly the client_secret the client requires to obtain the following before being able to access the resource server(API):
+				Using the <strong>client_id</strong> and the <strong>client_secret</strong> the client requires to obtain the following before being able to access the resource server(API):
 				<ul>
 					<li>
 						<b>Access Token</b>
@@ -79,24 +84,17 @@
 					<p>
 						The access token is required for any client request to be able to  successfully access protected resources from the resource source(API), and will need to be embeded in any request's header. The access token is expected to expire after a period of time.
 					</p>
-
-					<li>
-						<b>Refresh Token</b>
-					</li>
-					<p>
-						The refresh token is used to obtain new access tokens once the access tokens have expired, where it is long lasting.
-					</p>
 				</ul>
 			</p>
 
 			<p>
-				The following steps are needed in the case where an <b>Authorization grant type</b> is used for a client to be authorized to access the resource server (API):
+				The following steps need to be performed for any client to be authorized to access the resource server (API):
 				<ol>
 					<li>The client requests authorization to access service resources from the user.</li>
-					<li>If the user authorized the request, the application receives an authorization grant.</li>
-					<li>The client requests an access token from the authorization server by presenting authentication of its own identity, and the authorization grant</li>
-					<li>If the application identity is authenticated and the authorization grant is valid, the authorization server issues an access token to the client. Authorization is complete.</li>
-					<li>The client requests the resource from the resource server (API) and presents the access token for authentication.</li>
+					<li>If the Resouze Owner (User) authorized the request, the client will receive an authorization grant code.</li>
+					<li>The client requests an access token from the Authorization Server by presenting authentication of its own identity, and the authorization grant code.</li>
+					<li>If the client identity is authenticated and the authorization grant code is valid, the Authorization Server will issue an <strong>access token</strong> to the client. Authorization is complete.</li>
+					<li>The client requests the resource from the Resource Server (API) and presents the access token for authentication.</li>
 					<li>If the access token is valid, the resource server(API) serves the resource to the client.</li>
 				</ol>
 			</p>
@@ -104,21 +102,20 @@
 
 		<section id="authorization-code-flow">
 			<h2>Authorization Code flow example</h2>
-			
 			<p>
 				An example of the various steps one has to perform to be able to utilize the API endpoints include:
 				<ol>
-					<li>After having registered an application from the <a href="#app-creation">previous section</a>, note the <b>client_id</b> of the app.</li>
+					<li>After having registered a client from the <a href="#client-creation">prior section</a>, note the <strong>client_id</strong> of the client.</li>
 					<li>Open a new tab/window and enter the following, replace '${}' with appropriate values:</li>
 					<code>
 						${Domain-Name}/api/v1/oauth/authorize?response_type=code&client_id=${client_id}
 					</code>
-					<li>This will take the user to an authorization page, where they will have to grant authorization to the client.</li>
-					<li>After granting authorization, the user will be redirected to <code>${redirect_uri}/?code=${code}</code>If no redirect_uri was specified the redirect will by default go to the homepage. Note down the code as this is the authorization code needed to obtain an <b>access_token</b> from the Authorization Server.</li>
+					<li>This will take the Resource Owner (User) to an authorization page, where they will have to grant authorization to the client.</li>
+					<li>After granting authorization, the Resource Owner (User) will be redirected to <code>${redirect_uri}/?code=${code}</code>If no redirect_uri was specified the redirect will by default go to the homepage. Note down the code as this is the authorization code needed to obtain an <b>access_token</b> from the Authorization Server.</li>
 					<li>
-						To get an access token, you will need to make a POST request, where you use the <b>client_id</b> and/or <b>client_secret</b> as authentication as discussed in the <a href="#app-creation">previous section</a>. An example of this using <strong>cURL</strong> and with the application using <strong>client_secret_post</strong> token enpoint authentication method. Replace '${}' with appropriate values.
+						To get an access token, you will need to make a POST request, where you use the <strong>client_id</strong> and/or <strong>client_secret</strong> as authentication as discussed in the <a href="#client-creation">previous section</a>. An example of this using <strong>cURL</strong> and with the client using <strong>client_secret_post</strong> token enpoint authentication method is shown below. Replace '${}' with appropriate values.
 						<code>
-							$ curl -u ${client_id}:${client_secret} -XPOST ${Domain-Name}/oauth/token -F grant_type=authorization_code -F code=${code}
+							$ curl -u ${client_id}:${client_secret} -XPOST ${Domain-Name}/api/v1/oauth/token -F grant_type=authorization_code -F code=${code}
 						</code>
 					</li>
 					<li>

@@ -122,7 +122,7 @@ def create_client():
     if addclient_form.validate_on_submit():
         form = request.form
         client_metadata = {
-            "client_name": form["application_name"],
+            "client_name": form["client_name"],
             "redirect_uris": [form["redirect_uris"] or url_for(
                 'imager.index')],
             "grant_types": ['authorization_code'],

@@ -29,45 +29,21 @@
 {% else %}
 	<div class="centered-form">
 		<div class="main-form" id="addclient-form">
-			<h1 class="form-title">Register an Application</h1>
+			<h1 class="form-title">Register Client</h1>
 			<form method="POST" action="" novalidate>
 			    {{ form.csrf_token }}
 
-			    {{ form.application_name.label }}
-			    {{ form.application_name() }}
-			    {% if form.application_name.errors %}
+			    {{ form.client_name.label }}
+			    {{ form.client_name() }}
+			    {% if form.client_name.errors %}
 			    <ul class="errors">
-			    {% for error in form.application_name.errors %}
+			    {% for error in form.client_name.errors %}
 			        <li>{{ error }}</li>
 			    {% endfor %}
 			    </ul>
 				{% endif %}
 
-				{#
-				<fieldset>
-					<legend>Allowed Grant Types</legend>
-					{{ form.grant_types() }}
-					<br>
-				</fieldset>
-				{% if form.grant_types.errors %}
-			    <ul class="errors">
-			    {% for error in form.grant_types.errors %}
-			        <li>{{ error }}</li>
-			    {% endfor %}
-			    </ul>
-				{% endif %}
-				
-				<label>{{ form.scope.label }}</label>
-			    {{ form.scope() }}
-			    {% if form.scope.errors %}
-			    <ul class="errors">
-			    {% for error in form.scope.errors %}
-			        <li>{{ error }}</li>
-			    {% endfor %}
-			    </ul>
-				{% endif %}
-				#}
-				{{ form.redirect_uris.label }} <em>(Optional)</em>
+				{{ form.redirect_uris.label }} <strong>(Optional)</strong>
 			    {{ form.redirect_uris() }}
 			    {% if form.redirect_uris.errors %}
 			    <ul class="errors">
@@ -76,18 +52,7 @@
 			    {% endfor %}
 			    </ul>
 				{% endif %}
-				
-				{#
-				<label>{{ form.response_types.label }}</label>
-			    {{ form.response_types() }}
-			    {% if form.response_types.errors %}
-			    <ul class="errors">
-			    {% for error in form.response_types.errors %}
-			        <li>{{ error }}</li>
-			    {% endfor %}
-			    </ul>
-				{% endif %}
-				#}
+
 				{{ form.token_endpoint_auth_method.label }}<br>
 			    {{ form.token_endpoint_auth_method() }}
 			    {% if form.token_endpoint_auth_method.errors %}

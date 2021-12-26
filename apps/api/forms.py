@@ -1,28 +1,32 @@
 from flask_wtf import FlaskForm
-from wtforms.validators import InputRequired, DataRequired
+from wtforms.validators import (
+    InputRequired,
+    Length)
 from wtforms.fields import (
-    SelectMultipleField,
     StringField,
     SubmitField,
     SelectField)
+from .controllers import (
+    MIN_NAMES,
+    MAX_NAMES,
+    INVALID_FIELD_LENGTH)
 
 
 class AddClientForm(FlaskForm):
-    application_name = StringField(
-        "Application Name:",
-        validators=[InputRequired()])
-    # scope = StringField(
-    #    "Scope:",
-    #    validators=[InputRequired()])
+    client_name = StringField(
+        "Client Name:",
+        validators=[
+            InputRequired(),
+            Length(
+                min=MIN_NAMES,
+                max=MAX_NAMES,
+                message=INVALID_FIELD_LENGTH(MIN_NAMES, MAX_NAMES)
+            )
+        ]
+    )
     redirect_uris = StringField(
         "Redirection URI:",
         validators=[])
-    # grant_types = SelectMultipleField(
-    #    choices=[
-    #        ('authorization_code', 'Authorization Code'),
-    #        ('password', 'Password'),
-    #        ('client_credentials', 'Client Credentials')],
-    #    validators=[InputRequired()])
     token_endpoint_auth_method = SelectField(
         'Token Endpoint Auth Method',
         choices=[
