@@ -1,16 +1,45 @@
-<h1>An application would like to connect to your account.</h1>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <meta name="author" content="Vincent M.">
+        <meta name="description" content="Image sharing website. Grant access to client using OAuth 2.0">
 
-<h2>The application <strong>{{grant.client.client_name}}</strong> is requesting access to your data.</h2>
-<h3>You are currently logged in as <strong>{{ user.username }}</strong></h3>
+        <title>Authorize Client</title>
 
-<form action="" method="post">
-    {% if not user %}
-        <p>You haven't logged in. Log in with:</p>
-        <div>
-            <input type="text" name="username">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@1,300&family=Roboto+Mono:wght@200&family=Roboto:wght@300&family=Ubuntu:wght@300&display=swap" rel="stylesheet">
+
+        <!-- Load icon library -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+        <!-- Main Custom css -->
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/grant_access.css') }}">
+    </head>
+
+    <body>
+        <!-- Main Content for the page -->
+        <div class="main-content">
+            <div class="grant-content">
+                <div class="grant-header">
+                    <h1><i class='fa fa-exclamation-triangle'></i> A client would like to connect to your account. <i class='fa fa-exclamation-triangle'></i></h1>
+                </div>
+            </div>
+
+            <div class="grant-body">
+                {% if current_user.is_anonymous %}
+                    <h2>You need to be logged in to perform this operation. Log in <a href="{{ url_for('auth.login') }}">here</a></h2>
+                {% else %}
+                <h2>The client <span class="client-name">{{grant.client.client_name}}</span> is requesting access to your account and data.</h2>
+                <h3>You are currently logged in as <span class="user-name">{{ current_user.username }}</span></h3>
+                <form action="" method="POST">
+                    <input class="input-btn" id="deny" name="submit" type="submit" value="deny">
+                    <input class="input-btn" id="allow" name="submit" type="submit" value="allow">
+                </form>
+                {% endif %}
+            </div>
         </div>
-    {% endif %}
-    <br>
-    <input id="deny" name="submit" type="submit" value="deny">
-    <input id="submit" name="submit" type="submit" value="allow">
-</form>
+    </body>
+</html>

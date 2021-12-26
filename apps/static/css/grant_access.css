@@ -1,0 +1,77 @@
+html {
+    box-sizing:  border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+/* Aligns placeholder input text */
+::-webkit-input-placeholder {
+   text-align: center;
+   font-size: 1.2em;
+}
+
+:-moz-placeholder { /* Firefox 18- */
+   text-align: center;
+   font-size: 1.2em;
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+   text-align: center;
+   font-size: 1.2em;
+}
+
+:-ms-input-placeholder {  
+   text-align: center;
+   font-size: 1.2em;
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+    text-align: center;
+    font-size: 1.2em;
+}
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    text-align: center;
+    font-size: 1.2em;
+}
+
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto Mono', monospace;
+    font-family: 'Ubuntu', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+/**********************************************************
+                     MAIN CONTENT BODY
+***********************************************************/
+.main-content {
+    text-align: center;
+    padding-top: 5em;
+}
+
+.client-name, .user-name {
+    color: #00AD83;
+}
+
+.input-btn {
+    color: #FFF;
+    padding: 1em 2em;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+#allow {
+    background-color: #0F0;
+}
+
+#deny {
+    background-color: #F00;
+}

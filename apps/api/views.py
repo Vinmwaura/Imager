@@ -28,7 +28,6 @@ def api_index():
 
 @api_bp.route('/oauth/authorize', methods=['GET', 'POST'])
 @csrf.exempt
-@login_required
 def oauth_authorize():
     if request.method == 'GET':
         grant = validate_consent_request(current_user)
@@ -37,7 +36,6 @@ def oauth_authorize():
         else:
             return render_template(
                 'api/authorize.html',
-                user=current_user,
                 grant=grant)
     elif request.method == 'POST':
         if request.form['submit'] == 'allow':
