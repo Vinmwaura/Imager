@@ -89,8 +89,9 @@ def oauth_revoke():
 @api_bp.route('/search/<string:search_value>')
 @csrf.exempt
 def search(search_value):
-    api_data = {}
-    api_data["results"] = {}
+    api_data = {
+        "results": {}
+    }
 
     # Search by username
     from .. import auth
@@ -99,9 +100,6 @@ def search(search_value):
     for user in search_user_results:
         data_dict = {}
         data_dict["username"] = user.username
-        data_dict["first_name"] = user.first_name
-        data_dict["last_name"] = user.last_name
-        data_dict["email"] = user.email
 
         api_data["results"]['users'].append(data_dict)
 
@@ -113,11 +111,6 @@ def search(search_value):
         data_dict = {}
         data_dict["title"] = image.title
         data_dict["image_id"] = image.file_id
-        data_dict["upload_time"] = image.upload_time
-        data_dict["description"] = image.description
-        data_dict["metric"] = image_metric(image.file_id)
-        data_dict["url"] = url_for(
-            'imager.load_image_by_id', image_id=image.file_id)
 
         api_data["results"]['image'].append(data_dict)
 
@@ -128,6 +121,7 @@ def search(search_value):
         data_dict = {}
         data_dict["id"] = tag.id
         data_dict["tag_name"] = tag.tag_name
+
         api_data["results"]['tags'].append(data_dict)
 
     api_data['status'] = 200
@@ -197,7 +191,7 @@ def load_gallery(category="upload_time", category_filter=None):
         "message": message,
         "status": api_status
     }
-    return jsonify(api_dict)
+    return jsonify(api_dict), api_status
 
 
 @api_bp.route('/upload', methods=["POST"])
@@ -266,6 +260,11 @@ def upload_image():
         "title": img_title
     }
 
+    # Check if description for image has been specified and if so add it.
+    if 'description' in request.form:
+        if request.form['description'] != '':
+            image_details['description'] = request.form['description']
+
     status = img_.controllers.save_user_image(
         user,
         file,
@@ -299,7 +298,7 @@ def delete_image_by_id(image_id):
             user_directory,
             image_id)
         if not del_file_status:
-            print("An error occured deleting file {}".format(
+            print("An error occured deleting file {} from file system.".format(
                 os.path.join(file_path, image_id)))
         message = "Successfully deleted image \'{}\'".format(image_name)
     elif status is False and image_name:
