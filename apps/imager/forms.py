@@ -11,6 +11,8 @@ from wtforms.fields import (
     StringField,
     SubmitField)
 
+from .utils import *
+
 
 class UploadFileForm(FlaskForm):
     title = StringField(
@@ -18,9 +20,9 @@ class UploadFileForm(FlaskForm):
         validators=[
             InputRequired(),
             Length(
-                min=1,
-                max=20,
-                message="Name must be between 1 and 20 characters.")
+                min=MIN_TITLE_LENGTH,
+                max=MAX_TITLE_LENGTH,
+                message=INVALID_TITLE_LENGTH)
         ])
     file = FileField(
         "File",
@@ -38,9 +40,9 @@ class EditImageForm(FlaskForm):
         validators=[
             InputRequired(),
             Length(
-                min=1,
-                max=20,
-                message="Name must be between 1 and 20 characters.")
+                min=MIN_TITLE_LENGTH,
+                max=MAX_TITLE_LENGTH,
+                message=INVALID_TITLE_LENGTH)
         ])
 
     change = SubmitField("Change")

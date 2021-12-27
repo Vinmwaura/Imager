@@ -296,7 +296,6 @@ def user_profile():
         if "image_id" in request.form:
             image_args = request.form["image_id"]
             image_ids = image_args.split(",")
-            print(image_ids)
             try:
                 for image_id in image_ids:
                     status, image_name, user_directory = delete_user_content(

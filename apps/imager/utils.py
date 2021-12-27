@@ -8,7 +8,12 @@ from flask_login import current_user
 
 PERMISSION_DENIED = "You don't have permission to post to this page,"\
     " Contact Administrator if you think you should."
-SERVER_ERROR = "An error occured in the server"
+SERVER_ERROR = "An error occured in the server."
+
+MIN_TITLE_LENGTH = 1
+MAX_TITLE_LENGTH = 20
+INVALID_TITLE_LENGTH = "Title must be between {} and {} characters.".format(
+    MIN_TITLE_LENGTH, MAX_TITLE_LENGTH)
 
 
 # Assumes you can view main dashboard to post

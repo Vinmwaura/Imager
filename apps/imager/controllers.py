@@ -130,6 +130,38 @@ def load_user_images(user_id, image_id):
     return image_content
 
 
+def search_by_title(search_value):
+    """
+    Search ImageContent model by title.
+
+    Args:
+      search_value: Search value.
+
+    Returns:
+      ImageContent query results.
+    """
+    search = "%{}%".format(search_value)
+    titles = db.session.query(models.ImageContent).filter(
+        models.ImageContent.title.ilike(search)).all()
+    return titles
+
+
+def search_by_tags(search_value):
+    """
+    Search Tags model by tag_name.
+
+    Args:
+      search_value: Search value.
+
+    Returns:
+      Tags query results.
+    """
+    search = "%{}%".format(search_value)
+    tags = db.session.query(models.Tags).filter(
+        models.Tags.tag_name.ilike(search)).all()
+    return tags
+
+
 def create_user_content(user, directory_name):
     """
     Saves a record in UserContent with user and directory

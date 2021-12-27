@@ -219,6 +219,8 @@ def validate_token(received_token, token_type, token_max_age):
         return None, SERVER_ERROR
 
 
+
+
 def confirm_email(user):
     """
     Activates user if not already activated.
@@ -518,6 +520,24 @@ def add_User(user_details):
         # Logs exceptions
         print("Exception occured when creating Role: {}".format(e))
         return False
+
+
+def search_by_username(search_value):
+    """
+    Search User model by username.
+
+    Args:
+      search_value: Search value.
+
+    Returns:
+      Username query results.
+    """
+    # user_ = models.User()
+    search = "%{}%".format(search_value)
+    usernames = db.session.query(models.User).filter(
+        models.User.username.ilike(search)).all()
+    # usernames = user_.query.filter(user_.username.like(search)).all()
+    return usernames
 
 
 def account_creation(user_details, role_name, permissions=[]):
