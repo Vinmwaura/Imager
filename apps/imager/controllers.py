@@ -17,6 +17,25 @@ MAX_PER_PAGE = 100
 THUMBNAIL_SIZE = (240, 240)
 
 
+def update_gallery(image_content, new_data):
+    try:
+        if 'title' in new_data:
+            image_content.title = new_data['title']
+
+        if 'description' in new_data:
+            image_content.description = new_data['description']
+
+        # Commit Session
+        db.session.commit()
+        return True
+    except Exception as e:
+        # Rollback session
+        db.session.rollback()
+
+        print("An error occured while commiting ImageContent: ", e)
+        return False
+
+
 def get_user_content(user):
     """
     Gets details for user contents.
@@ -41,6 +60,35 @@ def get_image_contents_by_time():
     """
     image_content = models.ImageContent.query.order_by(
         models.ImageContent.upload_time.desc())
+    return image_content
+
+
+def get_image_by_user(user, image_id):
+    """
+    Loads specific image owned by user if it exists.
+
+    Args:
+      user: User object.
+      image_id: Image id
+
+    Returns:
+      ImageContent object or none.
+    """
+    # Checks if user object and image_id exists and is valid, else None
+    if not user and not image_id:
+        return None
+
+    # Get UserContent for user, if it exists
+    user_content = models.UserContent().query.filter_by(
+        user_id=user.id).one_or_none()
+
+    if not user_content:
+        return None
+
+    image_content = models.ImageContent().query.filter_by(
+        user_content_id=user_content.id,
+        file_id=image_id).one_or_none()
+
     return image_content
 
 

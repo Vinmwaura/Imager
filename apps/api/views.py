@@ -86,6 +86,33 @@ def oauth_revoke():
     return jsonify(status=revoke.status_code, message=revoke.status)
 
 
+@api_bp.route('/profile/me', methods=['GET'])
+@oauth2.require_oauth()
+@csrf.exempt
+def user_profile():
+    user = current_token.user
+    api_data = {}
+    api_data["user"] = {
+        "username": user.username,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email
+    }
+    api_data["message"] = "Success."
+    api_data["status"] = 200
+    return jsonify(api_data), api_data["status"]
+
+
+# TODO: Implement edit profile endpoint.
+"""
+@api_bp.route('edit/profile/me', methods=['PUT'])
+@oauth2.require_oauth()
+@csrf.exempt
+def edit_user_profile():
+    pass
+"""
+
+
 @api_bp.route('/search/<string:search_value>')
 @csrf.exempt
 def search(search_value):
@@ -128,9 +155,9 @@ def search(search_value):
     return jsonify(api_data), 200
 
 
-@api_bp.route("/gallery")
-@api_bp.route("/gallery/<string:category>")
-@api_bp.route("/gallery/<string:category>/<string:category_filter>")
+@api_bp.route('/gallery')
+@api_bp.route('/gallery/<string:category>')
+@api_bp.route('/gallery/<string:category>/<string:category_filter>')
 def load_gallery(category="upload_time", category_filter=None):
     # Assumes no issue will occur otherwise will be changed.
     message = "Successful."
@@ -194,7 +221,75 @@ def load_gallery(category="upload_time", category_filter=None):
     return jsonify(api_dict), api_status
 
 
-@api_bp.route('/upload', methods=["POST"])
+@api_bp.route('edit/gallery/<string:image_id>', methods=['PUT'])
+@oauth2.require_oauth()
+@csrf.exempt
+def edit_image(image_id):
+    user = current_token.user
+
+    from .. import imager as img_
+    image_content = img_.controllers.get_image_by_user(
+        user,
+        image_id)
+
+    if image_content is not None:
+        new_data = {}
+        if 'title' in request.form:
+            img_title = request.form['title']
+            title_len = len(img_title)
+
+            if img_.utils.MIN_TITLE_LENGTH > title_len or \
+                    img_.utils.MAX_TITLE_LENGTH < title_len:
+                return jsonify(
+                    message=img_.utils.INVALID_TITLE_LENGTH,
+                    status=400), 400
+            elif img_title == '':
+                return jsonify(
+                    message="Title can't be empty.",
+                    status=400), 400
+            else:
+                if img_title == image_content.title:
+                    return jsonify(
+                        message="Title can't be the same.",
+                        status=400), 400
+
+                new_data['title'] = img_title
+
+        if 'description' in request.form:
+            img_description = request.form['description']
+            if img_description == '':
+                return jsonify(
+                    message="Description can't be empty.",
+                    status=400), 400
+            else:
+                if img_description == image_content.description:
+                    return jsonify(
+                        message="Description can't be the same.",
+                        status=400), 400
+                new_data['description'] = img_description
+
+        if new_data:
+            # Updates gallery.
+            updated_gallery = img_.controllers.update_gallery(
+                image_content,
+                new_data)
+            if updated_gallery:
+                return jsonify(
+                    message='Successfully updated image.',
+                    status=200), 200
+            else:
+                return jsonify(
+                    message='An error occured while updating image.',
+                    status=500), 500
+        else:
+            return jsonify(
+                message='No inputs passed.',
+                status=400), 400
+    else:
+        return jsonify(api_dict), api_status
+
+
+@api_bp.route('/upload', methods=['POST'])
 @oauth2.require_oauth()
 @csrf.exempt
 def upload_image():
@@ -279,7 +374,7 @@ def upload_image():
             status=200), 200
 
 
-@api_bp.route('/delete/image/<string:image_id>', methods=["DELETE"])
+@api_bp.route('/delete/image/<string:image_id>', methods=['DELETE'])
 @oauth2.require_oauth()
 @csrf.exempt
 def delete_image_by_id(image_id):
@@ -316,7 +411,7 @@ def delete_image_by_id(image_id):
 
 @api_bp.route(
     '/image/<string:image_id>/vote/<string:vote_action>',
-    methods=["POST"])
+    methods=['POST'])
 @oauth2.require_oauth()
 @csrf.exempt
 def vote_counter(image_id, vote_action):

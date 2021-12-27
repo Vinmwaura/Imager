@@ -230,40 +230,34 @@ def load_gallery_image(image_id):
 @imager_bp.route("/edit/gallery/<string:image_id>", methods=["GET", "POST"])
 @login_required
 def edit_gallery(image_id):
-    image_content = get_image_content_by_id(image_id)
+    user = current_user
+    image_content = get_image_by_user(user, image_id)
     if image_content:
         edit_image_uploaded = EditImageForm(
-            title=image_content[0].title)
-
+            title=image_content.title)
         if edit_image_uploaded.validate_on_submit():
             gallery_title = request.form["title"]
-
-            if gallery_title != image_content[0].title:
-                image_content[0].title = gallery_title
-
-                try:
-                    # Commit Session
-                    db.session.commit()
+            if gallery_title != image_content.title:
+                data_dict = {'title': gallery_title}
+                updated_gallery = update_gallery(
+                    image_content,
+                    data_dict)
+                if updated_gallery:
                     flash(
                         "Successfully updated to \'{}\'".format(
-                            image_content[0].title), "success")
-                except Exception as e:
-                    # Rollback session
-                    db.session.rollback()
-                    # TODO: Log error message properly
-                    print("An error occured while commiting Role: ", e)
-                    flash("An error occured while updating {}.".format(
-                        image_content[0].title))
+                            image_content.title), "success")
+                else:
+                    flash("An error occured while updating {}".format(
+                        image_content.title))
             else:
                 flash("No change detected", "info")
-
             return redirect(url_for('imager.user_profile'))
-
         return render_template(
             "imager/edit_image.html",
-            image=image_content[0],
+            image=image_content,
             form=edit_image_uploaded)
-    abort(404)
+    else:
+        abort(404)
 
 
 @imager_bp.route("/gallery/user/<string:username>")
