@@ -29,6 +29,32 @@
 		<a class="anchor" href="#client-creation">Creating a Client</a>
 		<a class="anchor" href="#authorization">Authorization</a>
 		<a class="anchor" href="#authorization-code-flow">Authorization Code flow example</a>
+		<a class="anchor" href="#api-endpoints">API Endpoints</a>
+		<ul class="anchor-list">
+			<li>
+				<a class="anchor list-item" href="#api-account">Account</a>
+				<ul class="anchor-list">
+					<li><a href="#acount-profile">User Profile</a></li>
+				</ul>
+			</li>
+			<li>
+				<a class="anchor list-item" href="#api-gallery">Gallery</a>
+				<ul class="anchor-list">
+					<li><a href="#gallery-details">Gallery Details</a></li>
+					<li><a href="#gallery-edit-details">Edit Gallery Details</a></li>
+					<li><a href="#gallery-upload">Upload Image</a></li>
+					<li><a href="#gallery-delete">Delete Image</a></li>
+					<li><a href="#gallery-vote">Vote Image</a></li>
+				</ul>
+			</li>
+			<li>
+				<a class="anchor list-item" href="#api-search">Search</a>
+				<ul class="anchor-list">
+					<li><a href="#search">Search by username, image title and tags</a></li>
+				</ul>
+				
+			</li>
+		</ul>
 	</div>
 	<div class="api-content">
 		<h1>API</h1>
@@ -129,6 +155,217 @@
 					</li>
 				</ol>
 			</p>
+		</section>
+
+		<section id="api-endpoints">
+			<h2>API Endpoints</h2>
+			Imager offers the following API endpoints, some of which are public and others may require Access Tokens to be passed in the header to be available.
+
+			<section id="api-account">
+				<h2>Account</h2>
+
+				<section id="acount-profile">
+					<h3>User Profile</h3>
+					<p>
+						Method: <strong>GET</strong>
+						<code>
+							${Domain-Name}/api/v1/profile/me
+						</code>
+						<br>
+						Returns profile details of the user based on their access token.
+						
+						<h4>Requires:</h4>
+						<ul>
+							<li>
+								<strong>HEADER</strong>	
+							</li>
+							<code>
+								Authorization: Bearer ${access_token}
+							</code>
+							<hr>
+						</ul>
+					</p>
+				</section>
+			</section>
+
+			<section id="api-gallery">
+				<h2>Gallery</h2>
+
+				<section id="gallery-details">
+					<h3>Gallery Details</h3>
+					<p>
+						Method: <strong>GET</strong>
+						<code>
+							${Domain-Name}/api/v1/gallery
+							<br>
+							<br>
+							${Domain-Name}/api/v1/gallery/${category}
+							<br>
+							<br>
+							${Domain-Name}/api/v1/gallery/${category}/${category_filter}
+						</code>
+						<br>
+						Returns details about the gallery including the images, and their voting metrics with the ability to filter the results.
+						<strong>${category}</strong> is used to determine how the gallery will be filtered, while <strong>${category_filter}</strong> is used to determine the sorting order or offer additional query options where applicable, they include the following options:
+						<ul>
+							<li><strong>upload_time</strong></li>
+							<p>
+								This filters the gallery based on the upload time of the images. Additionally it takes a sorting parameter <strong>desc</strong>(Newest to Oldest) or <strong>asc</strong>(Oldest to Newest) as <strong>${category_filter}</strong>. Defaults to <strong>desc</strong> if no parameter passed.
+							</p>
+							<li><strong>score</strong></li>
+							<p>
+								This category filters the gallery based on the total voting scores of the images. Additionally it takes a sorting parameter <strong>desc</strong>(Newest to Oldest) or <strong>asc</strong>(Oldest to Newest) as <strong>${category_filter}</strong>. Defaults to <strong>desc</strong> if no parameter passed.
+							</p>
+							<li><strong>image</strong></li>
+							<p>
+								This category filters the gallery based on the image id. <strong>${category_filter}</strong> should contain the image_id and if non is present it will result in a 400 HTML status response.
+							</p>
+							<li><strong>user</strong></li>
+							<p>
+								This category filters the gallery based on usernames. <strong>${category_filter}</strong> should contain the username and if non is present it will result in a 400 HTML status response.
+							</p>
+						</ul>
+					</p>
+				</section>
+
+				<section id="gallery-edit-details">
+					<h3>Edit Gallery Details</h3>
+					<p>
+						Method: <strong>PUT</strong>
+						<code>
+							${Domain-Name}/api/v1/edit/gallery/${image_id}
+						</code>
+						<br>
+						Edits image information such as <em>title</em> or <em>description</em> of image filtered by valid <strong>${image_id}</strong> and user based on access token. Requires one or both and queries should be different from what is stored on the database otherwise will result in 400 HTML status response.
+
+						<h4>Requires:</h4>
+						<ul>
+							<li>
+								<strong>HEADER</strong>	
+							</li>
+							<code>
+								Authorization: Bearer ${access_token}
+							</code>
+							<hr>
+							<li>
+								<strong>BODY</strong> <em>formdata</em>	
+							</li>
+							<code>
+								title: ${New-title}
+								<br>
+								<br>
+								description: ${New-description}
+							</code>
+							<hr>
+						</ul>
+					</p>
+				</section>
+
+				<section id="gallery-upload">
+					<h3>Upload Image</h3>
+					<p>
+						Method: <strong>POST</strong>
+						<code>
+							${Domain-Name}/api/v1/upload
+						</code>
+						<br>
+						Uploads a new image including information such as <em>title</em> and optionally <em>description</em> for the user based on the access token provided. It supports the following image formats:
+						<ul>
+							{% for extension in config.UPLOAD_EXTENSIONS%}
+							<li><strong>{{extension}}</strong></li>
+							{% endfor %}
+						</ul>
+
+						<h4>Requires:</h4>
+						<ul>
+							<li>
+								<strong>HEADER</strong>	
+							</li>
+							<code>
+								Authorization: Bearer ${access_token}
+							</code>
+							<hr>
+							<li>
+								<strong>BODY</strong> <em>form</em>	
+							</li>
+							<code>
+								file: ${A binary file, base64 data, or a URL for an image. (up to 1MB) }
+								<br>
+								<br>
+								title: ${Image title}
+								<br>
+								<br>
+								description: ${Optional Image description}
+							</code>
+							<hr>
+						</ul>
+
+					</p>
+				</section>
+
+				<section id="gallery-delete">
+					<h3>Delete Image</h3>
+					<p>
+						Method: <strong>DELETE</strong>
+						<code>
+							${Domain-Name}/api/v1/delete/image/${image_id}
+						</code>
+						<br>
+						Deletes user's uploaded image based on image_id and their access_token passed.
+
+						<h4>Requires:</h4>
+						<ul>
+							<li>
+								<strong>HEADER</strong>	
+							</li>
+							<code>
+								Authorization: Bearer ${access_token}
+							</code>
+							<hr>
+						</ul>
+					</p>
+				</section>
+
+				<section id="gallery-vote">
+					<h3>Vote Image</h3>
+					<p>
+						Method: <strong>POST</strong>
+						<code>
+							${Domain-Name}/api/v1/image/${image_id}/vote/${vote_action}
+						</code>
+						<br>
+						Votes or downvotes an image based on image_id passed and the user's access token. <strong>${vote_action}</strong> takes on two values: <em>up</em> or <em>down</em>. Voting twice with the same <strong>${vote_action}</strong> cancels the first action if it was the first time performing the action on the image.
+
+						<h4>Requires:</h4>
+						<ul>
+							<li>
+								<strong>HEADER</strong>	
+							</li>
+							<code>
+								Authorization: Bearer ${access_token}
+							</code>
+							<hr>
+						</ul>
+					</p>
+				</section>
+			</section>
+
+			<section id="api-search">
+				<h2>Search</h2>
+
+				<section id="search">
+					<h3>Search by username, image title and tags</h3>
+					<p>
+						Method: <strong>GET</strong>
+						<code>
+							${Domain-Name}/api/v1//search/${search_value}
+						</code>
+						<br>
+						Searches both username and gallery titles and tags using ${search_value} as query string.
+					</p>
+				</section>
+
+			</section>
 		</section>
 	</div>
 </div>

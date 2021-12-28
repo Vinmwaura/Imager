@@ -47,8 +47,9 @@ section::before {
 }
 
 .api-section {
+	overflow-y: auto;
 	height: 30em;
-  	width: 50em;
+  	width: 60em;
   	position: sticky;
   	top: 6em;
   	background-color: #F5F5F5;
@@ -59,4 +60,12 @@ section::before {
 	padding: 1em;
 	margin-left: 1em;
 	background-color: #FFF;
+}
+
+.anchor-list {
+	margin: 0;
+}
+
+.list-item {
+	padding: 0 auto !important;
 }
