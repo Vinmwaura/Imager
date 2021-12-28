@@ -1,0 +1,15 @@
+{% macro search_section() %}
+<div class="search-wrap">
+	<!-- Seach Bar -->
+	<div class="main-search-options">
+		<form class="search-form" action="">
+			<input placeholder="Search for user, image title, tags" type="text" class="search-input" id="gallery-search-input" autocomplete="off">
+			<button type="submit" class="search-submit"><i class="fa fa-search"></i></button>
+		</form>
+	</div>
+
+	<!-- Search Suggestion Dropdown -->
+	<div class="search-suggestion hide-search-dropdown" id="search-dropdown">
+	</div>	
+</div>
+{% endmacro %}

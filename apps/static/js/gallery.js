@@ -1,3 +1,122 @@
+function delay(callback, ms) {
+   	var timer = 0;
+   	return function() {
+      	var context = this,
+         	args = arguments;
+      	clearTimeout(timer);
+      	timer = setTimeout(function() {
+         	callback.apply(context, args);
+      	}, ms || 0);
+   };
+}
+
+/* Toggles suggestion section when user enters value */
+function toggle_suggestion() {
+    let suggestion_elem = document.getElementById("search-dropdown");
+    if(suggestion_elem!=undefined) {
+    	suggestion_elem.classList.toggle("hide-search-dropdown");
+	    suggestion_elem.classList.toggle("show-search-dropdown");	
+    }
+}
+
+function open_suggestion() {
+	// Toggle Search Dropdown if closed.
+    let suggestion_elem = document.getElementById("search-dropdown");
+    if(suggestion_elem!=undefined) {
+	    if (suggestion_elem.classList.contains("hide-search-dropdown")) {
+	        toggle_suggestion();
+	    }
+	}
+}
+
+function close_suggestion() {
+	// Toggle Search Dropdown if opened.
+    let suggestion_elem = document.getElementById("search-dropdown");
+    if(suggestion_elem!=undefined) {
+	    if (suggestion_elem.classList.contains("show-search-dropdown")) {
+	        toggle_suggestion();
+	    }
+	}
+}
+
+// Highlights search text
+function highlight(search_val, text) {
+	let searchRegExp = new RegExp(search_val, "gi");
+	// Uses RegExp.lastMatch hack to replace word with highlighed span element.
+	let new_text = text.replace(searchRegExp, "<span class='highlight'>$&</span>");
+	return new_text
+}
+
+// Search functionality
+function search_result(search_val, search_url, gallery_img, gallery_user) {
+	search_results = document.getElementById("search-dropdown");
+
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", search_url+search_val, true);
+
+	xhr.onload = function () {
+		// Request finished. Do processing here.
+		var jsonResponse = JSON.parse(this.responseText);
+
+		search_html = "";
+		if (jsonResponse.results.image.length > 0 || jsonResponse.results.tags.length > 0 || jsonResponse.results.users.length > 0)  {
+			
+			search_html += "<strong>IMAGE</strong><br>";
+			search_html += "<hr>"
+			search_html += "<ul>"
+			for(let i=0; i<jsonResponse.results.image.length; i++) {
+				img_id = jsonResponse.results.image[i].image_id;
+				image_title = jsonResponse.results.image[i].title;
+				search_html += '<a href=' + gallery_img + img_id + '><li>' + highlight(search_val, image_title) + '</li></a>';
+			}
+			search_html += "</ul>"
+			
+			search_html += "<strong>TAGS</strong><br>";
+			search_html += "<hr>"
+			search_html += "<ul>"
+			for(let i=0; i<jsonResponse.results.tags.length; i++) {
+				tagname = jsonResponse.results.tags[i].tagname;
+				search_html += '<li>' + highlight(search_val, tagname) + '</li>';
+			}
+			search_html += "</ul>"
+			
+			search_html += "<strong>USERS</strong><br>";
+			search_html += "<hr>"
+			search_html += "<ul>"
+			for(let i=0; i<jsonResponse.results.users.length; i++) {
+				username = jsonResponse.results.users[i].username;
+				search_html += '<a href=' + gallery_user + username + '><li>' + highlight(search_val, username) + '</li></a>';
+			}
+			search_html += "</ul>";
+		} else {
+			// Hide if no result found.
+			search_html += "<h1 style='text-align: center'>No data found!</h1>";
+		}
+		search_results.innerHTML = search_html;
+	};
+
+	xhr.send();
+}
+
+function suggest(input_val, search_url, gallery_img, gallery_user) {
+	if (input_val == '') {
+		// Hide suggestion.
+		suggestion_elem = document.getElementById("search-dropdown");
+		if(suggestion_elem != undefined) {
+			toggle_suggestion();
+		}
+	} else {
+		search_result(input_val, search_url, gallery_img, gallery_user);
+		// Show suggestion if hidden initially.
+		suggestion_elem = document.getElementById("search-dropdown");
+		if(suggestion_elem != undefined) {
+			if(suggestion_elem.classList.contains('hide-search-dropdown')) {
+				toggle_suggestion()
+			}
+		}
+	}
+}
+
 // Picture Modal
 function load_picture_modal(pic) {
 	let image_modal = document.getElementById("image-modal");

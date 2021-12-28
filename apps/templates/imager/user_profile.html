@@ -23,12 +23,8 @@
 {% endblock %}
 
 {% block middle_nav_options %}
-<div class="main-search-options">
-	<form class="search-form" action="">
-		<input placeholder="Search for image by name/tag/image id" type="text" class="search-input" id="image-search-input">
-		<button type="submit" class="search-submit"><i class="fa fa-search"></i></button>
-	</form>
-</div>
+{% import 'imager/macros/search.html' as search %}
+{{ search.search_section() }}
 {% endblock %}
 
 {% block content %}
@@ -135,6 +131,24 @@
 			adjust_gallery_width(gallery_container[0]);
 		}
 		text_overflow(text_div);
+
+		input_elem = document.getElementById("gallery-search-input");
+		if (input_elem != undefined) {
+			input_elem.addEventListener('keyup', delay(function() {
+				suggest(
+					this.value,
+					"{{ url_for('api.search', search_value='') }}",
+					"{{ url_for('imager.load_gallery_image', image_id='')}}",
+					"{{ url_for('imager.load_images_by_username', username='')}}"
+				)
+			}, 500));
+
+			input_elem.addEventListener('focusin', function() {
+				if (this.value != "") {
+					open_suggestion();
+				}
+			});
+		}
 	}
 
 	// Listen for window resize event.
@@ -144,5 +158,11 @@
 			adjust_gallery_width(gallery_container[0]);
 		}
 	})
+
+	document.onclick = function(event) {
+		if (event.target.id != "search-dropdown" && event.target.id != "gallery-search-input") {
+			close_suggestion();
+		}
+	}
 </script>
 {% endblock %}
