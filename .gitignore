@@ -23,3 +23,6 @@ venv
 
 # Uploaded Media Files
 apps/media/user_uploads/*
+
+# sh script
+start.sh
