@@ -227,6 +227,29 @@ def load_gallery_image(image_id):
     abort(404)
 
 
+@imager_bp.route("/gallery/search")
+def load_gallery_search():
+    query = request.args.get('q', None, type=str)
+    page = request.args.get('page', 1, type=int)
+
+    if query:
+        image_contents = search_by_title(query, False)
+    else:
+        image_contents = []
+
+    if not image_contents:
+        images = []
+    else:
+        images = image_content_pagination(
+            image_contents,
+            page=page)
+
+    data_dict = get_image_details(current_user, images)
+    return render_template(
+        "imager/search_result.html",
+        images=data_dict)
+
+
 @imager_bp.route("/edit/gallery/<string:image_id>", methods=["GET", "POST"])
 @login_required
 def edit_gallery(image_id):

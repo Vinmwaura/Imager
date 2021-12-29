@@ -2,8 +2,8 @@
 <div class="search-wrap">
 	<!-- Seach Bar -->
 	<div class="main-search-options">
-		<form class="search-form" action="">
-			<input placeholder="Search for user, image title, tags" type="text" class="search-input" id="gallery-search-input" autocomplete="off">
+		<form class="search-form" action="{{url_for('imager.load_gallery_search')}}" method="GET">
+			<input placeholder="Search for user, image title, tags" type="text" class="search-input" id="gallery-search-input" name="q" autocomplete="off">
 			<button type="submit" class="search-submit"><i class="fa fa-search"></i></button>
 		</form>
 	</div>

@@ -178,7 +178,7 @@ def load_user_images(user_id, image_id):
     return image_content
 
 
-def search_by_title(search_value):
+def search_by_title(search_value, get_list=True):
     """
     Search ImageContent model by title.
 
@@ -189,8 +189,12 @@ def search_by_title(search_value):
       ImageContent query results.
     """
     search = "%{}%".format(search_value)
-    titles = db.session.query(models.ImageContent).filter(
-        models.ImageContent.title.ilike(search)).all()
+    if get_list:
+        titles = db.session.query(models.ImageContent).filter(
+            models.ImageContent.title.ilike(search)).all()
+    else:
+        titles = db.session.query(models.ImageContent).filter(
+            models.ImageContent.title.ilike(search))
     return titles
 
 
