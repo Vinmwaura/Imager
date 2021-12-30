@@ -10,11 +10,47 @@ from .utils import *
 
 from PIL import Image, ImageOps
 
+from sqlalchemy import asc, desc, nulls_first, nulls_last
+
 
 PER_PAGE = 20
 ERROR_OUT = True
 MAX_PER_PAGE = 100
 THUMBNAIL_SIZE = (240, 240)
+
+
+def get_image_details(user, images):
+    """
+    Gets details of image including score aggregation.
+
+    Args:
+      user: User object.
+      images: Paginated images.
+
+    Returns:
+      Dict with details of images.
+    """
+    data_dict = []
+    for image in images:
+        temp_dict = {}
+        temp_dict["uploaded_by"] = image.user_content.user.username
+        temp_dict["title"] = image.title
+        temp_dict["file_id"] = image.file_id
+        temp_dict["voter_count"] = image_metric(image.file_id)
+
+        if user.is_anonymous:
+            temp_dict["personal_vote"] = None
+        else:
+            vote_counter = models.VoteCounter().query.filter_by(
+                user_id=current_user.id,
+                image_file_id=image.file_id).first()
+            if vote_counter:
+                temp_dict["personal_vote"] = vote_counter.vote
+            else:
+                temp_dict["personal_vote"] = None
+
+        data_dict.append(temp_dict)
+    return data_dict
 
 
 def update_gallery(image_content, new_data):
@@ -51,15 +87,48 @@ def get_user_content(user):
     return user_content
 
 
-def get_image_contents_by_time():
+def get_image_contents_by_time(sort_order="asc"):
     """
-    Loads entire ImageContent model sorted in a descending order.
+    Loads entire ImageContent model sorted in either
+    descending or ascending order by time.
 
     Returns:
       ImageContent object.
     """
-    image_content = models.ImageContent.query.order_by(
-        models.ImageContent.upload_time.desc())
+    if sort_order == "asc":
+        image_content = models.ImageContent.query.order_by(
+            models.ImageContent.upload_time.asc())
+    elif sort_order == "desc":
+        image_content = models.ImageContent.query.order_by(
+            models.ImageContent.upload_time.desc())
+    else:
+        image_content = None
+    return image_content
+
+
+def get_image_contents_by_score(sort_order="asc"):
+    """
+    Loads entire ImageContent model sorted in either
+    descending or ascending order by voting score.
+
+    Returns:
+      ImageContent object.
+    """
+    if sort_order == "asc":
+        image_content = models.ImageContent.query.select_from(
+            models.ImageContent).outerjoin(
+            models.VoteCounter).group_by(
+            models.ImageContent).order_by(
+            nulls_first(asc(func.sum(models.VoteCounter.vote))))
+    elif sort_order == "desc":
+        image_content = models.ImageContent.query.select_from(
+            models.ImageContent).outerjoin(
+            models.VoteCounter).group_by(
+            models.ImageContent).order_by(
+            nulls_last(desc(func.sum(models.VoteCounter.vote))))
+    else:
+        image_content = None
+
     return image_content
 
 
@@ -481,7 +550,7 @@ def image_metric(image_file_id):
                 models.VoteCounter.image_file_id == image_file_id,
                 models.VoteCounter.vote == vote_enum.DOWNVOTE.value).label(
                 'downvotes')).first()
-        metric_dict['total'] = 0 if sum_aggr.total is None else sum_aggr.total
+        metric_dict['total'] = '-' if sum_aggr.total is None else sum_aggr.total
         metric_dict['upvotes'] = 0 if sum_aggr.upvotes is None \
             else sum_aggr.upvotes
         metric_dict['downvotes'] = 0 if sum_aggr.downvotes is None \

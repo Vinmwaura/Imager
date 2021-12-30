@@ -492,3 +492,66 @@
 .highlight {
     background-color: rgba(255,255,255,0.2);
 }
+
+/**********************************************************
+                    Filter Options
+***********************************************************/
+.options-container {
+    margin-left: 10px;
+    margin-bottom: 5px;
+    display: flex;
+    flex-direction: row;
+}
+
+.filter-options {
+    margin-right: 1em;
+}
+
+.filter-options a {
+    text-decoration: none;
+}
+
+#filter-dropdown a, #sort-dropdown a {
+    color: #FFF;
+}
+
+.selected-option span {
+    color: #000;
+    border: 1px solid;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+#filter-dropdown, #sort-dropdown {
+    background-color: #565f6e;
+    min-height: 2em;
+    width: 10em;
+    position: absolute;
+    margin: 10px 0 0 -1em;
+    border-radius: 0.4em;
+    z-index: 1000;
+    padding: 0.3em 0;
+}
+
+#filter-dropdown span, #sort-dropdown span {
+    padding: 0.4em 0em;
+    display: block;
+    text-align: center;
+}
+
+#filter-dropdown span:hover, #sort-dropdown span:hover {
+    background-color: #b4b9c2;
+}
+
+#filter-dropdown[class="show-dropdown"], , #sort-dropdown[class="show-dropdown"] {
+    visibility: visible;
+    opacity: 1;
+    display: block;
+}
+
+#filter-dropdown[class="hide-dropdown"], [class="hide-dropdown"] {
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.5s ease;
+    display: none;
+}

@@ -20,44 +20,93 @@ from .forms import *
 from .controllers import *
 
 
-def get_image_details(user, images):
-    data_dict = []
-    for image in images:
-        temp_dict = {}
-        temp_dict["uploaded_by"] = image.user_content.user.username
-        temp_dict["title"] = image.title
-        temp_dict["file_id"] = image.file_id
-        temp_dict["voter_count"] = image_metric(image.file_id)
+def get_filter_options(category, sort_order):
+    """
+    Filter options for gallery.
 
-        if user.is_anonymous:
-            temp_dict["personal_vote"] = None
+    Args:
+      category: Filter option to use on image.
+      sort_order: Sort oprions to use with filter.
+
+    Returns:
+      Dict with filter options to be used on the html.
+    """
+    filter_options = {}
+    filter_options["categories"] = [
+        {"name": "Upload Time", "value": "upload_time"},
+        {"name": "Score", "value": "score"}
+    ]
+
+    if category == "upload_time":
+        filter_options["selected_category"] = "Upload Time"
+        if sort_order == "desc":
+            filter_options["selected_filter"] = "Newest to Oldest"
+        elif sort_order == "asc":
+            filter_options["selected_filter"] = "Oldest to Newest"
         else:
-            vote_counter = models.VoteCounter().query.filter_by(
-                user_id=current_user.id,
-                image_file_id=image.file_id).first()
-            if vote_counter:
-                temp_dict["personal_vote"] = vote_counter.vote
-            else:
-                temp_dict["personal_vote"] = None
+            filter_options["selected_filter"] = ""
 
-        data_dict.append(temp_dict)
-    return data_dict
+        filter_options['options'] = [
+            {
+                "value": "Newest to Oldest",
+                "filter": "desc",
+                "category": "upload_time"},
+            {
+                "value": "Oldest to Newest",
+                "filter": "asc",
+                "category": "upload_time"}
+        ]
+    elif category == "score":
+        filter_options['selected_category'] = "Score"
+        if sort_order == "desc":
+            filter_options["selected_filter"] = "Highest"
+        elif sort_order == "asc":
+            filter_options["selected_filter"] = "Lowest"
+        else:
+            filter_options["selected_filter"] = ""
+
+        filter_options['options'] = [
+            {"value": "Highest", "filter": "desc", "category": "score"},
+            {"value": "Lowest", "filter": "asc", "category": "score"}
+        ]
+    else:
+        pass
+    return filter_options
 
 
 @imager_bp.route("/")
-def index():
+@imager_bp.route('/<string:category>')
+@imager_bp.route('/<string:category>/<string:category_filter>')
+def index(category="upload_time", category_filter="desc"):
     page = request.args.get('page', 1, type=int)
 
-    image_content = get_image_contents_by_time()
-    if not image_content:
+    if category_filter not in ['asc', 'desc']:
+        abort(404)
+
+    if category == "upload_time":
+        if category_filter is None:
+            category_filter = "asc"  # Default value if no parameter.
+        image_contents = get_image_contents_by_time(category_filter)
+    elif category == "score":
+        if category_filter is None:
+            category_filter = "desc"  # Default value if no parameter.
+        image_contents = get_image_contents_by_score(category_filter)
+    elif category == "":
+        image_contents = get_image_contents_by_time()
+    else:
+        abort(404)
+
+    if not image_contents:
         images = []
     else:
-        images = image_content_pagination(image_content, page=page)
+        images = image_content_pagination(image_contents, page=page)
 
+    filter_options = get_filter_options(category, category_filter)
     data_dict = get_image_details(current_user, images)
     return render_template(
         "imager/index.html",
-        images=data_dict)
+        images=data_dict,
+        filter_options=filter_options)
 
 
 @imager_bp.route("/settings")

@@ -1,0 +1,45 @@
+{% macro filter_section(filter_options) %}
+<div class="options-container">
+	<div class="filter-options">
+		<span class="selected-option">
+			<a href="javascript: void(0)" onclick='toggle_filter_dropdown("filter")'>
+				<span id="category-dropdown">{{filter_options.selected_category}} <i class="fa fa-caret-down" id="category-caret"></i></span>
+			</a>
+		</span>
+
+		<!-- Dropdown options -->
+		<div class="hide-dropdown" id="filter-dropdown">
+			{% for category in filter_options.categories %}
+			{% if category.name == filter_options.selected_category %}
+			<span class="highlight">{{category.name}}</span>
+			{% else %}
+			<a href="{{ url_for('imager.index', category=category.value) }}">
+				<span class="">{{category.name}}</span>
+			</a>
+			{% endif %}
+			{% endfor %}
+		</div>
+	</div>
+
+	<div class="filter-options">
+		<span class="selected-option">
+			<a href="javascript:void(0)" onclick='toggle_filter_dropdown("sort")'>
+				<span id="filter-sort-dropdown">{{filter_options.selected_filter}} <i class="fa fa-caret-down" id="filter-caret"></i></span>
+			</a>
+		</span>
+
+		<!-- Dropdown options -->
+		<div class="hide-dropdown" id="sort-dropdown">
+			{% for filter_option in filter_options.options %}
+			{% if filter_option.value == filter_options.selected_filter %}
+			<span class="highlight">{{filter_option.value}}</span>
+			{% else %}
+			<a href="{{ url_for('imager.index', category=filter_option.category, category_filter=filter_option.filter) }}">
+				<span class="">{{filter_option.value}}</span>
+			</a>
+			{% endif %}
+			{% endfor %}
+		</div>
+	</div>
+</div>
+{% endmacro %}

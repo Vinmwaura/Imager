@@ -1,3 +1,21 @@
+function toggle_filter_dropdown(option) {
+	let options_dropdown = document.getElementById(option + "-dropdown");
+   	options_dropdown.classList.toggle("hide-dropdown");
+   	options_dropdown.classList.toggle("show-dropdown");
+}
+
+function close_filter_dropdown() {
+	let filter_dropdown = document.getElementById('filter-dropdown');
+	if (filter_dropdown.classList.contains('show-dropdown')) {
+		toggle_filter_dropdown('filter');
+	}
+
+	let sort_dropdown = document.getElementById('sort-dropdown');
+	if (sort_dropdown.classList.contains('show-dropdown')) {
+		toggle_filter_dropdown('sort');
+	}
+}
+
 function delay(callback, ms) {
    	var timer = 0;
    	return function() {
