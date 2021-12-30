@@ -29,7 +29,7 @@
 		<!-- Filter/Sort options -->
 		{% if filter_options %}
 		{% import 'imager/macros/filter_section.html' as filter %}
-		{{ filter.filter_section(filter_options) }}
+		{{ filter.filter_section(filter_options, 'imager.index') }}
 		{% endif %}
 
 		{% for image in images %}

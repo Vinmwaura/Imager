@@ -75,8 +75,14 @@
 
 <div class="gallery-container">
 	<div class="gallery-section">
-	{% for image in images %}
-	{% call gallery.gallery_section(url_for('imager.load_gallery_image', image_id=image.file_id)) %}
+		<!-- Filter/Sort options -->
+		{% if filter_options %}
+		{% import 'imager/macros/filter_section.html' as filter %}
+		{{ filter.filter_section(filter_options, 'imager.user_profile') }}
+		{% endif %}
+
+		{% for image in images %}
+		{% call gallery.gallery_section(url_for('imager.load_gallery_image', image_id=image.file_id)) %}
 		<div class="checkbox-section hide">
 			<label>
 				<input type="checkbox" class="gallery-select-individual" id="checkbox-{{image.file_id}}" name="{{image.title}}" value="{{image.file_id}}" onclick="count_selected_items();" autocomplete=off>
@@ -162,6 +168,22 @@
 	document.onclick = function(event) {
 		if (event.target.id != "search-dropdown" && event.target.id != "gallery-search-input") {
 			close_suggestion();
+		}
+
+		if (event.target.id == "category-dropdown") {
+			if (document.getElementById("sort-dropdown").classList.contains("show-dropdown")) {
+				toggle_filter_dropdown("sort");
+			}
+		}
+
+		if (event.target.id == "filter-sort-dropdown") {
+			if (document.getElementById("filter-dropdown").classList.contains("show-dropdown")) {
+				toggle_filter_dropdown("filter");
+			}
+		}
+
+		if (event.target.id != "category-dropdown" && event.target.id != "filter-sort-dropdown") {
+			close_filter_dropdown();	
 		}
 	}
 </script>

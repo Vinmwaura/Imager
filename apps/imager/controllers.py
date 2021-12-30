@@ -161,7 +161,10 @@ def get_image_by_user(user, image_id):
     return image_content
 
 
-def get_image_contents_by_user(username):
+def get_image_contents_by_user(
+        username,
+        category="upload_time",
+        category_filter="desc"):
     """
     Loads a User's ImageContent bases on their username.
 
@@ -179,9 +182,36 @@ def get_image_contents_by_user(username):
         user_id=user.id).first()
     if not user_content:
         return user, None
-
-    image_content = models.ImageContent().query.filter_by(
-        user_content_id=user_content.id)
+    if category == "upload_time":
+        if category_filter == "asc":
+            image_content = models.ImageContent.query.filter_by(
+                user_content_id=user_content.id).order_by(
+                models.ImageContent.upload_time.asc())
+        elif category_filter == "desc":
+            image_content = models.ImageContent.query.filter_by(
+                user_content_id=user_content.id).order_by(
+                models.ImageContent.upload_time.desc())
+        else:
+            image_content = None
+    elif category == "score":
+        if category_filter == "asc":
+            image_content = models.ImageContent.query.select_from(
+                models.ImageContent).filter_by(
+                user_content_id=user_content.id).outerjoin(
+                models.VoteCounter).group_by(
+                models.ImageContent).order_by(
+                    nulls_first(asc(func.sum(models.VoteCounter.vote)))
+            )
+        elif category_filter == "desc":
+            image_content = models.ImageContent.query.select_from(
+                models.ImageContent).filter_by(
+                user_content_id=user_content.id).outerjoin(
+                models.VoteCounter).group_by(
+                models.ImageContent).order_by(
+                    nulls_last(desc(func.sum(models.VoteCounter.vote)))
+            )
+        else:
+            image_content = None
     return user, image_content
 
 

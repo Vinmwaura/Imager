@@ -1,4 +1,4 @@
-{% macro filter_section(filter_options) %}
+{% macro filter_section(filter_options, url_var, username) %}
 <div class="options-container">
 	<div class="filter-options">
 		<span class="selected-option">
@@ -13,9 +13,17 @@
 			{% if category.name == filter_options.selected_category %}
 			<span class="highlight">{{category.name}}</span>
 			{% else %}
-			<a href="{{ url_for('imager.index', category=category.value) }}">
+			
+			{% if username %}
+			<a href="{{ url_for(url_var, category=category.value, username=username) }}">
 				<span class="">{{category.name}}</span>
 			</a>
+			{% else %}
+			<a href="{{ url_for(url_var, category=category.value) }}">
+				<span class="">{{category.name}}</span>
+			</a>
+			{% endif %}
+			
 			{% endif %}
 			{% endfor %}
 		</div>
@@ -34,9 +42,15 @@
 			{% if filter_option.value == filter_options.selected_filter %}
 			<span class="highlight">{{filter_option.value}}</span>
 			{% else %}
-			<a href="{{ url_for('imager.index', category=filter_option.category, category_filter=filter_option.filter) }}">
+			{% if username %}
+			<a href="{{ url_for(url_var, category=filter_option.category, category_filter=filter_option.filter, username=username) }}">
 				<span class="">{{filter_option.value}}</span>
 			</a>
+			{% else %}
+			<a href="{{ url_for(url_var, category=filter_option.category, category_filter=filter_option.filter) }}">
+				<span class="">{{filter_option.value}}</span>
+			</a>
+			{% endif %}
 			{% endif %}
 			{% endfor %}
 		</div>

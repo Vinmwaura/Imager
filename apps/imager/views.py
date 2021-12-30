@@ -333,10 +333,18 @@ def edit_gallery(image_id):
 
 
 @imager_bp.route("/gallery/user/<string:username>")
-def load_images_by_username(username):
+@imager_bp.route('/gallery/user/<string:username>/<string:category>')
+@imager_bp.route('/gallery/user/<string:username>/<string:category>/<string:category_filter>')
+def load_images_by_username(
+        username,
+        category="upload_time",
+        category_filter="desc"):
     page = request.args.get('page', 1, type=int)
 
-    user, image_content = get_image_contents_by_user(username)
+    user, image_content = get_image_contents_by_user(
+        username,
+        category,
+        category_filter)
     # If no user is found, 404 Page not found
     if user is None:
         abort(404)
@@ -347,16 +355,20 @@ def load_images_by_username(username):
     else:
         images = image_content_pagination(image_content, page=page)
 
+    filter_options = get_filter_options(category, category_filter)
     data_dict = get_image_details(current_user, images)
     return render_template(
         "imager/user_gallery.html",
         images=data_dict,
+        filter_options=filter_options,
         user=user)
 
 
 @imager_bp.route("/user/profile", methods=["GET", "POST"])
+@imager_bp.route('/user/profile/<string:category>')
+@imager_bp.route('/user/profile/<string:category>/<string:category_filter>')
 @login_required
-def user_profile():
+def user_profile(category="upload_time", category_filter="desc"):
     delete_form = DeleteForms()
     if delete_form.validate_on_submit():
         if "image_id" in request.form:
@@ -396,7 +408,10 @@ def user_profile():
         return redirect(url_for('imager.user_profile'))
     page = request.args.get('page', 1, type=int)
 
-    user, image_content = get_image_contents_by_user(current_user.username)
+    user, image_content = get_image_contents_by_user(
+        current_user.username,
+        category,
+        category_filter)
 
     # If user has no uploaded images, return empty images
     if image_content is None:
@@ -404,11 +419,13 @@ def user_profile():
     else:
         images = image_content_pagination(image_content, page=page)
 
+    filter_options = get_filter_options(category, category_filter)
     data_dict = get_image_details(current_user, images)
     return render_template(
         "imager/user_profile.html",
         images=data_dict,
         user=user,
+        filter_options=filter_options,
         form=delete_form)
 
 
