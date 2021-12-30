@@ -219,8 +219,6 @@ def validate_token(received_token, token_type, token_max_age):
         return None, SERVER_ERROR
 
 
-
-
 def confirm_email(user):
     """
     Activates user if not already activated.

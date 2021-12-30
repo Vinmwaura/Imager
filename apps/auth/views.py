@@ -20,6 +20,8 @@ from .controllers import *
 from .. import mail
 from flask_mail import Message
 
+from werkzeug.urls import url_parse
+
 
 def send_email(subject, body, sender, recipients):
     try:
@@ -120,11 +122,13 @@ def registration():
 def login():
     if current_user.is_anonymous:
         login_form = LoginForm()
+
+        next_page = request.args.get('next', url_for('imager.index'))
+
         if login_form.validate_on_submit():
             user_authenticated = authenticate_user(
                 request.form["username_email"],
                 request.form["password"])
-
             if user_authenticated:
                 if user_authenticated.email_confirmed:
                     flash(
@@ -134,7 +138,12 @@ def login():
                     # Logs user in
                     login_user(user_authenticated)
 
-                    return redirect(url_for("imager.index"))
+                    # Redirect Page
+                    next_page = request.form["next"]
+
+                    if not next_page or url_parse(next_page).netloc != '':
+                        next_page = url_for('imager.index')
+                    return redirect(next_page)
                 else:
                     flash(
                         "Kindly confirm your email first to login",
@@ -146,6 +155,7 @@ def login():
 
         return render_template(
             'auth/login.html',
+            next_page=next_page,
             form=login_form)
     else:
         return "{} is already logged in".format(current_user.username)

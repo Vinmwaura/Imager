@@ -58,7 +58,7 @@
 				'total_score': image.voter_count["total"],
 				'image_id': image.file_id,
 				'personal_vote': image.personal_vote,
-				'login_url': url_for('auth.login'),
+				'login_url': url_for('auth.login') + '?next=' + url_for(request.endpoint, username=user.username),
 				'upvote_link': url_for('imager.upvote_counter'),
 				'downvote_link': url_for('imager.downvote_counter')
 			} %}
