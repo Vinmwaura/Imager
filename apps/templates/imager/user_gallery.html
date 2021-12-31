@@ -34,40 +34,42 @@
 		<span>No images uploaded.</span>
 	</div>
 </div>
-{% endif %}
+{% else %}
+<div class="content-wrapper">
+	<!-- Filter/Sort options -->
+	{% if filter_options %}
+	{% import 'imager/macros/filter_section.html' as filter %}
+	{{ filter.filter_section(filter_options, 'imager.user_profile') }}
+	{% endif %}
 
-<!-- Gallery Section -->
-{% import 'imager/macros/gallery_section.html' as gallery %}
-<div class="gallery-container">
-	<div class="gallery-section">
-		<!-- Filter/Sort options -->
-		{% if filter_options %}
-		{% import 'imager/macros/filter_section.html' as filter %}
-		{{ filter.filter_section(filter_options, 'imager.load_images_by_username', user.username) }}
-		{% endif %}
+	<!-- Gallery Section -->
+	{% import 'imager/macros/gallery_section.html' as gallery %}
+	<div class="gallery-container">
+		<div class="gallery-section">
+			{% for image in images %}
+			{% call gallery.gallery_section(url_for('imager.load_gallery_image', image_id=image.file_id)) %}
+			<img src="{{ url_for('imager.load_thumbnail_by_id', image_id=image.file_id) }}">
 
-		{% for image in images %}
-		{% call gallery.gallery_section(url_for('imager.load_gallery_image', image_id=image.file_id)) %}
-		<img src="{{ url_for('imager.load_thumbnail_by_id', image_id=image.file_id) }}">
-
-		<!-- Overlays -->
-		<div class="image-overlay-bottom">
-			<div class="image-label">{{image.title}}</div>
-			{% set metric_data = {
-				'is_anon': current_user.is_anonymous,
-				'total_score': image.voter_count["total"],
-				'image_id': image.file_id,
-				'personal_vote': image.personal_vote,
-				'login_url': url_for('auth.login') + '?next=' + url_for(request.endpoint, username=user.username),
-				'upvote_link': url_for('imager.upvote_counter'),
-				'downvote_link': url_for('imager.downvote_counter')
-			} %}
-			{{ gallery.vote_section(metric_data) }}	
+			<!-- Overlays -->
+			<div class="image-overlay-bottom">
+				<div class="image-label">{{image.title}}</div>
+				{% set metric_data = {
+					'is_anon': current_user.is_anonymous,
+					'total_score': image.voter_count["total"],
+					'image_id': image.file_id,
+					'personal_vote': image.personal_vote,
+					'login_url': url_for('auth.login') + '?next=' + url_for(request.endpoint, username=user.username),
+					'upvote_link': url_for('imager.upvote_counter'),
+					'downvote_link': url_for('imager.downvote_counter')
+				} %}
+				{{ gallery.vote_section(metric_data) }}	
+			</div>
+			{% endcall %}
+		{% endfor %}
 		</div>
-		{% endcall %}
-	{% endfor %}
 	</div>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block js_block %}
@@ -113,20 +115,20 @@
 			close_suggestion();
 		}
 
-		if (event.target.id == "category-dropdown") {
+		if (document.getElementById("filter").contains(event.target)) {
 			if (document.getElementById("sort-dropdown").classList.contains("show-dropdown")) {
 				toggle_filter_dropdown("sort");
 			}
 		}
 
-		if (event.target.id == "filter-sort-dropdown") {
+		if (document.getElementById("sort").contains(event.target)) {
 			if (document.getElementById("filter-dropdown").classList.contains("show-dropdown")) {
 				toggle_filter_dropdown("filter");
 			}
 		}
 
-		if (event.target.id != "category-dropdown" && event.target.id != "filter-sort-dropdown") {
-			close_filter_dropdown();	
+		if (!document.getElementById("sort").contains(event.target) && !document.getElementById("filter").contains(event.target)) {
+			close_filter_dropdown();
 		}
 	}
 </script>

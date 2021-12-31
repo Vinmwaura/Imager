@@ -1,14 +1,12 @@
 {% macro filter_section(filter_options, url_var, username) %}
 <div class="options-container">
-	<div class="filter-options">
-		<span class="selected-option">
-			<a href="javascript: void(0)" onclick='toggle_filter_dropdown("filter")'>
-				<span id="category-dropdown">{{filter_options.selected_category}} <i class="fa fa-caret-down" id="category-caret"></i></span>
-			</a>
-		</span>
+	<div class="filter-options" id="filter">
+		<div class="selected-option" onclick='toggle_filter_dropdown("filter")'>
+			<span id="category-dropdown">{{filter_options.selected_category}} <i class="fa fa-caret-down"></i></span>
+		</div>
 
 		<!-- Dropdown options -->
-		<div class="hide-dropdown" id="filter-dropdown">
+		<div class="dropdown hide-dropdown" id="filter-dropdown">
 			{% for category in filter_options.categories %}
 			{% if category.name == filter_options.selected_category %}
 			<span class="highlight">{{category.name}}</span>
@@ -16,11 +14,11 @@
 			
 			{% if username %}
 			<a href="{{ url_for(url_var, category=category.value, username=username) }}">
-				<span class="">{{category.name}}</span>
+				<span>{{category.name}}</span>
 			</a>
 			{% else %}
 			<a href="{{ url_for(url_var, category=category.value) }}">
-				<span class="">{{category.name}}</span>
+				<span>{{category.name}}</span>
 			</a>
 			{% endif %}
 			
@@ -29,26 +27,24 @@
 		</div>
 	</div>
 
-	<div class="filter-options">
-		<span class="selected-option">
-			<a href="javascript:void(0)" onclick='toggle_filter_dropdown("sort")'>
-				<span id="filter-sort-dropdown">{{filter_options.selected_filter}} <i class="fa fa-caret-down" id="filter-caret"></i></span>
-			</a>
-		</span>
+	<div class="filter-options" id="sort">
+		<div class="selected-option" onclick='toggle_filter_dropdown("sort")'>
+			<span id="filter-sort-dropdown">{{filter_options.selected_filter}} <i class="fa fa-caret-down"></i></span>
+		</div>
 
 		<!-- Dropdown options -->
-		<div class="hide-dropdown" id="sort-dropdown">
+		<div class="dropdown hide-dropdown" id="sort-dropdown">
 			{% for filter_option in filter_options.options %}
 			{% if filter_option.value == filter_options.selected_filter %}
 			<span class="highlight">{{filter_option.value}}</span>
 			{% else %}
 			{% if username %}
 			<a href="{{ url_for(url_var, category=filter_option.category, category_filter=filter_option.filter, username=username) }}">
-				<span class="">{{filter_option.value}}</span>
+				<span>{{filter_option.value}}</span>
 			</a>
 			{% else %}
 			<a href="{{ url_for(url_var, category=filter_option.category, category_filter=filter_option.filter) }}">
-				<span class="">{{filter_option.value}}</span>
+				<span>{{filter_option.value}}</span>
 			</a>
 			{% endif %}
 			{% endif %}
