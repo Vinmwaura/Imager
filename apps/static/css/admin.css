@@ -1,0 +1,164 @@
+html {
+    box-sizing:  border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto Mono', monospace;
+    font-family: 'Ubuntu', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/**********************************************************
+                  ADMIN HEADER NAVIGATION
+***********************************************************/
+.header {
+	width: 100%;
+	color: #FFF;
+	background-color: #0051FF;
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+}
+
+.header h1, .header nav {
+	padding: 0 1em;
+}
+
+.admin-header-nav {
+	display: flex;
+	align-items: baseline;
+	float: right;
+}
+
+.admin-header-nav h2, .admin-header-nav span {
+	padding: 0 10px;
+}
+
+.admin-header-nav a {
+	color: #FFF;
+	text-decoration: none;
+}
+
+.admin-header-nav a:hover {
+	color: #808080;
+}
+
+/**********************************************************
+                  ADMIN CONTENT BODY
+***********************************************************/
+.content-wrapper {
+	padding: 0 4em;
+}
+
+.content {
+	width: 50em;
+}
+
+.user-details, .user-table {
+	margin: 1em 0;
+	width: 100%;
+}
+
+thead th {
+	padding: 10px 0;
+	background-color: #0051FF;
+	color: #FFF;
+}
+
+tbody {
+	border: none;
+}
+
+tbody td {
+	padding: 10px;
+	border: 0;
+}
+
+tbody .option-actions {
+	white-space: nowrap;
+	width: 1%;
+}
+
+tbody tr:nth-child(even) {
+ 	background: #e5e5e5;
+}
+
+tbody td a {
+	color: #00F;
+	text-decoration: none;
+}
+
+.deactivate:hover {
+	color: #F00;
+}
+
+.activate:hover {
+	color: #0F0;
+}
+
+/**********************************************************
+                  DEACTIVATE USER
+***********************************************************/
+.deactivate-form {
+	display: flex;
+	justify-content: center;
+}
+
+.action-section {
+	margin-top: 1em;
+}
+
+.action-section a {
+	color: #FFF;
+	text-decoration: none;
+	border-radius: 5px;
+	padding: 10px 20px;
+}
+
+.accept-btn {
+    background-color: #0F0;
+}
+
+.deny-btn {
+    background-color: #F00;
+}
+
+/**********************************************************
+                  DEACTIVATE USER
+***********************************************************/
+.edit-role {
+	display: flex;
+	justify-content: center;
+}
+
+.edit-form input {
+	padding: 5px 0;
+}
+
+/**********************************************************
+                  BREADCRUMBS
+***********************************************************/
+.crumbs ol {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.crumb {
+    display: inline-block;
+}
+
+.crumb a::after {
+    display: inline-block;
+    color: #000;
+    content: '>';
+    font-size: 80%;
+    font-weight: bold;
+    padding: 0 3px;
+}

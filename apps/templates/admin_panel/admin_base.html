@@ -2,22 +2,83 @@
 <html>
 	<head>
 		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<meta name="author" content="Vincent M.">
+		<meta name="description" content="Image Sharing Admin Panel.">
 		<title>Imager Admin Panel</title>
+
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@1,300&family=Roboto+Mono:wght@200&family=Roboto:wght@300&family=Ubuntu:wght@300&display=swap" rel="stylesheet">
+
+		<!-- Load icon library -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+		<!-- Admin Custom css -->
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/admin.css') }}">
+
+		<!-- Notifications css -->
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/notification.css') }}">
+
+		{% block css_block %}
+		{% endblock %}
 	</head>
 	<body>
 		<div class="header">
-			<h1>Imager Admin Panel</h1>
+			<h1>Admin Panel</h1>
+
+			<nav class="admin-header-nav">
+				<h2>Welcome  {{current_user.username}}</h2>
+				<span><a href="{{ url_for('imager.index') }}">VIEW SITE</a></span>
+				<span><a href="{{ url_for('auth.logout') }}">LOG OUT</a></span>	
+			</nav>
 		</div>
 
-		{% with messages = get_flashed_messages() %}
-		{% if messages %}
-		    <div class="notification is-danger">
-		        {{ messages[0] }}
-		    </div>
-		{% endif %}
-		{% endwith %}
+		<div class="content-wrapper">
+			<!-- Notification Section -->
+			<div class="notification-section">
+				{% with messages = get_flashed_messages(with_categories=true) %}
+				{% if messages %}
+				<div class="notification-message-list">
+					{% for category, message in messages %}
+					<div class="notification-message {{category}}">
+						<div class="notification-message-body">
+							<span class="notification-icon">
+								{% if category == "info" %}
+								<i class="fa fa-info-circle"></i>
+								{% elif category == "success" %}
+								<i class="fa fa-check-circle"></i>
+								{% elif category == "error" %}
+								<i class="fa fa-exclamation-triangle"></i>
+								{% endif %}	
+								
+							</span>
+							<span class="notification-content">
+								<p>{{ message }}</p>
+							</span>
+							<span class="notication-close" onclick="close_notification(this)">
+								<span>&#x2715;</span>
+							</span>
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+				{% endif %}
+				{% endwith %}
+			</div>
 
-		{% block content %}
+			<nav class="crumbs">
+			{% block breadcrumbs %}
+			{% endblock %}
+			</nav>
+
+			{% block content %}
+			{% endblock %}
+		</div>
+
+		<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+		{% block js_block %}
 		{% endblock %}
 	</body>
 </html>

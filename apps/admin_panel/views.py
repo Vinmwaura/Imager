@@ -108,7 +108,7 @@ def edit_user_role(user_id):
                 db.session.commit()
                 flash(
                     "Successfully updated {}'s Role!".format(
-                        user.username))
+                        user.username), "success")
                 return redirect(
                     url_for(
                         'admin_panel.view_users'
@@ -117,7 +117,7 @@ def edit_user_role(user_id):
                 # Rollback session
                 db.session.rollback()
                 print("An error occured while commiting Role: ", e)
-                flash(SERVER_ERROR)
+                flash(SERVER_ERROR, "error")
 
         return render_template(
             "admin_panel/edit_user.html",
@@ -150,13 +150,13 @@ def activate_user(user_id):
             activation_status = user_.activate_user()
             if activation_status:
                 flash("Successfully activated {}".format(
-                    user_.username))
+                    user_.username), "success")
             else:
                 flash("An error occured while activating {}".format(
                     user_.username))
         else:
             flash("{} has already been activated.".format(
-                user_.username))
+                user_.username), "info")
         return redirect(url_for("admin_panel.view_users"))
     else:
         return DATA_NOT_FOUND
@@ -173,13 +173,13 @@ def deactivate_user(user_id):
             deactivation_status = user_.deactivate_user()
             if deactivation_status:
                 flash("Successfully deactivated {}".format(
-                    user_.username))
+                    user_.username), "success")
             else:
                 flash("An error occured while deactivating {}".format(
-                    user_.username))
+                    user_.username), "error")
         else:
             flash("{} has already been deactivated.".format(
-                user_.username))
+                user_.username), "info")
         return redirect(url_for("admin_panel.view_users"))
     else:
         return DATA_NOT_FOUND
@@ -233,8 +233,7 @@ def add_role():
                 db.session.commit()
                 flash(
                     "Successfully added {} Role!".format(
-                        role_name
-                    ))
+                        role_name), "success")
                 role_commited_status = True
             except IntegrityError as e:
                 # Rollback Session
@@ -242,18 +241,18 @@ def add_role():
 
                 # Catches duplicate errors when they occur
                 if isinstance(e.orig, UniqueViolation):
-                    flash(DUPLICATE_ERROR(role_name, "Role"))
+                    flash(DUPLICATE_ERROR(role_name, "Role"), "error")
                 else:
                     # Catches other errors when they occur
                     print("An error occured while commiting Role: ", e)
-                    flash(SERVER_ERROR)
+                    flash(SERVER_ERROR, "error")
             except Exception as e:
                 # Rollback session
                 db.session.rollback()
                 print("An error occured while commiting Role: ", e)
-                flash(SERVER_ERROR)
+                flash(SERVER_ERROR, "error")
         else:
-            flash(SERVER_ERROR)
+            flash(SERVER_ERROR, "error")
 
         # Adds Permission for Role in database if Role was
         # successfully commited
@@ -276,7 +275,7 @@ def add_role():
             if not cancelled_status:
                 try:
                     db.session.commit()
-                    flash("Successfully added Permissions!")
+                    flash("Successfully added Permissions!", "success")
                 except Exception as e:
                     # Rollback session
                     db.session.rollback()
@@ -317,7 +316,7 @@ def edit_role(role_id):
                 db.session.commit()
                 flash(
                     "Successfully updated {} Role!".format(
-                        role_name))
+                        role_name), "success")
                 role_commited_status = True
             except IntegrityError as e:
                 # Rollback Session
@@ -325,16 +324,16 @@ def edit_role(role_id):
 
                 # Catches duplicate errors when they occur
                 if isinstance(e.orig, UniqueViolation):
-                    flash(DUPLICATE_ERROR(role_name, "Role"))
+                    flash(DUPLICATE_ERROR(role_name, "Role"), "error")
                 else:
                     # Catches other errors when they occur
                     print("An error occured while commiting Role: ", e)
-                    flash(SERVER_ERROR)
+                    flash(SERVER_ERROR, "error")
             except Exception as e:
                 # Rollback session
                 db.session.rollback()
                 print("An error occured while commiting Role: ", e)
-                flash(SERVER_ERROR)
+                flash(SERVER_ERROR, "error")
 
             if role_commited_status:
                 for permission in all_permissions:
@@ -362,10 +361,10 @@ def edit_role(role_id):
                 try:
                     # Session Commit
                     db.session.commit()
-                    flash("Successfully updated Permissions!")
+                    flash("Successfully updated Permissions!", "success")
                 except Exception as e:
                     db.session.rollback()
-                    flash("An error occurred while updating Permissions")
+                    flash("An error occurred while updating Permissions", "error")
                     print(
                         "An exception occured while commiting Role updates", e)
             return redirect(url_for("admin_panel.view_roles"))
@@ -405,7 +404,7 @@ def delete_role(role_id):
                 message = "{} Users found, with that role. Kindly change the "\
                     "users role to be able to delete this.".format(
                         len(users))
-                flash(message)
+                flash(message, "info")
             else:
                 role_names = role.name
                 # Deletes Permissions for that Role
@@ -417,13 +416,13 @@ def delete_role(role_id):
                 try:
                     # Session Commit
                     db.session.commit()
-                    flash("Successfully deleted Role: {}".format(role_names))
+                    flash("Successfully deleted Role: {}".format(role_names), "success")
                     return redirect(
                         url_for(
                             "admin_panel.view_roles"))
                 except Exception as e:
                     db.session.rollback()
-                    flash("An error occurred while deleting Role")
+                    flash("An error occurred while deleting Role", "error")
                     print(
                         "An exception occured while deleting Role", e)
     else:

@@ -1,6 +1,57 @@
 {% extends "admin_panel/admin_base.html" %}
 
+{% block css_block %}
+<!-- Form css -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
+{% endblock %}
+
+{% block breadcrumbs %}
+<ol>
+    <li class="crumb"><a href="{{ url_for('admin_panel.index') }}">Admin Dashboard</a></li>
+    <li class="crumb">Add Role and Permission(s)</li>
+</ol>
+{% endblock %}
+
 {% block content %}
+<div class="centered-form">
+	<div class="main-form" id="add-role-form">
+		<h1 class="form-title">Add Role and Permission(s)</h1>
+
+		<form method="POST" action="{{ url_for('admin_panel.add_role') }}" novalidate>
+		    {{ form.csrf_token }}
+		    
+		    {{ form.role_name.label }} {{ form.role_name(size=20) }}<br/>
+		    {% if form.role_name.errors %}
+		    <ul class="errors">
+		    {% for error in form.role_name.errors %}
+		        <li>{{ error }}</li>
+		    {% endfor %}
+		    </ul>
+			{% endif %}
+
+			<fieldset>
+			    <legend>Permissions</legend>
+			    <ul style="list-style-type:none;">
+			    	{% for permission in permissions %}
+			    	<li>
+			    		{% if permission.value in active_permissions %}
+				    	<input type="checkbox" id="{{permission.name}}" name="{{permission.name}}" value="{{permission.value}}" checked>
+			    		{% else %}
+			    		<input type="checkbox" id="{{permission.name}}" name="{{permission.name}}" value="{{permission.value}}">
+			    		{% endif %}
+			    		<label for="{{permission.name}}">{{permission.name}}</label>
+			    	</li>
+			    	{% endfor %}
+			    </ul>
+			</fieldset>
+
+			<div class="submit-btn" id="add-role-submit">
+			    <input type="submit" value="Submit"><br/>
+			</div>
+		</form>
+	</div>
+</div>
+{#
 	<h1>Add Role and Permission(s)</h1>
 	<a href="{{url_for('admin_panel.view_roles')}}">Go back</a>
 	<form method="POST" action="{{ url_for('admin_panel.add_role') }}" novalidate>
@@ -33,4 +84,5 @@
 
 	    <input type="submit" value="Submit"><br/>
 	</form>
+#}
 {% endblock %}
