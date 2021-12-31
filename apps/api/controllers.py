@@ -147,7 +147,9 @@ def load_clients_created(user):
     Returns:
       Clients owned by the user.
     """
-    clients = models.OAuth2Client.query.filter_by(user_id=user.id).all()
+    clients = models.OAuth2Client.query.filter_by(
+        user_id=user.id).order_by(
+            models.OAuth2Client.client_id_issued_at.desc()).all()
     return clients
 
 def load_clients_used(user):
@@ -165,7 +167,8 @@ def load_clients_used(user):
         revoked=False).all()
     clients_used = models.OAuth2Client.query.filter(
         models.OAuth2Client.client_id.in_(
-            (x_.client_id for x_ in client_created))).all()
+            (x_.client_id for x_ in client_created))).order_by(
+            models.OAuth2Client.client_id_issued_at.desc()).all()
     data = []
     for index, _ in enumerate(clients_used):
         data.append({
