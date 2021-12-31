@@ -202,28 +202,37 @@
 							${Domain-Name}/api/v1/gallery/${category}
 							<br>
 							<br>
-							${Domain-Name}/api/v1/gallery/${category}/${category_filter}
+							${Domain-Name}/api/v1/gallery/${category}/${sort}
+							<br>
+							<br>
+							${Domain-Name}/api/v1/gallery/image/${image_id}
+							<br>
+							<br>
+							${Domain-Name}/api/v1/gallery/user/${username}/${category}
+							<br>
+							<br>
+							${Domain-Name}/api/v1/gallery/user/${username}/${category}/${sort}
 						</code>
 						<br>
 						Returns details about the gallery including the images, and their voting metrics with the ability to filter the results.
-						<strong>${category}</strong> is used to determine how the gallery will be filtered, while <strong>${category_filter}</strong> is used to determine the sorting order or offer additional query options where applicable, they include the following options:
+						<strong>${category}</strong> is used to determine how the gallery will be filtered, while <strong>${sort}</strong> is used to determine the sorting order or offer additional query options where applicable, ${category} include the following options:
 						<ul>
 							<li><strong>upload_time</strong></li>
 							<p>
-								This filters the gallery based on the upload time of the images. Additionally it takes a sorting parameter <strong>desc</strong>(Newest to Oldest) or <strong>asc</strong>(Oldest to Newest) as <strong>${category_filter}</strong>. Defaults to <strong>desc</strong> if no parameter passed.
+								This filters the gallery based on the upload time of the images. Defaults to <strong>desc</strong> sort option if no ${sort} is specified.
 							</p>
 							<li><strong>score</strong></li>
 							<p>
-								This category filters the gallery based on the total voting scores of the images. Additionally it takes a sorting parameter <strong>desc</strong>(Newest to Oldest) or <strong>asc</strong>(Oldest to Newest) as <strong>${category_filter}</strong>. Defaults to <strong>desc</strong> if no parameter passed.
+								This category filters the gallery based on the total voting scores of the images. Defaults to <strong>desc</strong> if no ${sort} is specified.
 							</p>
-							<li><strong>image</strong></li>
-							<p>
-								This category filters the gallery based on the image id. <strong>${category_filter}</strong> should contain the image_id and if non is present it will result in a 400 HTML status response.
-							</p>
-							<li><strong>user</strong></li>
-							<p>
-								This category filters the gallery based on usernames. <strong>${category_filter}</strong> should contain the username and if non is present it will result in a 400 HTML status response.
-							</p>
+						</ul>
+
+						${sort} parameters include:
+						<ul>
+							<li><strong>desc</strong></li>
+							<p>Descending, sorts categories from largest to smallest in the case of <strong>score</strong> and newest to oldest in the case of <strong>upload_time</strong>.</p>
+							<li><strong>asc</strong></li>
+							<p>Descending, sorts categories from smallest to largest in the case of <strong>score</strong> and oldest to newest in the case of <strong>upload_time</strong>.</p>
 						</ul>
 					</p>
 				</section>

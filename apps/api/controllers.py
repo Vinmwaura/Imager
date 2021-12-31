@@ -76,6 +76,7 @@ def delete_client(user, client_id):
             e))
         return False
 
+
 def manual_revoke_token(user, token_id):
     """
     Revokes access token in use.
@@ -103,6 +104,7 @@ def manual_revoke_token(user, token_id):
         db.session.rollback()
         print("An error occured while revoking token: ", e)
         return False
+
 
 def validate_consent_request(user):
     """
@@ -152,6 +154,7 @@ def load_clients_created(user):
             models.OAuth2Client.client_id_issued_at.desc()).all()
     return clients
 
+
 def load_clients_used(user):
     """
     Loads clients granted access by the user.
@@ -177,6 +180,7 @@ def load_clients_used(user):
         })
     return data
 
+
 def issue_token():
     """
     Issues a token to the user.
@@ -185,6 +189,7 @@ def issue_token():
       Repsonse.
     """
     return oauth2_config.authorization.create_token_response()
+
 
 def revoke_token():
     """
@@ -296,31 +301,6 @@ def get_image_contents_by_score(sort_order="asc"):
     else:
         image_content = None
 
-    return image_content
-
-
-# TODO: Use user id instead of name.
-def get_image_contents_by_user(username):
-    """
-    Loads a User's ImageContent bases on their username.
-
-    Args:
-      username: User name.
-
-    Returns:
-      Tuple imagecontent if user exists.
-    """
-    user = auth_models.User().query.filter_by(username=username).one_or_none()
-    if user is None:
-        return None
-
-    user_content = imager_models.UserContent().query.filter_by(
-        user_id=user.id).one_or_none()
-    if not user_content:
-        return None
-
-    image_content = imager_models.ImageContent().query.filter_by(
-        user_content_id=user_content.id)
     return image_content
 
 

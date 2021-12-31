@@ -155,10 +155,51 @@ def search(search_value):
     return jsonify(api_data), 200
 
 
-@api_bp.route('/gallery')
-@api_bp.route('/gallery/<string:category>')
-@api_bp.route('/gallery/<string:category>/<string:category_filter>')
-def load_gallery(category="upload_time", category_filter=None):
+@api_bp.route('/gallery/image/<string:image_id>')
+def load_image(image_id):
+    # Assumes no issue will occur otherwise will be changed.
+    message = "Successful."
+    api_status = 200
+
+    if image_id is None:
+        image_contents = None
+        message = "Requires image id."
+        api_status = 400
+    else:
+        image_contents = get_image_contents_by_id(image_id)
+
+    api_data = []
+    if image_contents:
+        try:
+            for image_content in image_contents:
+                data_dict = {}
+                data_dict["title"] = image_content.title
+                data_dict["image_id"] = image_content.file_id
+                data_dict["upload_time"] = image_content.upload_time
+                data_dict["description"] = image_content.description
+                data_dict["metric"] = image_metric(image_content.file_id)
+                data_dict["url"] = url_for(
+                    'imager.load_image_by_id', image_id=image_content.file_id)
+                api_data.append(data_dict)
+        except Exception as e:
+            print("An Error occured while appending image to gallery api: ", e)
+            api_data = []
+            message = "Error occured on the server. Please try again."
+            api_status = 500
+
+    api_dict = {
+        "data": api_data,
+        "message": message,
+        "status": api_status
+    }
+    return jsonify(api_dict), api_status
+
+
+@api_bp.route('/gallery/user/<string:username>')
+@api_bp.route('/gallery/user/<string:username>/<string:category>')
+@api_bp.route(
+    '/gallery/user/<string:username>/<string:category>/<string:sort>')
+def load_images_by_user(username, category="upload_time", sort="desc"):
     # Assumes no issue will occur otherwise will be changed.
     message = "Successful."
     api_status = 200
@@ -166,28 +207,65 @@ def load_gallery(category="upload_time", category_filter=None):
     # Request Arguments
     page = request.args.get("p", default=1, type=int)
 
+    if username is None:
+        message = "Requires username."
+        api_status = 400
+        image_contents = None
+    elif category not in ['upload_time', 'score']\
+            or sort not in ['asc', 'desc']:
+        message = "Invalid parameter(s)."
+        api_status = 400
+        image_contents = None
+    else:
+        from .. import imager
+        _, image_contents = imager.controllers.get_image_contents_by_user(
+            username,
+            category,
+            sort)
+
+    api_data = []
+    if image_contents:
+        try:
+            image_contents = image_content_pagination(image_contents, page)
+            for image_content in image_contents:
+                data_dict = {}
+                data_dict["title"] = image_content.title
+                data_dict["image_id"] = image_content.file_id
+                data_dict["upload_time"] = image_content.upload_time
+                data_dict["description"] = image_content.description
+                data_dict["metric"] = image_metric(image_content.file_id)
+                data_dict["url"] = url_for(
+                    'imager.load_image_by_id', image_id=image_content.file_id)
+                api_data.append(data_dict)
+        except Exception as e:
+            print("An Error occured while appending to gallery api: ", e)
+            api_data = []
+            message = "Error occured on the server. Please try again."
+            api_status = 500
+
+    api_dict = {
+        "data": api_data,
+        "message": message,
+        "status": api_status
+    }
+    return jsonify(api_dict), api_status
+
+
+@api_bp.route('/gallery')
+@api_bp.route('/gallery/<string:category>')
+@api_bp.route('/gallery/<string:category>/<string:sort>')
+def load_gallery(category="upload_time", sort="desc"):
+    # Assumes no issue will occur otherwise will be changed.
+    message = "Successful."
+    api_status = 200
+
+    # Request Arguments.
+    page = request.args.get("p", default=1, type=int)
+
     if category == "upload_time":
-        if category_filter is None:
-            category_filter = "desc"  # Default value if no parameter.
-        image_contents = get_image_contents_by_time(category_filter)
+        image_contents = get_image_contents_by_time(sort)
     elif category == "score":
-        if category_filter is None:
-            category_filter = "desc"  # Default value if no parameter.
-        image_contents = get_image_contents_by_score(category_filter)
-    elif category == "image":
-        if category_filter is None:
-            image_contents = None
-            message = "Requires image id."
-            api_status = 400
-        else:
-            image_contents = get_image_contents_by_id(category_filter)
-    elif category == "user":
-        if category_filter is None:
-            message = "Requires username."
-            api_status = 400
-            image_contents = None
-        else:
-            image_contents = get_image_contents_by_user(category_filter)
+        image_contents = get_image_contents_by_score(sort)
     else:
         image_contents = None
         api_status = 400
