@@ -130,7 +130,8 @@ def login():
                 request.form["username_email"],
                 request.form["password"])
             if user_authenticated:
-                if user_authenticated.email_confirmed:
+                if user_authenticated.email_confirmed \
+                        and user_authenticated.active:
                     flash(
                         "Successfully logged in.",
                         "success")
@@ -144,10 +145,14 @@ def login():
                     if not next_page or url_parse(next_page).netloc != '':
                         next_page = url_for('imager.index')
                     return redirect(next_page)
+                elif not user_authenticated.active:
+                    flash(
+                        "Your account has been deactivated!",
+                        "info")
                 else:
                     flash(
                         "Kindly confirm your email first to login",
-                        "success")
+                        "info")
             else:
                 flash(
                     "Invalid Username or password, please try again.",
