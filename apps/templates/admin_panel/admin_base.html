@@ -25,12 +25,17 @@
 	</head>
 	<body>
 		<div class="header">
-			<h1>Admin Panel</h1>
+			<!-- Admin Navigation Bar -->
+			<nav class="admin-header-nav" role="navigation">
+				<div class="admin-home-options">
+					<span class="home-link"><a href="{{ url_for('admin_panel.index') }}">Admin Panel</a></span>
+				</div>
 
-			<nav class="admin-header-nav">
-				<h2>Welcome  {{current_user.username}}</h2>
-				<span><a href="{{ url_for('imager.index') }}">VIEW SITE</a></span>
-				<span><a href="{{ url_for('auth.logout') }}">LOG OUT</a></span>	
+				<div class="nav-options">
+					<span class="greetings"><strong>Welcome</strong> {{current_user.username}}</span>
+					<span><a href="{{ url_for('imager.index') }}">VIEW SITE</a></span>
+					<span><a href="{{ url_for('auth.logout') }}">LOG OUT</a></span>	
+				</div>
 			</nav>
 		</div>
 

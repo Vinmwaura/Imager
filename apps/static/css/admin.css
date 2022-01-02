@@ -19,35 +19,50 @@ body {
                   ADMIN HEADER NAVIGATION
 ***********************************************************/
 .header {
-	width: 100%;
 	color: #FFF;
 	background-color: #0051FF;
-	display: flex;
-	justify-content: space-between;
-	align-items: baseline;
-}
+	height: 4em;
 
-.header h1, .header nav {
-	padding: 0 1em;
+	display: flex;
+	align-items: center;
 }
 
 .admin-header-nav {
+	padding: 0 4em;
+	width: 100%;
 	display: flex;
+	justify-content: space-between;
 	align-items: baseline;
 	float: right;
 }
 
-.admin-header-nav h2, .admin-header-nav span {
-	padding: 0 10px;
+.home-link {
+	font-size: xx-large;
+	font-weight: 800;
 }
 
-.admin-header-nav a {
+.home-link a {
 	color: #FFF;
 	text-decoration: none;
 }
 
-.admin-header-nav a:hover {
-	color: #808080;
+.nav-options {
+	display: flex;
+	align-items: baseline;
+}
+
+.nav-options .greetings {
+	font-weight: 500;
+	font-size: x-large;
+}
+
+.nav-options a {
+	color: #FFF;
+	text-decoration: none;
+}
+
+.nav-options span {
+	padding: 0 10px;
 }
 
 /**********************************************************
@@ -64,6 +79,16 @@ body {
 .user-details, .user-table {
 	margin: 1em 0;
 	width: 100%;
+}
+
+.add-header {
+	
+	float: right;
+}
+
+.add-header a {
+	color: #FFF;
+	padding-right: 1em;
 }
 
 thead th {
@@ -95,11 +120,11 @@ tbody td a {
 	text-decoration: none;
 }
 
-.deactivate:hover {
+.deactivate {
 	color: #F00;
 }
 
-.activate:hover {
+.activate {
 	color: #0F0;
 }
 
@@ -123,11 +148,11 @@ tbody td a {
 }
 
 .accept-btn {
-    background-color: #0F0;
+    background-color: #0F0 !important;
 }
 
 .deny-btn {
-    background-color: #F00;
+    background-color: #F00 !important;
 }
 
 /**********************************************************
