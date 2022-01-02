@@ -22,12 +22,10 @@
 		    	<th>Role</th>
 		    	<th>Active</th>
 		    	<th>Email Confirmed</th>
-		    	{% if current_user.can_update_admin_dashboard() %}
 		    	<th colspan="2">Actions</th>
-		    	{% endif %}
 		  	</tr>
 		  	{% for user in users %}
-		  	<tr>
+		  	<tr class="center-col">
 			    <td>{{user.username}}</td>
 			    <td>{{user.first_name}}</td>
 			    <td>{{user.last_name}}</td>
@@ -48,47 +46,4 @@
 		</tbody>
 	</table>
 </div>
-{#
-<div class="content">
-	<h1>User(s)</h1>
-	<a href="{{url_for('admin_panel.index')}}">Go back</a>
-
-	<div>
-		<table>
-		  	<tr>
-		    	<th>Username</th>
-		    	<th>FirstName</th>
-		    	<th>LastName</th>
-		    	<th>Email</th>
-		    	<th>Role</th>
-		    	<th>Active</th>
-		    	<th>Email Confirmed</th>
-		    	{% if current_user.can_update_admin_dashboard() %}
-		    	<th colspan="2">Actions</th>
-		    	{% endif %}
-		  	</tr>
-
-		  	{% for user in users %}
-		  	<tr>
-			    <td>{{user.username}}</td>
-			    <td>{{user.first_name}}</td>
-			    <td>{{user.last_name}}</td>
-			    <td>{{user.email}}</td>
-			    <td>{{user.role.name}}</td>
-			    <td>{{user.active}}</td>
-			    <td>{{user.email_confirmed}}</td>
-			    {% if current_user.can_update_admin_dashboard() %}
-				    <td><a href="{{url_for('admin_panel.edit_user_role', user_id=user.id)}}">Update Role</a></td>
-				    {% if current_user.is_active() %}
-				    <td><a href="{{url_for('admin_panel.edit_user_status', user_id=user.id)}}">Deactivate</a></td>
-				    {% else %}
-				    <td><a href="{{url_for('admin_panel.edit_user_status', user_id=user.id)}}">Activate</a></td>
-			    	{% endif %}
-			    {% endif %}
-			 </tr>
-		  	{% endfor %}
-		</table>
-	</div>
-</div>
-#}
 {% endblock %}

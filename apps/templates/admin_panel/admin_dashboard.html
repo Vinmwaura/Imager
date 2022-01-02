@@ -9,12 +9,16 @@
 		<tbody>
 			<tr>
 				<td><strong>User</strong></td>
+				{% if current_user.can_insert_admin_dashboard() %}
 				<td class="option-actions"></td>
+				{% endif %}
 				<td class="option-actions"><a href="{{url_for('admin_panel.view_users')}}"><i class="fa fa-eye"></i></a></td>
 			</tr>
 			<tr>
 				<td><strong>Role</strong></td>
+				{% if current_user.can_insert_admin_dashboard() %}
 				<td class="option-actions"><a href="{{url_for('admin_panel.add_role')}}"><i class="fa fa-plus"></i></a></td>
+				{% endif %}
 				<td class="option-actions"><a href="{{url_for('admin_panel.view_roles')}}"><i class="fa fa-eye"></i></a></td>
 			</tr>
 		</tbody>

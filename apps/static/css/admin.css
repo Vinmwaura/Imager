@@ -101,6 +101,10 @@ tbody {
 	border: none;
 }
 
+tbody .center-col {
+	text-align: center;
+}
+
 tbody td {
 	padding: 10px;
 	border: 0;

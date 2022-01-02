@@ -11,6 +11,7 @@ class PermissionsEnum(Enum):
     CAN_VIEW_ADMIN = auto()
     CAN_UPDATE_ADMIN = auto()
     CAN_INSERT_ADMIN = auto()
+    CAN_DELETE_ADMIN = auto()
     CAN_POST_DASHBOARD = auto()
     CAN_VIEW_DASHBOARD = auto()
 
@@ -99,6 +100,22 @@ class User(UserMixin, db.Model):
         permission = Permissions.query.filter_by(
             role_id=self.user_role,
             permission=PermissionsEnum.CAN_UPDATE_ADMIN.value).first()
+
+        if permission:
+            return True
+        return False
+
+
+    def can_delete_admin_dashboard(self):
+        """
+        Checks whether user has role with permission to delete from admin dashboard.
+
+        Returns:
+          Boolean value.
+        """
+        permission = Permissions.query.filter_by(
+            role_id=self.user_role,
+            permission=PermissionsEnum.CAN_DELETE_ADMIN.value).first()
 
         if permission:
             return True

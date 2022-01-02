@@ -53,6 +53,17 @@ def can_update_admin_dashboard(func):
     return inner_func
 
 
+# Assumes you can view admin dashboard to delete
+def can_delete_admin_dashboard(func):
+    @wraps(func)
+    def inner_func(*args, **kwargs):
+        if current_user.can_delete_admin_dashboard():
+            return func(*args, **kwargs)
+        else:
+            return ACCESS_DENIED, 403
+    return inner_func
+
+
 @admin_panel_bp.route("/")
 @can_view_admin_dashboard
 def index():
@@ -284,7 +295,7 @@ def edit_role(role_id):
 
 @admin_panel_bp.route("/delete/role/<int:role_id>", methods=["GET", "POST"])
 @can_view_admin_dashboard
-@can_update_admin_dashboard
+@can_delete_admin_dashboard
 def delete_role(role_id):
     role = load_role_by_id(role_id)
     if role:
