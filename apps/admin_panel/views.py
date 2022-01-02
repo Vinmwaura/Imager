@@ -262,12 +262,12 @@ def edit_role(role_id):
                     ROLE_UPDATE_SUCCESS(role_name),
                     "success")
 
-                del_status = remove_unselected_permissions(
+                permissions_updated = update_permissions(
                     role.id,
                     request.form,
                     all_permissions)
 
-                if del_status:
+                if permissions_updated:
                     flash(SUCCESS_UPDATE_PERMISSION, "success")
                 else:
                     flash(ERROR_UPDATE_PERMISSION, "error")
