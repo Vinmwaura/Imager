@@ -562,7 +562,15 @@ def downvote(user, image_file_id):
 
 
 def image_metric(image_file_id):
-    # models.ImageContent().query.filter_by(user_content_id=user_content.id)
+    """
+    Loads aggregated ImageContent voting metric filtered by image_id.
+
+    Args:
+      image_file_id: Image ID.
+
+    Returns:
+      ImageContent aggregated voting metric.
+    """
     image_content = models.ImageContent().query.filter_by(
         file_id=image_file_id).first()
     metric_dict = {}
@@ -580,7 +588,7 @@ def image_metric(image_file_id):
                 models.VoteCounter.image_file_id == image_file_id,
                 models.VoteCounter.vote == vote_enum.DOWNVOTE.value).label(
                 'downvotes')).first()
-        metric_dict['total'] = '-' if sum_aggr.total is None else sum_aggr.total
+        metric_dict['total'] = '--' if sum_aggr.total is None else sum_aggr.total
         metric_dict['upvotes'] = 0 if sum_aggr.upvotes is None \
             else sum_aggr.upvotes
         metric_dict['downvotes'] = 0 if sum_aggr.downvotes is None \
@@ -591,6 +599,18 @@ def image_metric(image_file_id):
 
 
 def delete_user_content(user, image_id):
+    """
+    Delete ImageContent for User and specific Image ID and
+    cascade deletes to relevant tables.
+
+    Args:
+      user: User Object.
+      image_id: Image ID.
+
+    Returns:
+      Tuple consisting of boolean indicating status of operation,
+      image_name and user_directory if successful.
+    """
     user_content = models.UserContent().query.filter_by(
         user_id=user.id).first()
 
