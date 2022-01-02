@@ -6,10 +6,7 @@ from wtforms.fields import (
     StringField,
     SubmitField,
     SelectField)
-from .controllers import (
-    MIN_NAMES,
-    MAX_NAMES,
-    INVALID_FIELD_LENGTH)
+from .utils import *
 
 
 class AddClientForm(FlaskForm):

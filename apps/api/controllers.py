@@ -20,16 +20,6 @@ imager_models = imager.models
 auth_models = auth.models
 api_models = models
 
-"""
-Constants
-"""
-# Min and Max length of First and Last names
-MIN_NAMES = 2
-MAX_NAMES = 20
-
-# Error Messages
-INVALID_FIELD_LENGTH = lambda field_min, field_max: 'Field must be between {} and {} characters.'.format(
-                        field_min, field_max)
 
 def delete_client(user, client_id):
     """
@@ -254,8 +244,18 @@ def image_content_pagination(obj, page=1):
     return image_pagination.items
 
 
-def get_image_contents_by_id(id):
-    image_content = imager_models.ImageContent.query.filter_by(file_id=id)
+def get_image_contents_by_id(image_id):
+    """
+    Loads specific ImageContent model filtered by id.
+
+    Args:
+      image_id: Image ID.
+
+    Returns:
+      ImageContent object.
+    """
+    image_content = imager_models.ImageContent.query.filter_by(
+        file_id=image_id)
     return image_content
 
 
@@ -263,6 +263,9 @@ def get_image_contents_by_time(sort_order="asc"):
     """
     Loads entire ImageContent model sorted in either
     descending or ascending order by time.
+    
+    Args:
+      sort_order: Sort type i.e 'asc' and 'desc'.
 
     Returns:
       ImageContent object.
@@ -282,6 +285,9 @@ def get_image_contents_by_score(sort_order="asc"):
     """
     Loads entire ImageContent model sorted in either
     descending or ascending order by voting score.
+    
+    Args:
+      sort_order: Sort type i.e 'asc' and 'desc'.
 
     Returns:
       ImageContent object.
@@ -304,24 +310,33 @@ def get_image_contents_by_score(sort_order="asc"):
     return image_content
 
 
-def image_metric(image_file_id):
+def image_metric(image_id):
+    """
+    Loads aggregated ImageContent voting metric filtered by image_id.
+
+    Args:
+      image_id: Image ID.
+
+    Returns:
+      ImageContent aggregated voting metric.
+    """
     image_content = imager_models.ImageContent().query.filter_by(
-        file_id=image_file_id).first()
+        file_id=image_id).first()
     metric_dict = {}
     if image_content:
         vote_enum = imager_models.VoteEnum
         sum_aggr = imager_models.VoteCounter.query.with_entities(
             func.sum(imager_models.VoteCounter.vote).filter(
-                imager_models.VoteCounter.image_file_id == image_file_id
+                imager_models.VoteCounter.image_file_id == image_id
             ).label(
                 'total'),
             func.sum(imager_models.VoteCounter.vote).filter(
-                imager_models.VoteCounter.image_file_id == image_file_id,
+                imager_models.VoteCounter.image_file_id == image_id,
                 imager_models.VoteCounter.vote == vote_enum.UPVOTE.value
             ).label(
                 'upvotes'),
             func.sum(imager_models.VoteCounter.vote).filter(
-                imager_models.VoteCounter.image_file_id == image_file_id,
+                imager_models.VoteCounter.image_file_id == image_id,
                 imager_models.VoteCounter.vote == vote_enum.DOWNVOTE.value
             ).label(
                 'downvotes')).first()

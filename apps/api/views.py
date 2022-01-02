@@ -10,6 +10,7 @@ from flask import (
 from . import api_bp
 from .controllers import *
 from .forms import *
+from .utils import *
 
 from .. import csrf
 
@@ -63,8 +64,7 @@ def create_client():
         }
         client = create_auth_client(current_user, client_metadata)
         if client is None:
-            flash("An Error occured creating application, \
-                please try again in a while.")
+            flash(CLIENT_CREATION_ERROR, "error")
 
     return render_template(
         "api/add_client.html",
@@ -83,7 +83,9 @@ def oauth_token():
 @csrf.exempt
 def oauth_revoke():
     revoke = revoke_token()
-    return jsonify(status=revoke.status_code, message=revoke.status)
+    return jsonify(
+        status=revoke.status_code,
+        message=revoke.status), revoke.status_code
 
 
 @api_bp.route('/profile/me', methods=['GET'])
@@ -398,7 +400,7 @@ def upload_image():
     # Security check to ensure image type matches data uploaded.
     image_format = img_.controllers.validate_image(file.stream)
 
-    # .JPG == .JPEG (Interchangeable)
+    # .JPG == .JPEG (Interchangeable).
     jpg_formats = [".jpg", ".jpeg"]
     if image_format in jpg_formats and file_ext in jpg_formats:
         pass
