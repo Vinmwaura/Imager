@@ -37,7 +37,7 @@
 			    <td>{{user.email_confirmed}}</td>
 			    {% if current_user.can_update_admin_dashboard() %}
 				    <td><a href="{{url_for('admin_panel.edit_user_role', user_id=user.id)}}">Update Role</a></td>
-				    {% if current_user.is_active() %}
+				    {% if user.is_active() %}
 				    <td><a href="{{url_for('admin_panel.edit_user_status', user_id=user.id)}}" class="deactivate">Deactivate</a></td>
 				    {% else %}
 				    <td><a href="{{url_for('admin_panel.edit_user_status', user_id=user.id)}}" class="activate">Activate</a></td>

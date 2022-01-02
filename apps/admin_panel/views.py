@@ -10,22 +10,12 @@ from flask import (
 from flask_login import (
     login_required,
     current_user)
-from sqlalchemy.exc import IntegrityError
-from psycopg2.errors import UniqueViolation
 
-from . import admin_panel_bp
-from .. import auth, db
 from .forms import RoleForm, UserForm
 
-
-ACCESS_DENIED = "You don't have permission to view this page,"\
-    " Contact Administrator if you think you should."
-SERVER_ERROR = "An error occured in the server, while processing the request."
-DATA_NOT_FOUND = "No data found."
-DUPLICATE_ERROR = lambda field_name, table_name: "{} has already been "\
-    "used in {}.".format(
-        field_name,
-        table_name)
+from . import admin_panel_bp
+from .controllers import *
+from .utils import *
 
 
 # Decorators to manage authorization of users
@@ -73,7 +63,7 @@ def index():
 @admin_panel_bp.route("/view/users")
 @can_view_admin_dashboard
 def view_users():
-    users = auth.models.User.query.all()
+    users = get_all_users()
     return render_template(
         "admin_panel/view_users.html",
         users=users)
@@ -84,8 +74,7 @@ def view_users():
 @can_update_admin_dashboard
 def edit_user_role(user_id):
     # Filter by specific user id
-    user = auth.models.User.query.filter_by(
-        id=user_id).first()
+    user = load_user_by_id(user_id)
     if user:
         # Prepopulate user form with user details
         edit_user_form = UserForm(
@@ -95,101 +84,84 @@ def edit_user_role(user_id):
             email=user.email,
             role=user.user_role)
 
-        # Prepopulate Role with all Roles currently created
+        # Prepopulate Role with all Roles currently created.
         edit_user_form.role.choices = [
-            (role.id, role.name) for role in auth.models.Role.query.all()]
-
+            (role.id, role.name) for role in get_all_roles()]
         if edit_user_form.validate_on_submit():
             role_id = request.form["role"]
-            user.user_role = role_id
-
-            try:
-                # Commit Session
-                db.session.commit()
+            if role_id:
+                update_status = update_user_role(user, role_id)
+                if update_status:
+                    flash(ROLE_UPDATE_SUCCESS(user.username), "success")
+                    return redirect(
+                        url_for(
+                            'admin_panel.view_users'
+                        ))
+                else:
+                    flash(SERVER_ERROR, "error")
+            else:
                 flash(
-                    "Successfully updated {}'s Role!".format(
-                        user.username), "success")
-                return redirect(
-                    url_for(
-                        'admin_panel.view_users'
-                    ))
-            except Exception as e:
-                # Rollback session
-                db.session.rollback()
-                print("An error occured while commiting Role: ", e)
-                flash(SERVER_ERROR, "error")
-
+                    ROLE_UPDATE_ERROR,
+                    "error")
         return render_template(
             "admin_panel/edit_user.html",
             user=user,
             form=edit_user_form)
-    return DATA_NOT_FOUND
+    else:
+        flash(DATA_NOT_FOUND, "error")
+        return redirect(url_for('admin_panel.view_users'))
 
 
-@admin_panel_bp.route("/edit/user/status/<int:user_id>")
+@admin_panel_bp.route(
+    "/edit/user/status/<int:user_id>",
+    methods=["GET", "POST"])
 @can_view_admin_dashboard
 @can_update_admin_dashboard
 def edit_user_status(user_id):
-    user = auth.models.User.query.filter_by(
-        id=user_id).first()
+    # Filter by specific user id
+    user = load_user_by_id(user_id)
     if user:
+        # Prepopulate user form with user details
+        deactivate_user_form = UserForm(
+            username=user.username,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            email=user.email,
+            role=user.user_role)
+
+        # Prepopulate Role with all Roles currently created.
+        deactivate_user_form.role.choices = [
+            (role.id, role.name) for role in get_all_roles()]
+
+        if deactivate_user_form.validate_on_submit():
+            if user.active:
+                deactivation_status = user.deactivate_user()
+                if deactivation_status:
+                    flash(SUCCESS_DEACTIVATE_USER(user.username), "success")
+                else:
+                    flash(ERROR_DEACTIVATE_USER(user.username), "error")
+            else:
+                activation_status = user.activate_user()
+                if activation_status:
+                    flash(SUCCESS_ACTIVATE_USER(user.username), "success")
+                else:
+                    flash(ERROR_ACTIVATE_USER(user.username), "error")
+            return redirect(url_for('admin_panel.view_users'))
+
         return render_template(
             "admin_panel/deactivate_activate_user.html",
-            user=user)
+            user=user,
+            form=deactivate_user_form)
     else:
-        return DATA_NOT_FOUND
-
-
-@admin_panel_bp.route("/activate/user/<int:user_id>")
-@can_view_admin_dashboard
-@can_update_admin_dashboard
-def activate_user(user_id):
-    user_ = auth.models.User().query.filter_by(id=user_id).first()
-    if user_:
-        if not user_.active:
-            activation_status = user_.activate_user()
-            if activation_status:
-                flash("Successfully activated {}".format(
-                    user_.username), "success")
-            else:
-                flash("An error occured while activating {}".format(
-                    user_.username))
-        else:
-            flash("{} has already been activated.".format(
-                user_.username), "info")
-        return redirect(url_for("admin_panel.view_users"))
-    else:
-        return DATA_NOT_FOUND
-
-
-@admin_panel_bp.route("/deactivate/user/<int:user_id>")
-@can_view_admin_dashboard
-@can_update_admin_dashboard
-def deactivate_user(user_id):
-    user_ = auth.models.User().query.filter_by(
-        id=user_id).first()
-    if user_:
-        if user_.active:
-            deactivation_status = user_.deactivate_user()
-            if deactivation_status:
-                flash("Successfully deactivated {}".format(
-                    user_.username), "success")
-            else:
-                flash("An error occured while deactivating {}".format(
-                    user_.username), "error")
-        else:
-            flash("{} has already been deactivated.".format(
-                user_.username), "info")
-        return redirect(url_for("admin_panel.view_users"))
-    else:
-        return DATA_NOT_FOUND
+        flash(DATA_NOT_FOUND, "error")
+        return redirect(url_for('admin_panel.view_users'))
 
 
 @admin_panel_bp.route("/view/roles")
 @can_view_admin_dashboard
 def view_roles():
     roles_list = []
-    roles = auth.models.Role.query.all()
+    roles = get_all_roles()
 
     # Combines all Roles and Permissions in a dict
     for role in roles:
@@ -202,7 +174,7 @@ def view_roles():
         roles_list.append(role_dict)
 
     # Gets all permissions enum
-    all_permission = auth.models.PermissionsEnum
+    all_permission = get_all_permission_enums()
 
     return render_template(
         "admin_panel/view_roles.html",
@@ -214,74 +186,40 @@ def view_roles():
 @can_view_admin_dashboard
 @can_insert_admin_dashboard
 def add_role():
-    # Gets all permissions enum
-    all_permissions = auth.models.PermissionsEnum
+    # Gets all permissions enum.
+    all_permissions = get_all_permission_enums()
 
+    # Add Role Form.
     add_role_form = RoleForm()
-
     if add_role_form.validate_on_submit():
-        # Adds Role to database
+        # Adds new role to Role table.
         role_name = request.form["role_name"]
-        role_added = auth.controllers.add_Role(
-            role_name)
+        role_added, error_type = add_role_name(role_name)
 
-        role_commited_status = False
+        if role_added is not None:
+            flash(
+                SUCCESS_ADD_ROLE(role_name), "success")
 
-        if role_added:
-            try:
-                # Commit Session
-                db.session.commit()
-                flash(
-                    "Successfully added {} Role!".format(
-                        role_name), "success")
-                role_commited_status = True
-            except IntegrityError as e:
-                # Rollback Session
-                db.session.rollback()
+            permission_status = add_permission(
+                all_permissions,
+                request.form,
+                role_added)
 
-                # Catches duplicate errors when they occur
-                if isinstance(e.orig, UniqueViolation):
-                    flash(DUPLICATE_ERROR(role_name, "Role"), "error")
-                else:
-                    # Catches other errors when they occur
-                    print("An error occured while commiting Role: ", e)
-                    flash(SERVER_ERROR, "error")
-            except Exception as e:
-                # Rollback session
-                db.session.rollback()
-                print("An error occured while commiting Role: ", e)
-                flash(SERVER_ERROR, "error")
+            if permission_status:
+                flash(SUCCESS_ADD_PERMISSION, "success")
+            else:
+                flash(ERROR_ADD_PERMISSION, "error")
+
         else:
-            flash(SERVER_ERROR, "error")
+            if error_type == "duplicate":
+                flash(DUPLICATE_ERROR(role_name, "Role"), "error")
+            elif error_type == "server":
+                flash(SERVER_ERROR, "error")
+            else:
+                flash(SERVER_ERROR, "error")
 
-        # Adds Permission for Role in database if Role was
-        # successfully commited
-        cancelled_status = False
-        if role_commited_status:
-            for permission in all_permissions:
-                # If permission has been checked on form, add
-                if permission.name in request.form:
-                    permission_index = request.form[permission.name]
-                    permission_added = auth.controllers.add_Permission(
-                        role_added.id,
-                        permission_index)
-
-                    if not permission_added:
-                        # Rollback session
-                        db.session.rollback()
-                        print("An error occured while adding permission!")
-                        cancelled_status = True
-                        break
-            if not cancelled_status:
-                try:
-                    db.session.commit()
-                    flash("Successfully added Permissions!", "success")
-                except Exception as e:
-                    # Rollback session
-                    db.session.rollback()
-                    print("An error occured while committing: {}".format(e))
         return redirect(
-            url_for('admin_panel.add_role'))
+            url_for('admin_panel.view_roles'))
     return render_template(
         "admin_panel/add_role.html",
         permissions=all_permissions,
@@ -292,12 +230,11 @@ def add_role():
 @can_view_admin_dashboard
 @can_update_admin_dashboard
 def edit_role(role_id):
-    role = auth.models.Role().query.filter_by(id=role_id).first()
+    role = load_role_by_id(role_id)
     if role:
-        all_permissions = auth.models.PermissionsEnum
+        all_permissions = get_all_permission_enums()
 
-        role_permissions = auth.models.Permissions().query.filter_by(
-            role_id=role_id).all()
+        role_permissions = load_permissions_by_role_id(role_id)
 
         active_permissions = []
         for permision in role_permissions:
@@ -307,66 +244,31 @@ def edit_role(role_id):
             role_name=role.name)
         if edit_role_form.validate_on_submit():
             role_name = request.form["role_name"]
-            role.name = role_name
 
-            role_commited_status = False
-            # Attempt to update Role with new name
-            try:
-                # Commit Session
-                db.session.commit()
+            role_updated, error_type = update_role(role, role_name)
+            if role_updated:
                 flash(
-                    "Successfully updated {} Role!".format(
-                        role_name), "success")
-                role_commited_status = True
-            except IntegrityError as e:
-                # Rollback Session
-                db.session.rollback()
+                    ROLE_UPDATE_SUCCESS(role_name),
+                    "success")
 
-                # Catches duplicate errors when they occur
-                if isinstance(e.orig, UniqueViolation):
-                    flash(DUPLICATE_ERROR(role_name, "Role"), "error")
+                del_status = remove_unselected_permissions(
+                    role.id,
+                    request.form,
+                    all_permissions)
+
+                if del_status:
+                    flash(SUCCESS_UPDATE_PERMISSION, "success")
                 else:
-                    # Catches other errors when they occur
-                    print("An error occured while commiting Role: ", e)
+                    flash(ERROR_UPDATE_PERMISSION, "error")
+
+            else:
+                if error_type == "duplicate":
+                    flash(DUPLICATE_ERROR(role_name, "Role"), "error")
+                elif error_type == "server":
                     flash(SERVER_ERROR, "error")
-            except Exception as e:
-                # Rollback session
-                db.session.rollback()
-                print("An error occured while commiting Role: ", e)
-                flash(SERVER_ERROR, "error")
+                else:
+                    flash(SERVER_ERROR, "error")
 
-            if role_commited_status:
-                for permission in all_permissions:
-                    # Gets Permission for Role if it exists.
-                    role_perm = auth.models.Permissions().query.filter_by(
-                        role_id=role_id,
-                        permission=permission.value).first()
-
-                    # If permission exists in table.
-                    if role_perm:
-                        # Check if permission has not been checked on form.
-                        if permission.name not in request.form:
-                            # Deletes permission from table.
-                            auth.models.Permissions().query.filter_by(
-                                role_id=role_id,
-                                permission=permission.value).delete()
-                    else:
-                        # Check if permission has been checked on form
-                        if permission.name in request.form:
-                            # Adds permission to table.
-                            _ = auth.controllers.add_Permission(
-                                role_id,
-                                permission.value)
-
-                try:
-                    # Session Commit
-                    db.session.commit()
-                    flash("Successfully updated Permissions!", "success")
-                except Exception as e:
-                    db.session.rollback()
-                    flash("An error occurred while updating Permissions", "error")
-                    print(
-                        "An exception occured while commiting Role updates", e)
             return redirect(url_for("admin_panel.view_roles"))
 
         return render_template(
@@ -376,57 +278,45 @@ def edit_role(role_id):
             role_id=role_id,
             form=edit_role_form)
     else:
-        return DATA_NOT_FOUND
+        flash(DATA_NOT_FOUND, "error")
+        return redirect(url_for('admin_panel.view_roles'))
 
 
 @admin_panel_bp.route("/delete/role/<int:role_id>", methods=["GET", "POST"])
 @can_view_admin_dashboard
 @can_update_admin_dashboard
 def delete_role(role_id):
-    role = auth.models.Role().query.filter_by(id=role_id).first()
+    role = load_role_by_id(role_id)
     if role:
-        all_permissions = auth.models.PermissionsEnum
-        role_permissions = auth.models.Permissions().query.filter_by(
-            role_id=role_id).all()
+        all_permissions = get_all_permission_enums()
+        role_permissions = load_permissions_by_role_id(role_id)
 
         active_permissions = []
         for permision in role_permissions:
             active_permissions.append(permision.permission)
 
+        # Delete Form.
         delete_role_form = RoleForm(
             role_name=role.name)
 
         if delete_role_form.validate_on_submit():
-            # Check if there's any User who has role
-            users = auth.models.User().query.filter_by(user_role=role_id).all()
+            # Check if there's any User who has role.
+            users = load_user_by_role_id(role_id)
 
             if users:
-                message = "{} Users found, with that role. Kindly change the "\
-                    "users role to be able to delete this.".format(
-                        len(users))
-                flash(message, "info")
+                flash(ERROR_DEL_ROLE_FAILED_USER(users), "info")
             else:
-                role_names = role.name
-                # Deletes Permissions for that Role
-                auth.models.Permissions().query.filter_by(
-                    role_id=role_id).delete()
-                # Deletes Role
-                auth.models.Role().query.filter_by(id=role_id).delete()
+                role_name = role.name
 
-                try:
-                    # Session Commit
-                    db.session.commit()
-                    flash("Successfully deleted Role: {}".format(role_names), "success")
-                    return redirect(
-                        url_for(
-                            "admin_panel.view_roles"))
-                except Exception as e:
-                    db.session.rollback()
-                    flash("An error occurred while deleting Role", "error")
-                    print(
-                        "An exception occured while deleting Role", e)
+                del_status = delete_permission_and_role(role_id)
+                if del_status:
+                    flash(SUCCESS_DEL_ROLE(role_name), "success")
+                else:
+                    flash(ERROR_DEL_ROLE, "error")
+            return redirect(url_for('admin_panel.view_roles'))
     else:
-        return DATA_NOT_FOUND
+        flash(DATA_NOT_FOUND, "error")
+        return redirect(url_for('admin_panel.view_roles'))
 
     return render_template(
         "admin_panel/delete_role.html",

@@ -8,7 +8,49 @@
 </ol>
 {% endblock %}
 
+{% block css_block %}
+<!-- Form css -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
+{% endblock %}
+
 {% block content %}
+<div class="centered-form">
+	<div class="main-form" id="edit-role-form">
+		{% if user.active %}
+		<h1 class="form-title">Deactivate User</h1>
+	    {% else %}
+	    <h1 class="form-title">Activate User</h1>
+	    {% endif %}
+
+		<form method="POST" action="{{ url_for('admin_panel.edit_user_status', user_id=user.id) }}" novalidate>
+		    {{ form.csrf_token }}
+
+		    <input type="hidden" name="user_id" value='{{user.id}}'>
+		    
+		    {{ form.username.label }} {{ form.username(disabled="disabled") }}<br/>
+		    {{ form.first_name.label }} {{ form.first_name(disabled="disabled") }}<br/>
+		    {{ form.last_name.label }} {{ form.last_name(disabled="disabled") }}<br/>
+		    {{ form.email.label }} {{ form.email(disabled="disabled") }}<br/>
+		    {{ form.role.label }} {{ form.role(disabled="disabled") }}<br/>
+
+		    <label for="role">Email Confirmed</label><br>
+		    <input disabled="disabled" id="role" name="role" type="checkbox" value="email_confirmed" {% if user.email_confirmed %} checked {% endif %}>
+
+		    <div class="action-section">
+				{% if user.active %}
+			    <div class="submit-btn" id="role-submit">
+				    <input type="submit" value="Deactivate" class="deny-btn"><br/>
+				</div>
+			    {% else %}
+			    <div class="submit-btn" id="role-submit">
+				    <input type="submit" value="Activate" class="accept-btn"><br/>
+				</div>
+			    {% endif %}
+			</div>
+		</form>
+	</div>
+</div>
+{#
 <div class="deactivate-form">
 	<section>
 		{% if user.active %}
@@ -51,4 +93,5 @@
 		</div>
 	</section>
 </div>
+#}
 {% endblock %}
