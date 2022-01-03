@@ -1,0 +1,14 @@
+.about-container {
+	width: 100%;
+}
+
+.about-section {
+	padding: 1em;
+	overflow-y: auto;
+	height: 30em;
+  	width: 60em;
+  	margin: 2em auto;
+  	border-radius: 10px;
+  	background-color: #F5F5F5;
+  	box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}

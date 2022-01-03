@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block css_block %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/about.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="about-container">
+	<section class="about-section">
+		<h1>ABOUT</h1>
+		<hr>
+		<p>
+			Imager is a image sharing website that allows anyone to upload images for everyone to see.
+		</p>
+	</section>
+</div>
+{% endblock %}

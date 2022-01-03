@@ -74,6 +74,11 @@ def get_filter_options(category, sort_order):
     return filter_options
 
 
+@imager_bp.route("/about")
+def about():
+    return render_template("imager/about.html")
+
+
 @imager_bp.route("/")
 @imager_bp.route('/<string:category>')
 @imager_bp.route('/<string:category>/<string:category_filter>')
