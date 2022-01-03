@@ -12,17 +12,8 @@ from wtforms.fields import (
     SubmitField,
     EmailField
 )
-from .controllers import (
-    PASSWORD_REGEX,
-    NAMES_REGEX,
-    MIN_NAMES,
-    MAX_NAMES,
-    MIN_PASSWORD,
-    MAX_PASSWORD,
-    NAME_REQUIREMENTS,
-    PASSWORD_REQUIREMENTS,
-    INVALID_FIELD_LENGTH,
-)
+
+from .utils import *
 
 
 class RegistrationForm(FlaskForm):

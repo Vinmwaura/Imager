@@ -3,8 +3,6 @@ from enum import Enum, auto
 
 from flask_login import UserMixin
 
-from .auth import *
-
 
 # Permissions Enums
 class PermissionsEnum(Enum):

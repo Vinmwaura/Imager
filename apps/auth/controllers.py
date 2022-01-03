@@ -1,166 +1,25 @@
-import os
-import re
-import click
-
-from functools import wraps
+from .. import db
+from . import models
+from .. import login_manager
 
 from .auth import *
 
-from .. import db
-from . import models
-from . import auth_bp
-from .. import login_manager
+from .utils import (
+    validate_names,
+    validate_password)
 
 from flask import current_app
 
 from itsdangerous.url_safe import URLSafeTimedSerializer
 from itsdangerous.exc import BadSignature, SignatureExpired
+
 from email_validator import validate_email, EmailNotValidError
 
 
-"""
-Constants
-"""
-# Min and Max length of First and Last names
-MIN_NAMES = 2
-MAX_NAMES = 20
-
-# Min and Max length of password
-MIN_PASSWORD = 8
-MAX_PASSWORD = 128
-
-# Regex patterns constants
-# Only single words consisting of numbers, letters, undercore(s) or hyphens
-NAMES_REGEX = "^[a-zA-Z0-9-_]+$"
-
-# Password regex:
-# At least one upper case English letter, (?=.*?[A-Z])
-# At least one lower case English letter, (?=.*?[a-z])
-# At least one digit, (?=.*?[0-9])
-# At least one special character, (?=.*?[#?!@$%^&*-])
-PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{4,}$$"
-
-# Error Messages
-PASSWORD_REQUIREMENTS = "Password has to have:\n\
-    > At least one upper case English letter,\n\
-    > At least one lower case English letter,\n\
-    > At least one digit,\n\
-    > At least one special character."
-NAME_REQUIREMENTS = "Field must contain letters, numbers and underscores only."
-INVALID_FIELD_LENGTH = lambda field_min, field_max: 'Field must be between {} and {} characters.'.format(
-                        field_min, field_max)
-USERNAME_ALREADY_EXISTS = lambda username: "Username {} already exists.".format(username)
-EMAIL_ALREADY_CONFIRMED = "User has already confirmed their email"
-EMAIL_ALREADY_USED = lambda email: "Email {} has been used by another account.".format(email)
-INVALID_USER = "User provided is invalid."
-SERVER_ERROR = "An error occured on the server."
-
-# Token
-EMAIL_CONFIRMATION_TOKEN = "email-confirm-key"
-RESET_PASSWORD_TOKEN = "reset-password-key"
-REGISTRATION_TOKEN_MAX_AGE = 24 * 60 * 60  # 24 HOURS
-RESET_TOKEN_MAX_AGE = 5 * 60  # 5 MINUTES
-
-BAD_SIGNATURE_TOKEN_ERROR = "Token provided is not valid."
-EXPIRED_SIGNATURE_TOKEN_ERROR = "Token has expired."
-
-
-# Regex Checker
-def check_valid_characters(string, regex_pattern):
-    """
-    Validates Names(Username, Firstname, and Lastname).
-
-    Args:
-      name: Plain text name to be validated
-
-    Returns:
-      Boolean indicating result of operation.
-
-    Raises:
-      TypeError: If invalid parameter type is give, i.e not a string.
-    """
-    if isinstance(string, str) and isinstance(regex_pattern, str):
-        regex = re.compile(regex_pattern)
-        return regex.search(string) is not None
-    else:
-        raise TypeError("Only strings are supported")
-
-
-# Length Checker
-def check_length(string, min_len=0, max_len=1):
-    """
-    Checks Length of String if matches the minimum and maximum specified.
-
-    Args:
-      string: Plain text name to be validated
-      max_len: Max value int
-      min_len: Min value int
-
-    Returns:
-      Boolean indicating result of operation.
-
-    Raises:
-      TypeError: If invalid parameter type is give, i.e not a string.
-    """
-    if isinstance(string, str):
-        return min_len <= len(string) <= max_len
-    else:
-        raise TypeError("Only strings are supported")
-
-
-# Decorator function for functions validating names
-def validate_names(func):
-    @wraps(func)
-    def inner(user, name):
-        # Checks if valid name
-        valid_name = check_valid_characters(
-            name,
-            NAMES_REGEX)
-
-        # Checks if valid length
-        valid_len = check_length(
-            name,
-            min_len=MIN_NAMES,
-            max_len=MAX_NAMES)
-
-        if valid_name:
-            if valid_len:
-                if user and user.active:
-                    return func(user, name)
-                else:
-                    return False, INVALID_USER
-            else:
-                return False, INVALID_FIELD_LENGTH(
-                    MIN_NAMES, MAX_NAMES)
-        else:
-            return False, NAME_REQUIREMENTS
-    return inner
-
-
-# Decorator function for functions validating passwords
-def validate_password(func):
-    @wraps(func)
-    def inner(user, password):
-        valid_pwd = check_valid_characters(
-            password,
-            PASSWORD_REGEX)
-        valid_len = check_length(
-            password,
-            MIN_PASSWORD,
-            MAX_PASSWORD)
-
-        if valid_pwd:
-            if valid_len:
-                if user and user.active:
-                    return func(user, password)
-                else:
-                    return False, INVALID_USER
-            else:
-                return False, INVALID_FIELD_LENGTH(
-                    MIN_PASSWORD, MAX_PASSWORD)
-        else:
-            return False, PASSWORD_REQUIREMENTS
-    return inner
+# Tells Flask-login how to load users given an id.
+@login_manager.user_loader
+def load_user(id):
+    return models.User.query.get(int(id))
 
 
 def generate_token(email, token_type):
@@ -175,6 +34,7 @@ def generate_token(email, token_type):
       Token.
     """
     try:
+        # SECRETS KEY in config.
         secret_key = current_app.config["SECRET_KEY"]
         timed_serializer = URLSafeTimedSerializer(secret_key)
         email_activation_token = timed_serializer.dumps(
@@ -204,19 +64,18 @@ def validate_token(received_token, token_type, token_max_age):
             received_token,
             salt=token_type,
             max_age=token_max_age)
+        user = models.User.query.filter_by(email=email).one_or_none()
+        return user, None
     except SignatureExpired:
-        return None, EXPIRED_SIGNATURE_TOKEN_ERROR
+        # return None, EXPIRED_SIGNATURE_TOKEN_ERROR
+        return None, "expired-token"
     except BadSignature:
-        return None, BAD_SIGNATURE_TOKEN_ERROR
+        # return None, BAD_SIGNATURE_TOKEN_ERROR
+        return None, "bad-token"
     except Exception as e:
         print("An error occured while confirming token: {}".format(e))
-        return None, SERVER_ERROR
-
-    user = models.User.query.filter_by(email=email).first()
-    if user:
-        return user, ""
-    else:
-        return None, SERVER_ERROR
+        # return None, SERVER_ERROR
+        return None, "server-error"
 
 
 def confirm_email(user):
@@ -232,11 +91,13 @@ def confirm_email(user):
     if not user.email_confirmed:
         status = user.confirm_email()
         if status:
-            return status, ""
+            return status, None
         else:
-            return False, SERVER_ERROR
+            # return False, SERVER_ERROR
+            return False, "server-error"
     else:
-        return False, EMAIL_ALREADY_CONFIRMED
+        # return False, EMAIL_ALREADY_CONFIRMED
+        return False, "email-confirmed"
 
 
 @validate_names
@@ -252,7 +113,7 @@ def change_username(user, new_username):
       Boolean indicating if email was changed.
     """
     status = user.change_username(new_username)
-    return status, ""
+    return status
 
 
 @validate_names
@@ -268,7 +129,7 @@ def change_firstname(user, new_firstname):
       Boolean indicating if email was changed.
     """
     status = user.change_firstname(new_firstname)
-    return status, ""
+    return status
 
 
 @validate_names
@@ -284,7 +145,7 @@ def change_lastname(user, new_lastname):
       Boolean indicating if email was changed.
     """
     status = user.change_lastname(new_lastname)
-    return status, ""
+    return status
 
 
 def change_user_email(user, new_email):
@@ -304,11 +165,12 @@ def change_user_email(user, new_email):
         validate_email(new_email)
         if user and user.active:
             status = user.change_email(new_email)
-            return status, ""
+            return status, None
         else:
-            return False, INVALID_USER
+            return False, "invalid-user"
     except EmailNotValidError as e:
-        return False, e
+        print("Invalid Email: ", e)
+        return False, "email-invalid"
 
 
 @validate_password
@@ -318,18 +180,14 @@ def change_user_password(user, new_password):
 
     Args:
       user: User object.
-      password: Plain text password of new password
+      password: Plain text password of new password.
 
     Returns:
       Boolean indicating if password was changed.
     """
     status = user.change_password(new_password)
-    return status, ""
-
-
-@login_manager.user_loader
-def load_user(id):
-    return models.User.query.get(int(id))
+    print(status)
+    return status
 
 
 def check_username_exists(username):
@@ -337,18 +195,14 @@ def check_username_exists(username):
     Checks if Username exists in User table.
 
     Args:
-      username: username
+      username: Username string.
 
     Returns:
       Boolean indicating result of operation.
     """
-    user_ = models.User()
-    user_exists = user_.query.filter_by(
-        username=username).first()
-    if user_exists:
-        return True
-    else:
-        return False
+    user_exists = models.User().query.filter_by(
+        username=username).one_or_none()
+    return user_exists
 
 
 def check_email_exists(email):
@@ -361,59 +215,9 @@ def check_email_exists(email):
     Returns:
       Boolean indicating result of operation.
     """
-    user_ = models.User()
-    email_exists = user_.query.filter_by(
-        email=email).first()
-    if email_exists:
-        return True
-    else:
-        return False
-
-
-# Click callback used in validating email, password and names
-def validate_callback(ctx, param, value):
-    if param.name == "username" or param.name == "first_name" \
-            or param.name == "last_name":
-        # Checks if valid name
-        valid_name = check_valid_characters(value, NAMES_REGEX)
-
-        # Checks if valid length
-        valid_len = check_length(value, min_len=MIN_NAMES, max_len=MAX_NAMES)
-
-        if valid_name:
-            if valid_len:
-                return value
-            else:
-                raise click.BadParameter(
-                    INVALID_FIELD_LENGTH(
-                        MIN_NAMES, MAX_NAMES))
-        else:
-            raise click.BadParameter(
-                NAME_REQUIREMENTS)
-    elif param.name == "email":
-        try:
-            # Attempts to validate if proper email, raises Exception if not
-            validate_email(value)
-            return value
-        except EmailNotValidError as e:
-            raise click.BadParameter(e)
-
-    elif param.name == "password":
-        valid_pwd = check_valid_characters(value, PASSWORD_REGEX)
-        valid_len = check_length(value, MIN_PASSWORD, MAX_PASSWORD)
-
-        if valid_pwd:
-            if valid_len:
-                return value
-            else:
-                raise click.BadParameter(
-                    INVALID_FIELD_LENGTH(
-                        MIN_PASSWORD, MAX_PASSWORD))
-        else:
-            click.echo(PASSWORD_REQUIREMENTS)
-            raise click.BadParameter(PASSWORD_REQUIREMENTS)
-    else:
-        return value
+    email_exists = models.User().query.filter_by(
+        email=email).one_or_none()
+    return email_exists
 
 
 def get_Role(role_name):
@@ -426,7 +230,8 @@ def get_Role(role_name):
     Returns:
       Role object if any.
     """
-    user_role = models.Role().query.filter_by(name=role_name).first()
+    user_role = models.Role().query.filter_by(
+        name=role_name).one_or_none()
     return user_role
 
 
@@ -441,8 +246,7 @@ def get_Permission(role):
       Permission object if any.
     """
     role_permissions = models.Permissions().query.filter_by(
-        role_id=role.id).first()
-
+        role_id=role.id).all()
     return role_permissions
 
 
@@ -451,13 +255,18 @@ def add_Role(role_name):
     Creates Role object and adds it to Session if no error occurs.
 
     Args:
-      role_name: Name for Role
+      role_name: Name for Role.
 
     Returns:
       Boolean indicating result of operation.
     """
     try:
         user_role = models.Role(name=role_name)
+        """
+        Adds Role but doesn't commit so that the Permissions can
+        be added together and if any error occurs,
+        rollback all of it.
+        """
         db.session.add(user_role)
         return user_role
 
@@ -485,6 +294,7 @@ def add_Permission(role_id, permission_index):
         role_permission = models.Permissions(
             role_id=role_id,
             permission=permission_index)
+
         db.session.add(role_permission)
         return role_permission
     except Exception as e:
@@ -511,8 +321,7 @@ def add_User(user_details):
       Exception: Any exeption that occurs when creating User.
     """
     try:
-        user_ = models.User()
-        user_created = user_.add_user(user_details)
+        user_created = models.User().add_user(user_details)
         return user_created
     except Exception as e:
         # Logs exceptions
@@ -534,7 +343,6 @@ def search_by_username(search_value):
     search = "%{}%".format(search_value)
     usernames = db.session.query(models.User).filter(
         models.User.username.ilike(search)).all()
-    # usernames = user_.query.filter(user_.username.like(search)).all()
     return usernames
 
 
@@ -565,7 +373,7 @@ def account_creation(user_details, role_name, permissions=[]):
 
     # Add User Permissions to User Role if none exists
     role_permissions = get_Permission(user_role)
-    if role_permissions is None:
+    if role_permissions:
         for permission in permissions:
             role_permissions = add_Permission(
                 role_id=user_role.id,
@@ -579,9 +387,11 @@ def account_creation(user_details, role_name, permissions=[]):
     try:
         db.session.commit()
     except Exception as e:
-        print("An error occured while committing: {}".format(e))
         # Rollback session
         db.session.rollback()
+
+        print("An error occured while committing: {}".format(e))
+
         return False
 
     # Appends User Role to user details Dict
@@ -628,61 +438,3 @@ def authenticate_user(username_email, password):
             return None
     else:
         return None
-
-
-@auth_bp.cli.command('createsuperuser')
-@click.option(
-    '--username',
-    prompt="Enter Username?",
-    default="admin_" + os.urandom(2).hex(),
-    callback=validate_callback,
-    help="Username for account")
-@click.option(
-    '--first_name',
-    prompt="Enter Firstname?",
-    callback=validate_callback,
-    help="Firstname of user")
-@click.option(
-    '--last_name',
-    prompt="Enter Lastname?",
-    callback=validate_callback,
-    help="Lastname of user")
-@click.option(
-    '--email',
-    prompt="Enter Email?",
-    callback=validate_callback,
-    help="Email address to send activation url to")
-@click.option(
-    "--password",
-    prompt=True,
-    hide_input=True,
-    confirmation_prompt=True,
-    callback=validate_callback,
-    help="User password for user with administrative role")
-def createsuperuser(username, first_name, last_name, email, password):
-    """
-    Creates Admin User with appropriate Role and Permission.
-    Intended to be used when initializing the web application.
-
-    Args:
-      username: Username to be displayed on website.
-      first_name: First name of user.
-      last_name: Last name of user.
-      email: Email of user for verification and recovery.
-      password: Plain text password to be used by user.
-    """
-    # Admin User details
-    admin_details = {
-        "username": username,
-        "first_name": first_name,
-        "last_name": last_name,
-        "email": email,
-        "password": password,
-        "email_confirmed": True  # Admin user have account activated by default
-    }
-
-    admin_created = account_creation(
-        user_details=admin_details,
-        role_name=DEFAULT_ADMIN_ROLE,
-        permissions=ADMIN_PERMISSION_LIST)
-    return admin_created

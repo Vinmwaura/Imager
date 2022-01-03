@@ -18,14 +18,14 @@ class RoleForm(FlaskForm):
         validators=[
             InputRequired(),
             Regexp(
-                auth.controllers.NAMES_REGEX,
-                message=auth.controllers.NAME_REQUIREMENTS),
+                auth.utils.NAMES_REGEX,
+                message=auth.utils.NAME_REQUIREMENTS),
             Length(
-                min=auth.controllers.MIN_NAMES,
-                max=auth.controllers.MAX_NAMES,
-                message=auth.controllers.INVALID_FIELD_LENGTH(
-                    auth.controllers.MIN_NAMES,
-                    auth.controllers.MAX_NAMES)
+                min=auth.utils.MIN_NAMES,
+                max=auth.utils.MAX_NAMES,
+                message=auth.utils.INVALID_FIELD_LENGTH(
+                    auth.utils.MIN_NAMES,
+                    auth.utils.MAX_NAMES)
             )])
     submit = SubmitField('Submit')
 

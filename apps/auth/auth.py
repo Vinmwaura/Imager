@@ -6,7 +6,7 @@ DEFAULT_GENERAL_USER_ROLE = "GENERAL"
 
 # List of permissions Anonymous user permission
 GUEST_PERMISSION_LIST = [
-	PermissionsEnum.CAN_VIEW_DASHBOARD
+    PermissionsEnum.CAN_VIEW_DASHBOARD
 ]
 
 # List of permissions General Users should have
