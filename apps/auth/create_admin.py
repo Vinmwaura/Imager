@@ -1,7 +1,7 @@
 import os
 import click
 from .utils import *
-
+from .auth import *
 from . import auth_bp
 from .controllers import account_creation
 from email_validator import validate_email, EmailNotValidError
