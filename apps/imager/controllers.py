@@ -36,6 +36,8 @@ def get_image_details(user, images):
         temp_dict["uploaded_by"] = image.user_content.user.username
         temp_dict["title"] = image.title
         temp_dict["file_id"] = image.file_id
+        temp_dict["description"] = "" if image.description is None else \
+            image.description
         temp_dict["voter_count"] = image_metric(image.file_id)
         temp_dict["upload_date"] = image.upload_time.strftime(
             "%Y-%m-%dT%H:%M:%S")

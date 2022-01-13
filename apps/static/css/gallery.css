@@ -73,6 +73,7 @@
     min-width: 240px;
 }
 
+
 .gallery-image {
     height: 240px;
     width: 240px;
@@ -232,7 +233,6 @@
 /**********************************************************
                     Picture Panel
 ***********************************************************/
-
 .image-container {
     width: 100%;
     display: flex;
@@ -305,6 +305,10 @@
     cursor: -moz-zoom-in; 
     cursor: -webkit-zoom-in; 
     cursor: zoom-in;
+}
+
+.image-description {
+    padding: 1em;
 }
 
 /**********************************************************

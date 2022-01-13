@@ -58,6 +58,11 @@
 			<div class="image-panel" id="image-panel" onclick="load_picture_modal(this)">
 				<img src="{{ url_for('imager.load_image_by_id', image_id=image.file_id) }}" alt="{{image.title}}">
 			</div>
+
+			<!-- Image Description -->
+			<div class="image-description">
+				{{image.description}}
+			</div>
 		</div>
 	</div>
 </div>
