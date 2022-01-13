@@ -37,6 +37,8 @@ def get_image_details(user, images):
         temp_dict["title"] = image.title
         temp_dict["file_id"] = image.file_id
         temp_dict["voter_count"] = image_metric(image.file_id)
+        temp_dict["upload_date"] = image.upload_time.strftime(
+            "%Y-%m-%dT%H:%M:%S")
 
         if user.is_anonymous:
             temp_dict["personal_vote"] = None

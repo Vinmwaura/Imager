@@ -50,7 +50,7 @@
 
 				<div class="image-uploader">
 					<span>
-						Uploaded by: <a href="{{ url_for('imager.load_images_by_username', username=image.uploaded_by) }}">{{image.uploaded_by}}</a>
+						Uploaded by: <a href="{{ url_for('imager.load_images_by_username', username=image.uploaded_by) }}">{{image.uploaded_by}}</a> <span>&#183;</span> <span id="time-diff"></span>
 					</span>
 				</div>
 			</div>
@@ -86,11 +86,66 @@
 				}
 			});
 		}
+
+		/* 
+		Computes time difference when image was uploaded and now and
+		updates the time-diff span element every 5 minutes.
+		*/
+		setInterval(time_diff("{{image.upload_date}}"), 300000);
 	}
 
 	document.onclick = function(event) {
 		if (event.target.id != "search-dropdown" && event.target.id != "gallery-search-input") {
 			close_suggestion();
+		}
+	}
+
+	function millisecondsToStr(milliseconds) {
+		function numberEnding (number) {
+	        return (number > 1) ? 's' : '';
+	    }
+
+	    let seconds = Math.floor(milliseconds / 1000);
+
+	    let year =  Math.floor(seconds / 31556952);
+	    if (year > 0) return false;
+	    
+	    let month = Math.floor(seconds / 2629746);
+	    if (month > 0) return false
+	    
+	    let days = Math.floor(seconds / 86400);
+	    if (days > 0) return days + " day" + numberEnding(days) + " ago";
+
+	    let hours = Math.floor(seconds / 3600);
+	    if (hours > 0) return hours + " hour" + numberEnding(hours) + " ago";
+
+	    let minutes = Math.floor(seconds / 60);
+	    if (minutes > 0) return minutes + " minute" + numberEnding(minutes) + " ago";
+
+	    return 'just now' //or other string you like;
+	}
+
+	function time_diff(image_upload_time) {
+		if(image_upload_time != "") {
+			// Computes time difference of image upload datetime.
+			time_diff_elem = document.getElementById("time-diff");
+			
+			// Converts upload time to milliseconds (Unix epoch time).
+			image_time = new Date(image_upload_time);
+
+			// Current time in milliseconds(Unix epoch time).
+			current_time = new Date();
+
+			// Millisecond difference.
+			ms_diff = current_time - image_time;
+
+			// Changes text of time-diff span element to show time based on time difference.
+			message_time_diff = millisecondsToStr(ms_diff);
+			if(message_time_diff == false) {
+				document.getElementById("time-diff").textContent = " on " + image_time.toDateString();
+			} else {
+				document.getElementById("time-diff").textContent = "  " + message_time_diff;
+			}
 		}
 	}
 </script>
