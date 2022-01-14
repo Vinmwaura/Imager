@@ -84,6 +84,46 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField('Register')
 
 
+class EditProfileForm(FlaskForm):
+    username = StringField(
+        'Username',
+        validators=[
+            InputRequired(),
+            Regexp(NAMES_REGEX, message=NAME_REQUIREMENTS),
+            Length(
+                min=MIN_NAMES,
+                max=MAX_NAMES,
+                message=INVALID_FIELD_LENGTH(MIN_NAMES, MAX_NAMES))
+        ])
+    first_name = StringField(
+        'First Name',
+        validators=[
+            InputRequired(),
+            Regexp(NAMES_REGEX, message=NAME_REQUIREMENTS),
+            Length(
+                min=MIN_NAMES,
+                max=MAX_NAMES,
+                message=INVALID_FIELD_LENGTH(MIN_NAMES, MAX_NAMES))
+        ])
+    last_name = StringField(
+        'Last Name',
+        validators=[
+            InputRequired(),
+            Regexp(NAMES_REGEX, message=NAME_REQUIREMENTS),
+            Length(
+                min=MIN_NAMES,
+                max=MAX_NAMES,
+                message=INVALID_FIELD_LENGTH(MIN_NAMES, MAX_NAMES))
+        ])
+    email = EmailField(
+        'Email',
+        validators=[
+            InputRequired(),
+            Email()])
+
+    save = SubmitField('Save')
+
+
 class LoginForm(FlaskForm):
     username_email = StringField(
         'Username or Email',

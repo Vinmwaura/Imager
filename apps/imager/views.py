@@ -18,60 +18,19 @@ from werkzeug.utils import secure_filename
 from . import imager_bp
 from .forms import *
 from .controllers import *
-
-
-def get_filter_options(category, sort_order):
-    """
-    Filter options for gallery.
-
-    Args:
-      category: Filter option to use on image.
-      sort_order: Sort oprions to use with filter.
-
-    Returns:
-      Dict with filter options to be used on the html.
-    """
-    filter_options = {}
-    filter_options["categories"] = [
-        {"name": "Upload Time", "value": "upload_time"},
-        {"name": "Score", "value": "score"}
-    ]
-
-    if category == "upload_time":
-        filter_options["selected_category"] = "Upload Time"
-        if sort_order == "desc":
-            filter_options["selected_filter"] = "Newest to Oldest"
-        elif sort_order == "asc":
-            filter_options["selected_filter"] = "Oldest to Newest"
-        else:
-            filter_options["selected_filter"] = ""
-
-        filter_options['options'] = [
-            {
-                "value": "Newest to Oldest",
-                "filter": "desc",
-                "category": "upload_time"},
-            {
-                "value": "Oldest to Newest",
-                "filter": "asc",
-                "category": "upload_time"}
-        ]
-    elif category == "score":
-        filter_options['selected_category'] = "Score"
-        if sort_order == "desc":
-            filter_options["selected_filter"] = "Highest"
-        elif sort_order == "asc":
-            filter_options["selected_filter"] = "Lowest"
-        else:
-            filter_options["selected_filter"] = ""
-
-        filter_options['options'] = [
-            {"value": "Highest", "filter": "desc", "category": "score"},
-            {"value": "Lowest", "filter": "asc", "category": "score"}
-        ]
-    else:
-        pass
-    return filter_options
+from .utils import (
+    get_filter_options,
+    EMAIL_CHANGE_WARNING,
+    USERNAME_SUCCESSFULLY_CHANGED,
+    FIRSTNAME_SUCCESSFULLY_CHANGED,
+    LASTNAME_SUCCESSFULLY_CHANGED,
+    EMAIL_SUCCESSFULLY_CHANGED,
+    USERNAME_FAILED_CHANGED,
+    FIRSTNAME_FAILED_CHANGED,
+    LASTNAME_FAILED_CHANGED,
+    EMAIL_FAILED_CHANGED,
+    EMAIL_SUCCESSFULLY_SENT,
+    EMAIL_FAILED_SENT)
 
 
 @imager_bp.route("/about")
@@ -441,6 +400,95 @@ def user_profile(category="upload_time", category_filter="desc"):
         user=user,
         filter_options=filter_options,
         form=delete_form)
+
+
+@imager_bp.route("/edit/user/profile", methods=["GET", "POST"])
+@login_required
+def edit_user_profile():
+    user = current_user
+    from .. import auth
+    edit_profile = auth.forms.EditProfileForm(
+        username=user.username,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        email=user.email)
+    if edit_profile.validate_on_submit():
+        # Username change.
+        if user.username != request.form["username"]:
+            status = auth.controllers.change_username(
+                user, request.form["username"])
+            if status:
+                flash(USERNAME_SUCCESSFULLY_CHANGED, "success")
+            else:
+                flash(USERNAME_FAILED_CHANGED, "error")
+
+        # First Name change.
+        if user.first_name != request.form["first_name"]:
+            status = auth.controllers.change_firstname(
+                user, request.form["first_name"])
+            if status:
+                flash(FIRSTNAME_SUCCESSFULLY_CHANGED, "success")
+            else:
+                flash(FIRSTNAME_FAILED_CHANGED, "error")
+
+        # Last Name change.
+        if user.last_name != request.form["last_name"]:
+            status = auth.controllers.change_lastname(
+                user, request.form["last_name"])
+            if status:
+                flash(LASTNAME_SUCCESSFULLY_CHANGED, "success")
+            else:
+                flash(LASTNAME_FAILED_CHANGED, "error")
+
+        # Email change.
+        if user.email != request.form["email"]:
+            status = auth.controllers.change_user_email(
+                user, request.form["email"])
+            if status:
+                flash(
+                    EMAIL_SUCCESSFULLY_CHANGED,
+                    "success")
+
+                try:
+                    # Send token via EMAIL
+                    token = auth.controllers.generate_token(
+                        user.email,
+                        auth.utils.EMAIL_CONFIRMATION_TOKEN)
+
+                    # Email Content.
+                    subject = "Imager email changed confirmation"
+                    body = render_template(
+                        "auth/email_change.html",
+                        username=user.username,
+                        activation_link=url_for(
+                            "auth.activate_account",
+                            activation_token=token,
+                            _external=True))
+
+                    sender = current_app.config['MAIL_USERNAME']
+                    recipients = [current_app.config[
+                        "TEST_EMAIL_CONFIG"]] or [user.email]
+
+                    # Send Email.
+                    auth.utils.send_email(
+                        subject,
+                        body,
+                        sender,
+                        recipients)
+
+                    flash(EMAIL_SUCCESSFULLY_SENT, "success")
+                except Exception as e:
+                    print("An error occured sending email: ", e)
+                    flash(EMAIL_FAILED_SENT, "error")
+
+            else:
+                flash(EMAIL_FAILED_CHANGED, "error")
+        return redirect(url_for('imager.user_profile'))
+    else:
+        flash(EMAIL_CHANGE_WARNING, "info")
+    return render_template(
+        "imager/edit_profile.html",
+        form=edit_profile)
 
 
 @imager_bp.route("/gallery/tag/<string:tag_name>")

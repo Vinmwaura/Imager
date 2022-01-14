@@ -356,6 +356,7 @@ class User(UserMixin, db.Model):
         """
         try:
             self.email = new_email
+            self.email_confirmed = False
 
             # Adds User object containing the user details
             db.session.add(self)
