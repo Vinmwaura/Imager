@@ -186,7 +186,6 @@ def change_user_password(user, new_password):
       Boolean indicating if password was changed.
     """
     status = user.change_password(new_password)
-    print(status)
     return status
 
 
