@@ -486,7 +486,7 @@ def image_content_pagination(obj, page=1):
         per_page=PER_PAGE,
         error_out=ERROR_OUT,
         max_per_page=MAX_PER_PAGE)
-    return image_pagination.items
+    return image_pagination
 
 
 def upvote(user, image_file_id):

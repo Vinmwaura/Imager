@@ -102,15 +102,19 @@ def index(category="upload_time", category_filter="desc"):
         abort(404)
 
     if not image_contents:
-        images = []
+        images_pagination = []
+        data_dict = []
     else:
-        images = image_content_pagination(image_contents, page=page)
+        images_pagination = image_content_pagination(
+            image_contents,
+            page=page)
+        data_dict = get_image_details(current_user, images_pagination.items)
 
     filter_options = get_filter_options(category, category_filter)
-    data_dict = get_image_details(current_user, images)
     return render_template(
         "imager/index.html",
         images=data_dict,
+        images_pagination=images_pagination,
         filter_options=filter_options)
 
 
@@ -292,16 +296,19 @@ def load_gallery_search():
         image_contents = []
 
     if not image_contents:
-        images = []
+        images_pagination = []
+        data_dict = []
     else:
-        images = image_content_pagination(
+        images_pagination = image_content_pagination(
             image_contents,
             page=page)
-
-    data_dict = get_image_details(current_user, images)
+        data_dict = get_image_details(current_user, images_pagination.items)
     return render_template(
         "imager/search_result.html",
-        images=data_dict)
+        q="q=" + query,
+        images=data_dict,
+        image_contents_len=len(image_contents.all()),
+        images_pagination=images_pagination)
 
 
 @imager_bp.route("/edit/gallery/<string:image_id>", methods=["GET", "POST"])
@@ -356,15 +363,16 @@ def load_images_by_username(
 
     # If user has no uploaded images, return empty images
     if image_content is None:
-        images = []
+        images_pagination = []
+        data_dict = []
     else:
-        images = image_content_pagination(image_content, page=page)
-
+        images_pagination = image_content_pagination(image_content, page=page)
+        data_dict = get_image_details(current_user, images_pagination.items)
     filter_options = get_filter_options(category, category_filter)
-    data_dict = get_image_details(current_user, images)
     return render_template(
         "imager/user_gallery.html",
         images=data_dict,
+        images_pagination=images_pagination,
         filter_options=filter_options,
         user=user)
 
@@ -420,15 +428,16 @@ def user_profile(category="upload_time", category_filter="desc"):
 
     # If user has no uploaded images, return empty images
     if image_content is None:
-        images = []
+        images_pagination = []
+        data_dict = []
     else:
-        images = image_content_pagination(image_content, page=page)
-
+        images_pagination = image_content_pagination(image_content, page=page)
+        data_dict = get_image_details(current_user, images_pagination.items)
     filter_options = get_filter_options(category, category_filter)
-    data_dict = get_image_details(current_user, images)
     return render_template(
         "imager/user_profile.html",
         images=data_dict,
+        images_pagination=images_pagination,
         user=user,
         filter_options=filter_options,
         form=delete_form)
@@ -441,12 +450,15 @@ def load_images_by_tag(tag_name):
 
     # If user has no uploaded images, return empty images
     if image_content is None:
-        images = []
+        images_pagination = []
     else:
-        images = image_content_pagination(image_content, page=page)
+        images_pagination = image_content_pagination(
+            image_content,
+            page=page).items
     return render_template(
         "imager/user_gallery.html",
-        images=images)
+        images=images_pagination,
+        images_pagination=images_pagination)
 
 
 @imager_bp.route("/upvote", methods=["POST"])

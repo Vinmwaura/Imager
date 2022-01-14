@@ -1,0 +1,29 @@
+{% macro pagination(pagination, page_url, additional_args) %}
+<hr>
+<div class="gallery-pagination">
+    <a href={% if pagination.page == 1 %}"javascript:void(0);"{% else %}"{{page_url}}?page={{pagination.prev_num}}{% if additional_args %}&{{additional_args}}{% endif%}"{% endif %} class="btn btn-outline-dark {% if pagination.page == 1 %}disabled{% endif %}">&laquo;</a><!-- Loop through the number of pages to display a link for each-->
+    {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+    	{% if page_num %}
+		<!-- Check for the active page and set the link to "Active"-->
+            {% if pagination.page == page_num %}
+            <a href="{{page_url}}?page={{page_num}}{% if additional_args %}&{{additional_args}}{% endif%}"
+               class="btn btn-dark">
+                {{ page_num }}
+            </a>
+            {% else %}
+            <a href="{{page_url}}?page={{page_num}}{% if additional_args %}&{{additional_args}}{% endif%}"
+               class="btn btn-outline-dark">
+                {{ page_num }}
+            </a>
+            {% endif %}
+        {% else %}
+        <span class="ellipsis">&#8230;</span>
+        {% endif %}
+    {% endfor %} 
+    <a href={% if pagination.page == pagination.pages %}"javascript:void(0);"{% else %}"{{page_url}}?page={{pagination.next_num}}{% if additional_args %}&{{additional_args}}{% endif%}"{% endif %} class="btn btn-outline-dark {% if pagination.page == pagination.pages %}disabled{% endif %}">&raquo;</a>
+</div>
+
+<p class="gallery-pagination">
+   Showing page {{ pagination.page }} of {{ pagination.pages }}
+</p>
+{% endmacro %}

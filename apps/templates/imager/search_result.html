@@ -27,7 +27,7 @@
 <!-- Gallery Section -->
 {% import 'imager/macros/gallery_section.html' as gallery %}
 <div class="count-results">
-    <h1 style="text-align: center;">Found {{images|length}} result(s).</h1>
+    <h1 style="text-align: center;">Found {{image_contents_len}} result(s).</h1>
 </div>
 
 <div class="gallery-container">
@@ -56,6 +56,10 @@
     {% endfor %}
     </div>
 </div>
+
+<!-- Pagination Links-->
+{% import 'imager/macros/pagination.html' as pagination %}
+{{ pagination.pagination(images_pagination, url_for(request.endpoint, **request.view_args), q) }}
 {% endif %}
 {% endblock %}
 

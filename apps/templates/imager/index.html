@@ -57,6 +57,10 @@
 		{% endfor %}
 		</div>
 	</div>
+
+	<!-- Pagination Links-->
+	{% import 'imager/macros/pagination.html' as pagination %}
+	{{ pagination.pagination(images_pagination, url_for(request.endpoint, **request.view_args)) }}
 </div>
 {% endif %}
 {% endblock %}
