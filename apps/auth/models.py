@@ -103,10 +103,10 @@ class User(UserMixin, db.Model):
             return True
         return False
 
-
     def can_delete_admin_dashboard(self):
         """
-        Checks whether user has role with permission to delete from admin dashboard.
+        Checks whether user has role with permission to delete
+        from admin dashboard.
 
         Returns:
           Boolean value.

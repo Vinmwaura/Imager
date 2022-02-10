@@ -67,6 +67,11 @@
 
 							<!-- Dropdown navigation -->
 							<div class="hide-dropdown" id="main-account-dropdown">
+								{% if current_user.can_view_admin_dashboard() %}
+								<a href="{{ url_for('admin_panel.index') }}">
+									<span class="user-images-link">Admin Portal</span>
+								</a>
+								{% endif %}
 								<a href="{{ url_for('imager.user_profile') }}">
 									<span class="user-images-link">User Profile</span>
 								</a>
