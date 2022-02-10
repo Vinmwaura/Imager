@@ -3,6 +3,17 @@
     visibility: hidden;
 }
 
+/* Removes resize functionality in text area */
+textarea {
+    resize: none;
+    border-radius: 10px;
+    width: 100%;
+    margin: 0.4em 0;
+    border-radius: 10px;
+    border-color: #808080;
+    padding: 1em;
+}
+
 /**********************************************************
                     File Upload
 ***********************************************************/
@@ -127,7 +138,7 @@
 .centered-form {
     display: flex;
     justify-content: center;
-    margin-top: 10%;
+    padding: 1em;
 }
 
 .main-form {

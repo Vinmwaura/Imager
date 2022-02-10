@@ -9,7 +9,8 @@ from wtforms.validators import (
     Length)
 from wtforms.fields import (
     StringField,
-    SubmitField)
+    SubmitField,
+    TextAreaField)
 
 from .utils import *
 
@@ -31,6 +32,13 @@ class UploadFileForm(FlaskForm):
             FileAllowed(
                 ["jpg", "png", "jpeg"],
                 message='Image format not supported!')])
+
+    description = TextAreaField(
+        "Description",
+        validators=[
+            Length(
+                max=MAX_DESC_LENGTH,
+                message=INVALID_DESC_LENGTH)])
     upload = SubmitField("Upload")
 
 
@@ -42,8 +50,13 @@ class EditImageForm(FlaskForm):
             Length(
                 min=MIN_TITLE_LENGTH,
                 max=MAX_TITLE_LENGTH,
-                message=INVALID_TITLE_LENGTH)
-        ])
+                message=INVALID_TITLE_LENGTH)])
+    description = TextAreaField(
+        "Description",
+        validators=[
+            Length(
+                max=MAX_DESC_LENGTH,
+                message=INVALID_DESC_LENGTH)])
 
     change = SubmitField("Change")
 

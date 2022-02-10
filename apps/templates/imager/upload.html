@@ -49,6 +49,17 @@
 					<img class="file-upload-image" src="#" alt="your image" id="upload-image"/>
 				</div>
 			</div>
+
+			<!-- Description -->
+			{{ form.description(cols=50, rows=10, placeholder="Image Description (Optional)") }}
+		    {% if form.description.errors %}
+		    <ul class="errors">
+		    {% for error in form.description.errors %}
+		        <li>{{ error }}</li>
+		    {% endfor %}
+		    </ul>
+			{% endif %}
+
 			<div class="submit-btn" id="login-submit">
 				{{ form.upload() }}
 			</div>

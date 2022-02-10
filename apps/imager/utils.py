@@ -15,6 +15,10 @@ MAX_TITLE_LENGTH = 20
 INVALID_TITLE_LENGTH = "Title must be between {} and {} characters.".format(
     MIN_TITLE_LENGTH, MAX_TITLE_LENGTH)
 
+MAX_DESC_LENGTH = 2000
+INVALID_DESC_LENGTH = "Description must be less than {} characters.".format(
+    MAX_DESC_LENGTH)
+
 EMAIL_CHANGE_WARNING = "Changing Email will require a new activation \
             link to be sent to the new email provided, kindly ensure \
             it's valid before saving as you won't be able to login next \

@@ -163,7 +163,8 @@ def upload_images():
                 return SERVER_ERROR, 500
 
             image_details = {
-                "title": request.form["title"]
+                "title": request.form["title"],
+                "description": request.form["description"]
             }
 
             status = save_user_image(
@@ -247,7 +248,6 @@ def load_gallery_image(image_id):
 @imager_bp.route("/gallery/search")
 def load_gallery_search():
     query = request.args.get('q', None, type=str)
-    print(query)
     page = request.args.get('page', 1, type=int)
 
     if query:
@@ -278,11 +278,13 @@ def edit_gallery(image_id):
     image_content = get_image_by_user(user, image_id)
     if image_content:
         edit_image_uploaded = EditImageForm(
-            title=image_content.title)
+            title=image_content.title,
+            description=image_content.description)
         if edit_image_uploaded.validate_on_submit():
-            gallery_title = request.form["title"]
-            if gallery_title != image_content.title:
-                data_dict = {'title': gallery_title}
+            image_title = request.form["title"]
+            image_desc = request.form["description"]
+            if image_title != image_content.title:
+                data_dict = {'title': image_title, 'description': image_desc}
                 updated_gallery = update_gallery(
                     image_content,
                     data_dict)

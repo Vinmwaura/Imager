@@ -339,8 +339,11 @@
 }
 
 .image-description {
-    padding: 1em;
+    padding: 0 1em;
+    white-space: pre-wrap;
 }
+
+
 
 /**********************************************************
                     Picture Modal
