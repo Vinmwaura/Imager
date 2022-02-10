@@ -247,10 +247,11 @@ def load_gallery_image(image_id):
 @imager_bp.route("/gallery/search")
 def load_gallery_search():
     query = request.args.get('q', None, type=str)
+    print(query)
     page = request.args.get('page', 1, type=int)
 
     if query:
-        image_contents = search_by_title(query, False)
+        image_contents = search_by_title(query, False).all()
     else:
         image_contents = []
 
@@ -266,7 +267,7 @@ def load_gallery_search():
         "imager/search_result.html",
         q="q=" + query,
         images=data_dict,
-        image_contents_len=len(image_contents.all()),
+        image_contents_len=len(image_contents),
         images_pagination=images_pagination)
 
 
