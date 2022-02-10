@@ -15,6 +15,42 @@ body {
     padding: 0;
 }
 
+/* Small Screens */
+@media only screen and (min-device-width: 280px) and (max-device-width: 1024px) {
+	.header {
+	}
+
+	.admin-header-nav {
+		padding: 0 1.5em !important;
+	}
+
+	.home-link {
+		font-size: large !important;
+		font-weight: 400 !important;
+	}
+
+	.nav-options .greetings {
+		font-size: large !important;
+	}
+
+	.content-wrapper {
+	    padding: 1em !important;
+	}
+
+	.content {
+		width: 100% !important;	
+		overflow-x: scroll !important;
+	}
+
+	.role-table {
+
+	}
+
+	.notification-section {
+		width: 100% !important;
+	}
+}
+
 /**********************************************************
                   ADMIN HEADER NAVIGATION
 ***********************************************************/
@@ -82,7 +118,6 @@ body {
 }
 
 .add-header {
-	
 	float: right;
 }
 
