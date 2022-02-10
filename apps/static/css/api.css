@@ -1,3 +1,29 @@
+/* Phone Screens */
+@media only screen and (min-device-width: 320px) and (max-device-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
+	.api-container {
+		display: block !important;
+	} 
+
+	.api-content {
+	  	width: 100% !important;
+		margin-left: 0 !important;
+	}
+
+	.api-header-nav {
+		display: block !important;
+		position: inherit !important;
+		width: 100% !important;
+	}
+
+	.api-section {
+		height: 100% !important;
+	  	width: 100% !important;
+	  	display: block !important;
+	  	position: inherit !important;
+	  	overflow-y: none !important;
+	}
+}
+
 /**********************************************************
                   API HEADER NAVIGATION
 ***********************************************************/
@@ -55,6 +81,9 @@ section::before {
   	background-color: #F5F5F5;
 }
 
+code {
+	 word-wrap: break-word;
+}
 
 .api-content {
 	padding: 1em;

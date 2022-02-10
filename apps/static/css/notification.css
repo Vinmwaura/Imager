@@ -1,6 +1,14 @@
 /**********************************************************
                     Notifications
 ***********************************************************/
+/* Phone Screens */
+@media only screen and (min-device-width: 320px) and (max-device-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
+    .notification-section {
+        width: 100vw !important;
+        height:1em !important;
+    }
+}
+
 /* Default notification */
 .notification-section .message {
     background-color: rgba(190,194,203,1.0);

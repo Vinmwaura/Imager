@@ -37,47 +37,59 @@
 			{% block middle_nav_options %}
 			{% endblock %}
 
-			<div class="user-options">
-				{% block additional_navs %}
-				<div class="main-pic-options">
-					{% if current_user.is_anonymous %}
-					<a href="{{url_for('auth.login')}}" class="add-pic-btn" onclick="window.href"><i class="fa fa-plus"></i> <span>Upload</span></a>
-					{% else %}
-					<a href="{{url_for('imager.upload_images')}}" class="add-pic-btn" onclick="window.href"><i class="fa fa-plus"></i>  <span>Upload</span></a>
-					{% endif %}
-				</div>
-				{% endblock %}
+			<!-- Navigation links (hidden by default) -->
+			<div id="nav-summary">
+				<div id="nav-summary-content">
+					
+					<div class="user-options">
+						{% block additional_navs %}
+						<div class="main-pic-options">
+							{% if current_user.is_anonymous %}
+							<a href="{{url_for('auth.login')}}" class="add-pic-btn" onclick="window.href"><i class="fa fa-plus"></i> <span>Upload</span></a>
+							{% else %}
+							<a href="{{url_for('imager.upload_images')}}" class="add-pic-btn" onclick="window.href"><i class="fa fa-plus"></i>  <span>Upload</span></a>
+							{% endif %}
+						</div>
+						{% endblock %}
 
-				{% if current_user.is_anonymous %}
-				<div class="main-login-options">
-					<span class="sign-in-link"><a href="{{ url_for('auth.login') }}">Sign In</a></span>
-					<span class="sign-up-link"><a href="{{ url_for('auth.registration') }}">Sign Up</a></span>
-				</div>
-				{% else %}
-				<div class="main-account-options">
-					<span class="user-account-link">
-						<a href="javascript:void(0)" onclick='toggle_dropdown()'>
-							<span style="color: #FFF;" id>{{current_user.username}}&emsp;<i class="fa fa-user"></i> <i class="fa fa-caret-down"></i></span>
-						</a>
-					</span>
+						{% if current_user.is_anonymous %}
+						<div class="main-login-options">
+							<span class="sign-in-link"><a href="{{ url_for('auth.login') }}">Sign In</a></span>
+							<span class="sign-up-link"><a href="{{ url_for('auth.registration') }}">Sign Up</a></span>
+						</div>
+						{% else %}
+						<div class="main-account-options">
+							<span class="user-account-link">
+								<a href="javascript:void(0)" onclick='toggle_dropdown()'>
+									<span style="color: #FFF;" id>{{current_user.username}}&emsp;<i class="fa fa-user"></i> <i class="fa fa-caret-down"></i></span>
+								</a>
+							</span>
 
-					<!-- Dropdown navigation -->
-					<div class="hide-dropdown" id="main-account-dropdown">
-						<a href="{{ url_for('imager.user_profile') }}">
-							<span class="user-images-link">User Profile</span>
-						</a>
-						<a href="{{ url_for('imager.load_images_by_username', username=current_user.username) }}">
-							<span class="user-images-link">My Images</span>
-						</a>
-						<a href="{{ url_for('imager.settings') }}">
-							<span class="settings-link"><i class="fa fa-cog"></i>&emsp;Settings</span>
-						</a>
-						<a href="{{ url_for('auth.logout') }}">
-							<span class="sign-out-link"><i class="fa fa-power-off"></i>&emsp;Sign Out</span>
-						</a>
-					</div>
+							<!-- Dropdown navigation -->
+							<div class="hide-dropdown" id="main-account-dropdown">
+								<a href="{{ url_for('imager.user_profile') }}">
+									<span class="user-images-link">User Profile</span>
+								</a>
+								<a href="{{ url_for('imager.load_images_by_username', username=current_user.username) }}">
+									<span class="user-images-link">My Images</span>
+								</a>
+								<a href="{{ url_for('imager.settings') }}">
+									<span class="settings-link"><i class="fa fa-cog"></i>&emsp;Settings</span>
+								</a>
+								<a href="{{ url_for('auth.logout') }}">
+									<span class="sign-out-link"><i class="fa fa-power-off"></i>&emsp;Sign Out</span>
+								</a>
+							</div>
+						</div>
+						{% endif %}		
+					</div>	
 				</div>
-				{% endif %}		
+			</div>
+			<!-- "Hamburger menu" / "Bar icon" to toggle the navigation links -->
+			<div id="summary">
+			  	<a href="javascript:void(0);" class="icon" onclick="toggle_menu()">
+			    	<i class="fa fa-bars"></i>
+			  	</a>
 			</div>
 		</nav>
 
@@ -134,6 +146,18 @@
 		{% if not current_user.is_anonymous %}
 		<script type="text/javascript" src="{{ url_for('static', filename='js/authenticated_user.js') }}"></script>
 		{% endif %}
+
+		<script type="text/javascript">
+			/* Toggle between showing and hiding the navigation menu links when the user clicks on the hamburger menu / bar icon */
+			function toggle_menu() {
+			  	var x = document.getElementById("nav-summary");
+			  	if (x.style.display === "block") {
+			    	x.style.display = "none";
+			  	} else {
+			    	x.style.display = "block";
+			  	}
+			}
+		</script>
 
 		{% block js_block %}
 		{% endblock %}

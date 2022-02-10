@@ -45,7 +45,7 @@ body {
     font-family: 'Ubuntu', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: rgba(0, 0, 0, 0.2);
+    /*background-color: rgba(0, 0, 0, 0.2);*/
 }
 
 .close-modal {
@@ -56,10 +56,71 @@ body {
     right: 0;
 }
 
+/**********
+iPad 3
+**********/
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: portrait) and (-webkit-min-device-pixel-ratio: 2) {
+    /* Styles */
+    .main-header-nav {
+        padding: 0 !important;
+    }
+}
+
+/* Phone Screens */
+@media only screen and (min-device-width: 280px) and (max-device-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
+    /* Styles */
+    .content-wrapper {
+        width: 100%;
+        /*margin-top: 3em !important;*/
+        margin: 3em auto 0 auto !important;
+    }
+
+    .main-content {
+        padding: 1.5em 0 !important;
+    }
+
+    #summary {
+        display: block !important;
+    }
+
+    #nav-summary {
+        display: none;
+    }
+
+    .user-options > div {
+        padding: 5px 0;
+        display: flex !important;
+        justify-content: center !important;
+    }
+
+    .user-options {
+        width: 100%;
+    }
+
+    #nav-summary-content {
+        background-color: #252a3a;
+        position: absolute;
+        top: 4em;
+        right: 0;
+        height: 4em;
+
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+}
 
 /**********************************************************
                   MAIN HEADER NAVIGATION
 ***********************************************************/
+#summary {
+    display: none;
+}
+
+.main-header-nav a.icon {
+    display: block;
+}
+
 .main-header-nav {
     background-color: #252a3a;
     position: fixed;

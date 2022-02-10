@@ -1,3 +1,19 @@
+/* Phone Screens */
+@media only screen and (min-device-width: 320px) and (max-device-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
+    /* Styles */
+    .settings-container {
+        width: 100% !important;
+    }
+
+    .settings-menu {
+        padding: 0 !important;
+    }
+    
+    .settings-body {
+        margin-left: 0 !important;
+    }
+}
+
 /**********************************************************
                   Settings Container
 ***********************************************************/
@@ -14,16 +30,16 @@
 
 .settings-menu a {
     text-decoration: none;
-    color: #000;
+    color: #808080;
 }
 
 .settings-menu a:hover,
 .settings-menu .active {
-    color: #FFF;
+    color: #000;
 }
 
 .settings-menu li {
-    margin: 1em 0;
+    margin: 2em 0;
     list-style-type: none;
 }
 
