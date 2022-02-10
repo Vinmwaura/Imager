@@ -1,7 +1,12 @@
 /* Phone Screens */
-@media only screen and (min-device-width: 320px) and (max-device-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
+@media only screen and (min-device-width: 280px) and (max-device-width: 812px) {
 	.about-section {
 	  	width: 100% !important;
+	  	
+	}
+
+	.about-container {
+		padding: 2em !important;
 	}
 }
 
@@ -12,8 +17,8 @@
 .about-section {
 	padding: 1em;
 	overflow-y: auto;
-	height: 30em;
-  	width: 60em;
+	min-height: 70vh;
+  	width: 100%;
   	margin: 2em auto;
   	border-radius: 10px;
   	background-color: #F5F5F5;

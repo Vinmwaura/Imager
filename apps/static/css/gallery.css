@@ -1,5 +1,5 @@
-/* Phone Screens */
-@media only screen and (min-device-width: 280px) and (max-device-width: 812px) and (-webkit-min-device-pixel-ratio: 2) {
+/* Small Screens */
+@media only screen and (min-device-width: 280px) and (max-device-width: 812px) {
     /* Styles */
     .main-search-options {
         width: 13em !important;
@@ -22,6 +22,10 @@
         margin: 1.5em 0 0 !important;
         display: flex !important;
         align-items: center !important;
+    }
+
+    .image-container {
+        margin-top: 2em;
     }
 
 }
