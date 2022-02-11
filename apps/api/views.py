@@ -58,7 +58,7 @@ def create_client():
             "client_name": form["client_name"],
             "redirect_uris": [form["redirect_uris"] or url_for(
                 'imager.index')],
-            "grant_types": ['authorization_code'],
+            "grant_types": ["authorization_code", "password", "refresh_token"],
             "response_types": "code",
             "token_endpoint_auth_method": form["token_endpoint_auth_method"]
         }
@@ -421,6 +421,14 @@ def upload_image():
         return jsonify(
             message=img_.utils.INVALID_TITLE_LENGTH,
             status=400), 400
+
+    if 'description' in request.form:
+        img_desc = request.form['description']
+        desc_len = len(img_desc)
+        if desc_len > img_.utils.MAX_DESC_LENGTH:
+            return jsonify(
+                message=img_.utils.INVALID_DESC_LENGTH,
+                status=400), 400
 
     # Check if user has a folder for storing their content.
     # Create a folder for user if first time posting content.

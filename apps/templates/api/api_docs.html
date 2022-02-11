@@ -29,12 +29,14 @@
 		<a class="anchor" href="#client-creation">Creating a Client</a>
 		<a class="anchor" href="#authorization">Authorization</a>
 		<a class="anchor" href="#authorization-code-flow">Authorization Code flow example</a>
+		<a class="anchor" href="#password">Password</a>
+		<a class="anchor" href="#password-flow">Password flow example</a>
 		<a class="anchor" href="#api-endpoints">API Endpoints</a>
 		<ul class="anchor-list">
 			<li>
 				<a class="anchor list-item" href="#api-account">Account</a>
 				<ul class="anchor-list">
-					<li><a href="#acount-profile">User Profile</a></li>
+					<li><a href="#account-profile">User Profile</a></li>
 				</ul>
 			</li>
 			<li>
@@ -71,10 +73,10 @@
 		<section id="client-creation">
 			<h2>Creating/Registering a Client</h2>
 			<p>
-				Before you can begin, using the API you will need to first <a href="{{ url_for('api.create_client') }}" target="_blank">create/register</a> a new client with the Authorization Server. When creating/registering a new client you need to enter a valid client name, optional redirect uri, and choose a token endpoint authentication method that will determine how authorization request will be performed. Once submitted you will be presented with details of the client including client_id and possibly client_secret, note them down or you can view a list of applications created in the application tab <a href="{{ url_for('imager.settings') }}#application" target="_blank">here</a>.
+				Before you can begin, using the API you will need to first <a href="{{ url_for('api.create_client') }}" target="_blank">create/register</a> a new client with the Authorization Server. When creating/registering a new client you need to enter a valid client name, optional redirect uri, and choose a token endpoint authentication method that will determine how authorization requests will be performed. Once submitted you will be presented with details of the client including <em>client_id</em> and possibly <em>client_secret</em>, note them down or you can view a list of applications created in the application tab <a href="{{ url_for('imager.settings') }}#application" target="_blank">here</a>.
 			</p>
 			<p>
-				The grant type used by the client will by default will be the <strong>Authorization Code</strong> and the response type will by default be <strong>code</strong>, more information about this configuration can be founnd in the OAuth 2.0 specification specified <a href="#introduction">here</a>.
+				The grant type used by the client will be <strong>Authorization Code</strong> or <strong>Password</strong> and the response type will by default be <strong>code</strong>, more information about this configuration can be found in the OAuth 2.0 specification specified <a href="#introduction">here</a>.
 			</p>
 			<p>
 				Redirect URIs field is optional and if nothing is specified it will default to the imager homepage. This field will be used by the Authorization Server to redirect the Resource Owner (User) when they request for an authorization code which will be passed as a query field in the URL.
@@ -108,7 +110,7 @@
 						<b>Access Token</b>
 					</li>
 					<p>
-						The access token is required for any client request to be able to  successfully access protected resources from the resource source(API), and will need to be embeded in any request's header. The access token is expected to expire after a period of time.
+						The access token is required for any client request to be able to  successfully access protected resources from the resource source(API), and will need to be embedded in any request's header. The access token is expected to expire after a period of time.
 					</p>
 				</ul>
 			</p>
@@ -139,13 +141,13 @@
 					<li>This will take the Resource Owner (User) to an authorization page, where they will have to grant authorization to the client.</li>
 					<li>After granting authorization, the Resource Owner (User) will be redirected to <code>${redirect_uri}/?code=${code}</code>If no redirect_uri was specified the redirect will by default go to the homepage. Note down the code as this is the authorization code needed to obtain an <b>access_token</b> from the Authorization Server.</li>
 					<li>
-						To get an access token, you will need to make a POST request, where you use the <strong>client_id</strong> and/or <strong>client_secret</strong> as authentication as discussed in the <a href="#client-creation">previous section</a>. An example of this using <strong>cURL</strong> and with the client using <strong>client_secret_post</strong> token enpoint authentication method is shown below. Replace '${}' with appropriate values.
+						To get an access token, you will need to make a POST request, where you use the <strong>client_id</strong> and/or <strong>client_secret</strong> as authentication as discussed in the <a href="#client-creation">previous section</a>. An example of this using <strong>cURL</strong> and with the client using <strong>client_secret_post</strong> token endpoint authentication method is shown below. Replace '${}' with appropriate values.
 						<code>
 							$ curl -u ${client_id}:${client_secret} -XPOST ${Domain-Name}/api/v1/oauth/token -F grant_type=authorization_code -F code=${code}
 						</code>
 					</li>
 					<li>
-						The output of the previous command should provide a JSON response with an access_token, including additional information such <strong>expires_in</strong> and <strong>token_type</strong>. You will now be able to access most API endpoints by embeding the access token in any request's header i.e <code>Authorization: Bearer ${access_token}</code>.
+						The output of the previous command should provide a JSON response with an access_token, including additional information such as <strong>expires_in</strong> and <strong>token_type</strong>. You will now be able to access most API endpoints by embedding the access token in any request's header i.e <code>Authorization: Bearer ${access_token}</code>.
 					</li>
 					<li>
 						An example of accessing an API endpoint using cURL would be:
@@ -157,6 +159,74 @@
 			</p>
 		</section>
 
+		<section id="password">
+			<h2>Password</h2>
+			<p>
+				Using the <strong>client_id</strong> and the <strong>client_secret</strong> the client requires to obtain the following before being able to access the resource server(API):
+				<ul>
+					<li>
+						<b>Access Token</b>
+					</li>
+					<p>
+						The access token is required for any client request to be able to  successfully access protected resources from the resource source(API), and will need to be embedded in any request's header. The access token is expected to expire after a period of time.
+					</p>
+					<li>
+						<b>Refresh Token</b>
+					</li>
+					<p>
+						Access Token will usually expire after a given time indicated by the "expires_in" field, a refresh token will be needed to be presented to the Authorization Server to obtain a new Access Token. Refresh Tokens do not expire.
+					</p>
+				</ul>
+			</p>
+			<p>
+				This is mostly used for users who want to be able to use the API using their credentials to gain access to the resource server (API). Similar to the previous section, once a client has been created, the user will now be able to exchange their client_id and client_secret together with their credentials for both an access token and refresh token.
+			</p>
+			<p>
+				The following steps need to be performed for any client to be authorized to access the resource server (API):
+				<ol>
+					<li>The User will be required to provide their username and password including the client id and client secret to the authorization server.</li>
+					<li>If both everything is valid an appropriate json will be sent back containing the access_token and refresh token.</li>
+				</ol>
+			</p>
+		</section>
+
+		<section id="password-flow">
+			<h2>Password flow example</h2>
+			<p>
+				An example of the various steps one has to perform to be able to utilize the API endpoints using password for authorization include:
+				<ol>
+					<li>After having registered a client from the <a href="#client-creation">prior section</a>, note the <strong>client_id</strong> of the client.</li>
+					<li>
+						To get an access token and a refresh token, you will need to make a POST request, where you use the <strong>client_id</strong> and/or <strong>client_secret</strong> as authentication as discussed in the <a href="#client-creation">previous section</a>. An example of this using <strong>cURL</strong> and with the client using <strong>client_secret_post</strong> token endpoint authentication method is shown below. Replace '${}' with appropriate values.
+						<code>
+							$ curl -u ${client_id}:${client_secret} -XPOST ${Domain-Name}/api/v1/oauth/token -F grant_type=password -F username=${username} -F password=${password}
+						</code>
+					</li>
+					<li>
+						The output of the previous command should provide a JSON response with an access_token and a refresh token, including additional information such as <strong>expires_in</strong> and <strong>token_type</strong>. You will now be able to access most API endpoints by embedding the access token in any request's header i.e <code>Authorization: Bearer ${access_token}</code>.
+					</li>
+					<li>
+						An example of accessing an API endpoint using cURL would be:
+						<code>
+							$ curl -H "Authorization: Bearer ${access_token}" ${Domain-Name}/api/v1/${API-Endpoint}
+						</code>
+					</li>
+				</ol>
+			</p>
+			<p>
+				Once Access Token has expired, you will be required to perform the following steps to get a new one.
+				<ol>
+					<li>
+						Make a POST request to the service’s token endpoint with <strong>grant_type=refresh_token</strong> , and include the refresh token as well as the client credentials if required.
+						<code>
+							curl -u ${client_id}:${client_secret} -XPOST 127.0.0.1:5001/api/v1/oauth/token -F grant_type=refresh_token -F refresh_token=${refresh_token}
+						</code>
+					</li>
+					<li>Note down the new access_token and refresh_token and use them where appropriate.</li>
+				</ol>
+			</p>
+		</section>
+
 		<section id="api-endpoints">
 			<h2>API Endpoints</h2>
 			Imager offers the following API endpoints, some of which are public and others may require Access Tokens to be passed in the header to be available.
@@ -164,7 +234,7 @@
 			<section id="api-account">
 				<h2>Account</h2>
 
-				<section id="acount-profile">
+				<section id="account-profile">
 					<h3>User Profile</h3>
 					<p>
 						Method: <strong>GET</strong>
@@ -370,7 +440,7 @@
 							${Domain-Name}/api/v1/search/${search_value}
 						</code>
 						<br>
-						Searches both username and gallery titles and tags using ${search_value} as query string.
+						Searches both username and gallery titles and tags using ${search_value} as a query string.
 					</p>
 				</section>
 
@@ -380,3 +450,4 @@
 </div>
 
 {% endblock %}
+
