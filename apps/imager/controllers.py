@@ -28,7 +28,7 @@ def get_image_details(user, images):
       images: Paginated images.
 
     Returns:
-      Dict with details of images.
+      List of dictionaries with details of images.
     """
     data_dict = []
     for image in images:
@@ -253,8 +253,36 @@ def get_image_content_by_id(image_id):
       ImageContent object.
     """
     image_content = models.ImageContent().query.filter_by(
-        file_id=image_id).all()
+        file_id=image_id).one_or_none()
+
     return image_content
+
+def get_imagecontent_neighbours(image_content, image_contents):
+    """
+    Gets Image Neighbours for navigating in gallery.
+
+    Args:
+      image_content: Image.
+      image_contents: List of all images filtered and sorted accordingly.
+
+    Returns:
+      Neighbouring images as prev and next items in dictionary.
+    """
+    img_index = image_contents.index(image_content)
+    neighbours = {
+        "next": None,
+        "prev": None
+    }
+    if len(image_contents) > 1:
+        if img_index == 0:
+            neighbours["next"] = image_contents[img_index + 1]
+        elif img_index == len(image_contents) - 1:
+            neighbours["prev"] = image_contents[img_index - 1]
+        else:
+            neighbours["prev"] = image_contents[img_index - 1]
+            neighbours["next"] = image_contents[img_index + 1]
+
+    return neighbours
 
 
 def load_user_images(user_id, image_id):

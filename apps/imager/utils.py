@@ -67,12 +67,16 @@ def get_filter_options(category, sort_order):
 
     if category == "upload_time":
         filter_options["selected_category"] = "Upload Time"
+        filter_options["selected_category_option"] = "upload_time"
+        filter_options["selected_filter_option"] = sort_order
+
         if sort_order == "desc":
             filter_options["selected_filter"] = "Newest to Oldest"
         elif sort_order == "asc":
             filter_options["selected_filter"] = "Oldest to Newest"
         else:
             filter_options["selected_filter"] = ""
+            filter_options["selected_filter_option"] = ""
 
         filter_options['options'] = [
             {
@@ -86,12 +90,16 @@ def get_filter_options(category, sort_order):
         ]
     elif category == "score":
         filter_options['selected_category'] = "Score"
+        filter_options["selected_category_option"] = "score"
+        filter_options["selected_filter_option"] = sort_order
+
         if sort_order == "desc":
-            filter_options["selected_filter"] = "Highest"
+            filter_options["selected_filter"] = "Highest"            
         elif sort_order == "asc":
             filter_options["selected_filter"] = "Lowest"
         else:
             filter_options["selected_filter"] = ""
+            filter_options["selected_filter_option"] = ""
 
         filter_options['options'] = [
             {"value": "Highest", "filter": "desc", "category": "score"},

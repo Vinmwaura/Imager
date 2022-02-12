@@ -25,7 +25,7 @@
     }
 
     .image-container {
-        margin-top: 2em;
+        margin-top: 2em !important;
     }
 
 }
@@ -303,6 +303,8 @@
     width: 100%;
     height: 4em;
     max-height: 80px;
+    display: flex;
+    justify-content: space-between;
 }
 
 .image-container .image-title,
@@ -313,6 +315,22 @@
     color: #FFF;
     display: flex;
     align-items: center;
+}
+
+.image-container .navigation-section {
+    display: flex;
+    align-items: center;
+    color: #FFF;
+    padding: 1em;
+}
+
+.image-container .navigation-section a {
+    background-color: #0f67a1;
+    padding: 10px;
+    color: #FFF;
+    text-decoration: none;
+    margin: 0 5px;
+    border-radius: 10px;
 }
 
 .image-container .image-uploader a {

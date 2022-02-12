@@ -44,14 +44,35 @@
 		<div class="image-section">
 			<!-- Image Details -->
 			<div class="image-details">
-				<div class="image-title">
-					<span>{{image.title}}</span>
+				<div class="title-uploader-section">
+					<div class="image-title">
+						<span>{{image.title}}</span>
+					</div>
+					<div class="image-uploader">
+						<span>
+							Uploaded by: <a href="{{ url_for('imager.load_images_by_username', username=image.uploaded_by) }}">{{image.uploaded_by}}</a> <span>&#183;</span> <span id="time-diff"></span>
+						</span>
+					</div>
 				</div>
 
-				<div class="image-uploader">
-					<span>
-						Uploaded by: <a href="{{ url_for('imager.load_images_by_username', username=image.uploaded_by) }}">{{image.uploaded_by}}</a> <span>&#183;</span> <span id="time-diff"></span>
-					</span>
+				<div class="navigation-section">
+					<div class="navigation-option">
+						{% if user %}
+						{% if neighbours.prev %}
+						<a href="{{ url_for('imager.load_gallery_image', image_id=neighbours.prev.file_id, category=category, category_filter=category_filter, username=user.username) }}"> <i class="fa fa-angle-left"></i> Prev</a>
+						{% endif %}
+						{% if neighbours.next %}
+						<a href="{{ url_for('imager.load_gallery_image', image_id=neighbours.next.file_id, category=category, category_filter=category_filter, username=user.username) }}">Next <i class="fa fa-angle-right"></i> </a>
+						{% endif %}
+						{% else %}
+						{% if neighbours.prev %}
+						<a href="{{ url_for('imager.load_gallery_image', image_id=neighbours.prev.file_id, category=category, category_filter=category_filter) }}"> <i class="fa fa-angle-left"></i> Prev</a>
+						{% endif %}
+						{% if neighbours.next %}
+						<a href="{{ url_for('imager.load_gallery_image', image_id=neighbours.next.file_id, category=category, category_filter=category_filter) }}">Next <i class="fa fa-angle-right"></i> </a>
+						{% endif %}
+						{% endif %}
+					</div>
 				</div>
 			</div>
 

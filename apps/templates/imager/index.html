@@ -34,7 +34,7 @@
 	<div class="gallery-container">
 		<div class="gallery-section">
 			{% for image in images %}
-			{% call gallery.gallery_section(url_for('imager.load_gallery_image', image_id=image.file_id)) %}
+			{% call gallery.gallery_section(url_for('imager.load_gallery_image', image_id=image.file_id, category=filter_options.selected_category_option, category_filter=filter_options.selected_filter_option)) %}
 
 			<!-- Thumbnail Image -->
 			<img src="{{ url_for('imager.load_thumbnail_by_id', image_id=image.file_id) }}">

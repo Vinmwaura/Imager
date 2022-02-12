@@ -80,14 +80,14 @@
 	<div class="gallery-container">
 		<div class="gallery-section">
 			{% for image in images %}
-			{% call gallery.gallery_section(url_for('imager.load_gallery_image', image_id=image.file_id)) %}
+			{% call gallery.gallery_section(url_for('imager.load_gallery_image', image_id=image.file_id, category=filter_options.selected_category_option, category_filter=filter_options.selected_filter_option, username=user.username)) %}
 			<div class="checkbox-section hide">
 				<label>
 					<input type="checkbox" class="gallery-select-individual" id="checkbox-{{image.file_id}}" name="{{image.title}}" value="{{image.file_id}}" onclick="count_selected_items();" autocomplete=off>
 				</label>
 			</div>
 
-			<a class="gallery-link" href="{{ url_for('imager.load_gallery_image', image_id=image.file_id) }}">
+			<a class="gallery-link" href="{{ url_for('imager.load_gallery_image', image_id=image.file_id, category=filter_options.selected_category_option, category_filter=filter_options.selected_filter_option, username=user.username) }}">
 				<!-- Thumbnail Image -->
 				<img src="{{ url_for('imager.load_thumbnail_by_id', image_id=image.file_id) }}">
 

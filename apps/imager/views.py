@@ -189,7 +189,7 @@ def load_image_by_id(image_id):
     if image_content:
         # Gets filenames and filepath using ImageContent object.
         folder_path, image_filenames = get_image_file_paths(
-            image_content[0],
+            image_content,
             current_app.config["UPLOAD_PATH"])
 
         # Checks if actual file exists.
@@ -212,7 +212,7 @@ def load_thumbnail_by_id(image_id):
     if image_content:
         # Gets filenames and filepath using ImageContent object.
         folder_path, image_filenames = get_image_file_paths(
-            image_content[0],
+            image_content,
             current_app.config["UPLOAD_PATH"])
 
         # Checks if actual file exists.
@@ -234,13 +234,48 @@ def load_thumbnail_by_id(image_id):
 
 
 @imager_bp.route("/gallery/<string:image_id>")
-def load_gallery_image(image_id):
+@imager_bp.route("/gallery/<string:image_id>/<string:category>")
+@imager_bp.route("/gallery/user/<string:username>/<string:image_id>")
+@imager_bp.route("/gallery/user/<string:username>/<string:category>/<string:image_id>")
+@imager_bp.route("/gallery/<string:image_id>/<string:category>/<string:category_filter>")
+@imager_bp.route("/gallery/user/<string:username>/<string:category>/<string:category_filter>/<string:image_id>")
+def load_gallery_image(image_id, username=None, category="upload_time", category_filter="desc"):
+    if category_filter not in ['asc', 'desc']:
+        abort(404)
+    user = None
+    if username:
+        user, image_contents = get_image_contents_by_user(
+            username,
+            category,
+            category_filter)
+    else:
+        if category == "upload_time":
+            if category_filter is None:
+                category_filter = "asc"  # Default value if no parameter.
+            image_contents = get_image_contents_by_time(category_filter)
+        elif category == "score":
+            if category_filter is None:
+                category_filter = "desc"  # Default value if no parameter.
+            image_contents = get_image_contents_by_score(category_filter)
+        elif category == "":
+            image_contents = get_image_contents_by_time()
+        else:
+            abort(404)
+
     image_content = get_image_content_by_id(image_id)
+    
     if image_content:
-        data_dict = get_image_details(current_user, image_content)
+        neighbours = get_imagecontent_neighbours(
+            image_content, image_contents.all())
+
+        data_dict = get_image_details(current_user, [image_content])
         return render_template(
             "imager/image_gallery.html",
-            image=data_dict[0])
+            image=data_dict[0],
+            neighbours=neighbours,
+            category=category,
+            category_filter=category_filter,
+            user=user)
 
     abort(404)
 
