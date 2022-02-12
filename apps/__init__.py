@@ -10,26 +10,32 @@ from flask_mail import Mail
 
 from flask_wtf.csrf import CSRFProtect
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 STATICFILES_DIRS = (os.path.join(
     BASE_DIR, "apps/static"),)
 MEDIA_ROOT = os.path.join(
     BASE_DIR, "apps/media")
 
-# Handles Database operations
+# Handles Database operations.
 db = SQLAlchemy()
 
-# Handles Database migrations
+# Handles Database migrations.
 migrate = Migrate()
 
-# Handles Session management
+# Handles Session management.
 login_manager = LoginManager()
 
-# Handles sending of email
+# Handles sending of email.
 mail = Mail()
 
-# Handles CSRF protection for AJAX requests
+# Handles CSRF protection for AJAX requests.
 csrf = CSRFProtect()
+
+# Handles API Rate Limit.
+limiter = Limiter(key_func=get_remote_address)
 
 
 def unauthorized(e):
@@ -122,6 +128,7 @@ def create_app(config=None):
     login_manager.init_app(app)
     mail.init_app(app)
     csrf.init_app(app)
+    limiter.init_app(app)
 
     from .oauth2_config import config_oauth
     config_oauth(app)

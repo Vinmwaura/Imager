@@ -13,6 +13,7 @@ from .forms import *
 from .utils import *
 
 from .. import csrf
+from .. import limiter
 
 from flask_login import (
     login_required,
@@ -22,6 +23,14 @@ from authlib.integrations.flask_oauth2 import current_token
 from .. import oauth2_config as oauth2
 
 
+external_api_limit = limiter.shared_limit(EXTERNAL_RATE_LIMITER, scope="external_limiter")
+internal_api_limit = limiter.shared_limit(INTERNAL_RATE_LIMITER, scope="internal_limiter")
+
+@api_bp.errorhandler(429)
+def ratelimit_handler(e):
+    return jsonify({"error" :f"You have exceeded your rate-limit: {e.description}"}), 429
+
+
 @api_bp.route('/')
 def api_index():
     return render_template('api/api_docs.html')
@@ -29,6 +38,7 @@ def api_index():
 
 @api_bp.route('/oauth/authorize', methods=['GET', 'POST'])
 @csrf.exempt
+@internal_api_limit
 def oauth_authorize():
     if request.method == 'GET':
         grant = validate_consent_request(current_user)
@@ -49,6 +59,7 @@ def oauth_authorize():
 
 @api_bp.route('/create_client', methods=['GET', 'POST'])
 @login_required
+@internal_api_limit
 def create_client():
     client = []
     addclient_form = AddClientForm()
@@ -74,6 +85,7 @@ def create_client():
 
 @api_bp.route('/oauth/token', methods=['POST'])
 @csrf.exempt
+@external_api_limit
 def oauth_token():
     token = issue_token()
     return token
@@ -81,6 +93,7 @@ def oauth_token():
 
 @api_bp.route('/oauth/revoke', methods=['POST'])
 @csrf.exempt
+@external_api_limit
 def oauth_revoke():
     revoke = revoke_token()
     return jsonify(
@@ -91,6 +104,7 @@ def oauth_revoke():
 @api_bp.route('/profile/me', methods=['GET'])
 @oauth2.require_oauth()
 @csrf.exempt
+@external_api_limit
 def user_profile():
     user = current_token.user
     api_data = {}
@@ -117,6 +131,7 @@ def edit_user_profile():
 
 @api_bp.route('/search/<string:search_value>')
 @csrf.exempt
+@internal_api_limit
 def search(search_value):
     api_data = {
         "results": {}
@@ -158,6 +173,7 @@ def search(search_value):
 
 
 @api_bp.route('/gallery/image/<string:image_id>')
+@external_api_limit
 def load_image(image_id):
     # Assumes no issue will occur otherwise will be changed.
     message = "Successful."
@@ -201,6 +217,7 @@ def load_image(image_id):
 @api_bp.route('/gallery/user/<string:username>/<string:category>')
 @api_bp.route(
     '/gallery/user/<string:username>/<string:category>/<string:sort>')
+@external_api_limit
 def load_images_by_user(username, category="upload_time", sort="desc"):
     # Assumes no issue will occur otherwise will be changed.
     message = "Successful."
@@ -256,6 +273,7 @@ def load_images_by_user(username, category="upload_time", sort="desc"):
 @api_bp.route('/gallery')
 @api_bp.route('/gallery/<string:category>')
 @api_bp.route('/gallery/<string:category>/<string:sort>')
+@external_api_limit
 def load_gallery(category="upload_time", sort="desc"):
     # Assumes no issue will occur otherwise will be changed.
     message = "Successful."
@@ -304,6 +322,7 @@ def load_gallery(category="upload_time", sort="desc"):
 @api_bp.route('edit/gallery/<string:image_id>', methods=['PUT'])
 @oauth2.require_oauth()
 @csrf.exempt
+@external_api_limit
 def edit_image(image_id):
     user = current_token.user
 
@@ -372,6 +391,7 @@ def edit_image(image_id):
 @api_bp.route('/upload', methods=['POST'])
 @oauth2.require_oauth()
 @csrf.exempt
+@external_api_limit
 def upload_image():
     from .. import imager as img_
 
@@ -465,6 +485,7 @@ def upload_image():
 @api_bp.route('/delete/image/<string:image_id>', methods=['DELETE'])
 @oauth2.require_oauth()
 @csrf.exempt
+@external_api_limit
 def delete_image_by_id(image_id):
     api_status = 200
 
@@ -502,6 +523,7 @@ def delete_image_by_id(image_id):
     methods=['POST'])
 @oauth2.require_oauth()
 @csrf.exempt
+@external_api_limit
 def vote_counter(image_id, vote_action):
     user = current_token.user
 

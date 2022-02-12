@@ -11,3 +11,7 @@ CLIENT_CREATION_ERROR = "An Error occured creating client, "\
 
 INVALID_FIELD_LENGTH = lambda field_min, field_max: 'Field must be between {} and {} characters.'.format(
     field_min, field_max)
+
+# Default API Rate Limit
+EXTERNAL_RATE_LIMITER = "1000/day;100/hour;10/minute"
+INTERNAL_RATE_LIMITER = "50/minute"
