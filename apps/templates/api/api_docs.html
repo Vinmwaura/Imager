@@ -32,6 +32,7 @@
 		<a class="anchor" href="#password">Password</a>
 		<a class="anchor" href="#password-flow">Password flow example</a>
 		<a class="anchor" href="#api-endpoints">API Endpoints</a>
+
 		<ul class="anchor-list">
 			<li>
 				<a class="anchor list-item" href="#api-account">Account</a>
@@ -57,6 +58,7 @@
 				
 			</li>
 		</ul>
+		<a class="anchor" href="#rate-limits">Rate Limits</a>
 	</div>
 	<div class="api-content">
 		<h1>API</h1>
@@ -445,6 +447,18 @@
 				</section>
 
 			</section>
+		</section>
+
+		<section id="rate-limits">
+			<h2>Rate Limits</h2>
+			<p>
+				The API implements a rate limit system where every user will be limited on how many API calls they can make in a given amount of time, the following limits include:
+				<ul>
+					<li>1000 API calls per day</li>
+					<li>100 API calls per hour</li>
+					<li>10 API calls per minute</li>
+				</ul>
+			</p>
 		</section>
 	</div>
 </div>
