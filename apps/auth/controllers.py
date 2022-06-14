@@ -110,7 +110,7 @@ def change_username(user, new_username):
       new_username: New username for client.
 
     Returns:
-      Boolean indicating if email was changed.
+      Boolean indicating if username was changed.
     """
     status = user.change_username(new_username)
     return status
@@ -242,7 +242,7 @@ def get_Permission(role):
       role: Role object.
 
     Returns:
-      Permission object if any.
+      List of Permissions if any.
     """
     role_permissions = models.Permissions().query.filter_by(
         role_id=role.id).all()
@@ -362,6 +362,7 @@ def account_creation(user_details, role_name, permissions=[]):
       Exception: Any exeption that occurs when commiting
       User, Role and Permissions.
     """
+    
     # Create User Role if none exists
     user_role = get_Role(role_name=role_name)
     if user_role is None:
@@ -372,7 +373,7 @@ def account_creation(user_details, role_name, permissions=[]):
 
     # Add User Permissions to User Role if none exists
     role_permissions = get_Permission(user_role)
-    if role_permissions:
+    if not role_permissions:
         for permission in permissions:
             role_permissions = add_Permission(
                 role_id=user_role.id,
