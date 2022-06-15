@@ -12,7 +12,7 @@ from PIL import Image, ImageOps
 
 from sqlalchemy import asc, desc, nulls_first, nulls_last
 
-
+# TODO: Move to be config parameters.
 PER_PAGE = 20
 ERROR_OUT = True
 MAX_PER_PAGE = 100
@@ -61,10 +61,10 @@ def update_gallery(image_content, new_data):
     try:
         if 'title' in new_data:
             image_content.title = new_data['title']
-
-        if 'description' in new_data:
+        elif 'description' in new_data:
             image_content.description = new_data['description']
-
+        else:
+            return False
         # Commit Session
         db.session.commit()
         return True
@@ -148,7 +148,7 @@ def get_image_by_user(user, image_id):
       ImageContent object or none.
     """
     # Checks if user object and image_id exists and is valid, else None
-    if not user and not image_id:
+    if not user or not image_id:
         return None
 
     # Get UserContent for user, if it exists
@@ -216,6 +216,8 @@ def get_image_contents_by_user(
             )
         else:
             image_content = None
+    else:
+        image_content = None
     return user, image_content
 
 
@@ -315,6 +317,7 @@ def search_by_title(search_value, get_list=True):
 
     Args:
       search_value: Search value.
+      get_list: Boolean indicating whether to return a list or object.
 
     Returns:
       ImageContent query results.
@@ -463,10 +466,11 @@ def save_user_image(user, file, image_details):
         'thumbnails',
         filename + file_ext
     ])
+
     try:
         # Saves file using user location and new filename
         file.save(image_path)
-
+        
         # Create Thumbnails using saved images
         original_image = Image.open(image_path)
         thumbnail_image = ImageOps.fit(
@@ -528,6 +532,13 @@ def upvote(user, image_file_id):
     Returns:
       Boolean indicating result of operation.
     """
+    # Check if Image file ID is invalid.
+    image_content = models.ImageContent().query.filter_by(
+        file_id=image_file_id).one_or_none()
+
+    if image_content is None:
+        return False
+
     upvote_obj = models.VoteCounter().query.filter_by(
         user_id=user.id,
         image_file_id=image_file_id)
@@ -566,6 +577,12 @@ def downvote(user, image_file_id):
     Returns:
       Boolean indicating result of operation.
     """
+    # Check if Image file ID is invalid.
+    image_content = models.ImageContent().query.filter_by(
+        file_id=image_file_id).one_or_none()
+    if image_content is None:
+        return False
+
     downvote_obj = models.VoteCounter().query.filter_by(
         user_id=user.id,
         image_file_id=image_file_id)

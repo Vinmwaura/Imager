@@ -130,7 +130,7 @@ def upload_images():
     upload_file_form = UploadFileForm()
     if upload_file_form.validate_on_submit():
         uploaded_file = upload_file_form.file.data
-
+        
         filename = secure_filename(uploaded_file.filename)
 
         if filename != "":
@@ -186,12 +186,13 @@ def upload_images():
 @imager_bp.route("/upload/image/<string:image_id>")
 def load_image_by_id(image_id):
     image_content = get_image_content_by_id(image_id)
+    
     if image_content:
         # Gets filenames and filepath using ImageContent object.
         folder_path, image_filenames = get_image_file_paths(
             image_content,
             current_app.config["UPLOAD_PATH"])
-
+        
         # Checks if actual file exists.
         if len(image_filenames) == 0:
             abort(404)
@@ -209,6 +210,7 @@ def load_image_by_id(image_id):
 @imager_bp.route("/upload/thumbnail/<string:image_id>")
 def load_thumbnail_by_id(image_id):
     image_content = get_image_content_by_id(image_id)
+
     if image_content:
         # Gets filenames and filepath using ImageContent object.
         folder_path, image_filenames = get_image_file_paths(
@@ -295,7 +297,7 @@ def load_gallery_search():
         data_dict = []
     else:
         images_pagination = image_content_pagination(
-            image_contents,
+            search_by_title(query, False),
             page=page)
         data_dict = get_image_details(current_user, images_pagination.items)
     return render_template(
@@ -450,6 +452,7 @@ def edit_user_profile():
         first_name=user.first_name,
         last_name=user.last_name,
         email=user.email)
+
     if edit_profile.validate_on_submit():
         # Username change.
         if user.username != request.form["username"]:
@@ -488,32 +491,33 @@ def edit_user_profile():
                     "success")
 
                 try:
-                    # Send token via EMAIL
-                    token = auth.controllers.generate_token(
-                        user.email,
-                        auth.utils.EMAIL_CONFIRMATION_TOKEN)
+                    if "FLASK_ENV" in current_app.config and current_app.config["FLASK_ENV"] != "testing":
+                        # Send token via EMAIL
+                        token = auth.controllers.generate_token(
+                            user.email,
+                            auth.utils.EMAIL_CONFIRMATION_TOKEN)
 
-                    # Email Content.
-                    subject = "Imager email changed confirmation"
-                    body = render_template(
-                        "auth/email_change.html",
-                        username=user.username,
-                        activation_link=url_for(
-                            "auth.activate_account",
-                            activation_token=token,
-                            _external=True))
+                        # Email Content.
+                        subject = "Imager email changed confirmation"
+                        body = render_template(
+                            "auth/email_change.html",
+                            username=user.username,
+                            activation_link=url_for(
+                                "auth.activate_account",
+                                activation_token=token,
+                                _external=True))
 
-                    sender = current_app.config['MAIL_USERNAME']
-                    recipients = [current_app.config[
-                        "TEST_EMAIL_CONFIG"]] or [user.email]
+                        sender = current_app.config['MAIL_USERNAME']
+                        recipients = [current_app.config[
+                            "TEST_EMAIL_CONFIG"]] or [user.email]
 
-                    # Send Email.
-                    auth.utils.send_email(
-                        subject,
-                        body,
-                        sender,
-                        recipients)
-
+                        # Send Email.
+                        auth.utils.send_email(
+                            subject,
+                            body,
+                            sender,
+                            recipients)
+                        
                     flash(EMAIL_SUCCESSFULLY_SENT, "success")
                 except Exception as e:
                     print("An error occured sending email: ", e)
@@ -521,6 +525,7 @@ def edit_user_profile():
 
             else:
                 flash(EMAIL_FAILED_CHANGED, "error")
+
         return redirect(url_for('imager.user_profile'))
     else:
         flash(EMAIL_CHANGE_WARNING, "info")
@@ -528,7 +533,8 @@ def edit_user_profile():
         "imager/edit_profile.html",
         form=edit_profile)
 
-
+# TODO: Re-implement to work properly and implement a way for users to add tags to images.
+"""
 @imager_bp.route("/gallery/tag/<string:tag_name>")
 def load_images_by_tag(tag_name):
     page = request.args.get('page', 1, type=int)
@@ -545,39 +551,46 @@ def load_images_by_tag(tag_name):
         "imager/user_gallery.html",
         images=images_pagination,
         images_pagination=images_pagination)
-
+"""
 
 @imager_bp.route("/upvote", methods=["POST"])
+@login_required
 def upvote_counter():
+    """
     if current_user.is_anonymous:
         # TODO: Add next to return user to previous page
         return redirect(url_for('auth.login'))
-
+    """
     image_file_id = request.form.get('image_id', None)
     if image_file_id:
         upvote_status = upvote(current_user, image_file_id)
-        metric_data = image_metric(image_file_id)
-        metric_data["status"] = upvote_status
-        return jsonify(metric_data)
-    else:
-        return "Invalid parameter.", 400
+        if upvote_status:
+            metric_data = image_metric(image_file_id)
+            metric_data["status"] = upvote_status
+            return jsonify(metric_data)
+        else:
+            return "An error occured performing operation.", 400
+    return "No parameter passed.", 400
 
 
 @imager_bp.route("/downvote", methods=["POST"])
+@login_required
 def downvote_counter():
+    """
     if current_user.is_anonymous:
         # TODO: Add next to return user to previous page
         return redirect(url_for('auth.login'))
-
+    """
     image_file_id = request.form.get('image_id', None)
     if image_file_id:
         downvote_status = downvote(current_user, image_file_id)
-        metric_data = image_metric(image_file_id)
-        metric_data["status"] = downvote_status
-
-        return jsonify(metric_data)
-    else:
-        return "Invalid parameter.", 400
+        if downvote_status:
+            metric_data = image_metric(image_file_id)
+            metric_data["status"] = downvote_status
+            return jsonify(metric_data)
+        else:
+            return "An error occured performing operation.", 400
+    return "No parameter passed.", 400
 
 
 @imager_bp.route("/metric/<string:image_file_id>")

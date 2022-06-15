@@ -109,6 +109,8 @@ def create_app(config=None):
         app.config["OAUTH2_REFRESH_TOKEN_GENERATOR"] = os.getenv(
             "OAUTH2_REFRESH_TOKEN_GENERATOR") or True
 
+        app.config["TESTING"] = os.getenv("TESTING")
+
     # Apps Blueprint Registration.
     from .auth import auth_bp
     app.register_blueprint(auth_bp)
@@ -129,6 +131,8 @@ def create_app(config=None):
     mail.init_app(app)
     csrf.init_app(app)
     limiter.init_app(app)
+
+    login_manager.login_view = 'auth.login'
 
     from .oauth2_config import config_oauth
     config_oauth(app)

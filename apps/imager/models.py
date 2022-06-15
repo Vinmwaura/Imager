@@ -78,7 +78,7 @@ class ImageContent(db.Model):
     description = db.Column(db.Text)
     upload_time = db.Column(
         db.DateTime(timezone=True),
-        server_default=func.utcnow())
+        server_default=func.now())
 
     tags = db.relationship(
         "ImageTags",
