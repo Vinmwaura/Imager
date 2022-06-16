@@ -21,5 +21,6 @@ ADMIN_PERMISSION_LIST = [
     PermissionsEnum.CAN_UPDATE_ADMIN,
     PermissionsEnum.CAN_INSERT_ADMIN,
     PermissionsEnum.CAN_POST_DASHBOARD,
-    PermissionsEnum.CAN_VIEW_DASHBOARD
+    PermissionsEnum.CAN_VIEW_DASHBOARD,
+    PermissionsEnum.CAN_DELETE_ADMIN
 ]

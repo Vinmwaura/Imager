@@ -85,12 +85,14 @@ USERNAME_ALREADY_LOGGED_IN = lambda username: "{} is already logged in".format(
     username)
 USER_CREATED = "User has been successfully created, \
     An activation link has been sent to your email."
+USER_CREATED_NO_EMAIL = "User has been successfully created, Administrator will need to activate your account."
 
 # Email
 CONFIRM_EMAIL = "Kindly confirm your email first to login"
 EMAIL_CONFIRMED = lambda username: "Email for {} has been confirmed".format(
     username)
 RESET_LINK_SENT = "Check email, password reset link has been sent."
+RESET_LINK_SENT_NO_EMAIL = "Admin has been contacted, a reset link will be sent to you."
 
 # Account
 ACCOUNT_DEACTIVATED = "Your account has been deactivated!"

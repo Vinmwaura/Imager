@@ -58,26 +58,34 @@ def registration():
                     permissions=GENERAL_USER_PERMISSIONS)
                 if user_created:
                     try:
-                        # Send token via EMAIL
-                        token = generate_token(
-                            request.form["email"],
-                            EMAIL_CONFIRMATION_TOKEN)
+                        if "MAIL_SERVER" in current_app.config and \
+                            "MAIL_PORT" in current_app.config and \
+                            "MAIL_USERNAME" in current_app.config and \
+                            "MAIL_PASSWORD" in current_app.config:
+                            # Send token via EMAIL
+                            token = generate_token(
+                                request.form["email"],
+                                EMAIL_CONFIRMATION_TOKEN)
 
-                        subject = EMAIL_SUBJECT
-                        body = render_template(
-                            "auth/email_confirmation.html",
-                            username=user_details["username"],
-                            activation_link=url_for(
-                                "auth.activate_account",
-                                activation_token=token,
-                                _external=True))
+                            subject = EMAIL_SUBJECT
+                            body = render_template(
+                                "auth/email_confirmation.html",
+                                username=user_details["username"],
+                                activation_link=url_for(
+                                    "auth.activate_account",
+                                    activation_token=token,
+                                    _external=True))
 
-                        sender = current_app.config['MAIL_USERNAME']
-                        recipients = [current_app.config[
-                            "TEST_EMAIL_CONFIG"]] or [request.form["email"]]
-                        send_email(subject, body, sender, recipients)
-
-                        flash(USER_CREATED, "success")
+                            sender = current_app.config['MAIL_USERNAME']
+                            recipients = [current_app.config[
+                                "TEST_EMAIL_CONFIG"]] or [request.form["email"]]
+                            
+                            # TODO: Add config to disable this for testing.
+                            send_email(subject, body, sender, recipients)
+                            
+                            flash(USER_CREATED, "success")
+                        else:
+                            flash(USER_CREATED_NO_EMAIL, "success")
                     except Exception as e:
                         # TODO: Allow resending confirmation email,
                         # if initial one failed.
@@ -145,25 +153,32 @@ def forgot_password():
         email_exists = check_email_exists(
             request.form["email"])
         if email_exists:
-            # Send an email to reset password.
-            reset_token = generate_token(
-                request.form["email"],
-                RESET_PASSWORD_TOKEN)
+            if "MAIL_SERVER" in current_app.config and \
+                "MAIL_PORT" in current_app.config and \
+                "MAIL_USERNAME" in current_app.config and \
+                "MAIL_PASSWORD" in current_app.config:
+                # Send an email to reset password.
+                reset_token = generate_token(
+                    request.form["email"],
+                    RESET_PASSWORD_TOKEN)
 
-            subject = 'Imager Reset password'
-            body = render_template(
-                "auth/email_forgot_password.html",
-                reset_link=url_for(
-                    "auth.reset_password",
-                    reset_token=reset_token,
-                    _external=True))
-            sender = current_app.config['MAIL_USERNAME']
+                subject = 'Imager Reset password'
+                body = render_template(
+                    "auth/email_forgot_password.html",
+                    reset_link=url_for(
+                        "auth.reset_password",
+                        reset_token=reset_token,
+                        _external=True))
+                sender = current_app.config['MAIL_USERNAME']
 
-            recipients = [
-                current_app.config["TEST_EMAIL_CONFIG"]] or [
-                request.form["email"]]
-            send_email(subject, body, sender, recipients)
-            flash(RESET_LINK_SENT, "success")
+                recipients = [
+                    current_app.config["TEST_EMAIL_CONFIG"]] or [
+                    request.form["email"]]
+                
+                send_email(subject, body, sender, recipients)
+                flash(RESET_LINK_SENT, "success")
+            else:
+                flash(RESET_LINK_SENT_NO_EMAIL, "success")
         else:
             flash(NO_EMAIL_FOUND, "error")
     return render_template(
@@ -178,12 +193,13 @@ def reset_password():
         reset_token = request.args.get("reset_token")
         if not reset_token:
             flash(NO_TOKEN_PROVIDED, "error")
+            return redirect(url_for("imager.index"))
 
     reset_password = ResetPassword()
     if reset_password.validate_on_submit():
         reset_token = request.form["reset_token"]
         password = request.form["password"]
-
+        
         user, message_status = validate_token(
             reset_token,
             RESET_PASSWORD_TOKEN,

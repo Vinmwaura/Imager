@@ -400,9 +400,11 @@ def account_creation(user_details, role_name, permissions=[]):
     # Create Admin User
     user_created = add_User(user_details)
     if user_created:
+        # TODO: Log messages.
+        """
         print("User: {} has been successfully added".format(
             user_details["username"]))
-
+        """
         return True
     else:
         return False
