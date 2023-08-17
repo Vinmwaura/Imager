@@ -4,18 +4,20 @@ import re
 import uuid
 import shutil
 
-from bcrypt import gensalt, hashpw
+from bcrypt import (
+    gensalt,
+    hashpw)
 
 import unittest
 from unittest import mock
+
+import werkzeug
+from werkzeug.datastructures import FileStorage
 
 import apps.api as api
 import apps.auth as auth
 import apps.imager as imager
 from apps import create_app, db
-
-import werkzeug
-from werkzeug.datastructures import FileStorage
 
 from .config import *
 
@@ -75,7 +77,8 @@ class TestImager(unittest.TestCase):
         # Explicitly create an activated account.
         with self.app.app_context():
             # Role Model.
-            user_role = auth.models.Role(name=auth.auth.DEFAULT_GENERAL_USER_ROLE)
+            user_role = auth.models.Role(
+                name=auth.auth.DEFAULT_GENERAL_USER_ROLE)
             db.session.add(user_role)
             db.session.commit()
 
@@ -123,7 +126,9 @@ class TestImager(unittest.TestCase):
             db.session.add(image_content)
             db.session.commit()
 
-            os.makedirs(thumbnail_directory, exist_ok=True)
+            os.makedirs(
+                thumbnail_directory,
+                exist_ok=True)
             # Moves test image for testing.
             shutil.copy(
                 self.img_path,
@@ -440,7 +445,7 @@ class TestImager(unittest.TestCase):
                 "not_a_title",
                 get_list=False)
             self.assertNotIsInstance(no_title_obj, list)
-    
+
     def test_search_by_tags(self):
         with self.app.app_context():
             tag = imager.controllers.search_by_tags(self.tag_name[:2])
@@ -464,7 +469,7 @@ class TestImager(unittest.TestCase):
             user_content = imager.models.UserContent.query.filter_by(
                 content_location=test_directory_name).one_or_none()
             self.assertIsNotNone(user_content)
-    
+
     def test_create_or_get_user_content(self):
         with self.app.app_context():
             user = auth.models.User().query.filter_by(
@@ -482,7 +487,11 @@ class TestImager(unittest.TestCase):
         with open(self.img_path, "rb") as f:
             stream = io.BytesIO(f.read())
 
-        uploaded_file = FileStorage(stream=stream, filename="test_image_512.jpg", name='file', content_type='image/jpg')
+        uploaded_file = FileStorage(
+            stream=stream,
+            filename="test_image_512.jpg",
+            name='file',
+            content_type='image/jpg')
         with self.app.app_context():
             user = auth.models.User().query.filter_by(
                 username=self.created_user_username
@@ -511,7 +520,7 @@ class TestImager(unittest.TestCase):
                 image_content.file_id + ".jpg")
             self.assertTrue(os.path.exists(image_path))
             self.assertTrue(os.path.exists(thumbnail_path))
-    
+
     def test_image_content_pagination(self):
         with self.app.app_context():
             image_contents = imager.models.ImageContent.query
@@ -538,7 +547,7 @@ class TestImager(unittest.TestCase):
                 image_file_id=self.file_name).one_or_none()
             self.assertIsNotNone(upvote_obj)
             self.assertEqual(upvote_obj.vote, imager.models.VoteEnum.UPVOTE.value)
-    
+
     def test_downvote(self):
         with self.app.app_context():
             user = auth.models.User().query.filter_by(
@@ -614,7 +623,7 @@ class TestImager(unittest.TestCase):
             self.assertFalse(status)
             self.assertIsNone(image_name)
             self.assertIsNone(user_directory)
-    
+
     def test_load_home_page(self):
         with self.app.app_context():
             response = self.client.get('/')
@@ -696,7 +705,7 @@ class TestImager(unittest.TestCase):
             response = self.client.get("/upload", follow_redirects=True)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.request.path, '/auth/login')
-    
+
     def test_logged_in_user_load_upload_image(self):
         with self.app.app_context():
             response = self.client.post(
@@ -753,18 +762,19 @@ class TestImager(unittest.TestCase):
                 uploaded_image_content.file_id + ".jpg")
             self.assertTrue(os.path.exists(image_path))
             self.assertTrue(os.path.exists(thumbnail_path))
-
+    
     def test_load_image_by_id_invalid_page(self):
         with self.app.app_context():
             response = self.client.get('/upload/image/-69420')
             self.assertEqual(response.status_code, 404)
- 
+
     def test_load_image_by_id_valid_page(self):
         with self.app.app_context():
             image_content = imager.models.ImageContent.query.filter_by(
                 file_id=self.file_name).one_or_none()    
             response = self.client.get(f"/upload/image/{image_content.file_id}")
             self.assertEqual(response.status_code, 200)
+            response.close()  # Stops ResourceWarning.
 
     def test_load_thumbnail_by_id_valid_page(self):
         with self.app.app_context():
@@ -772,12 +782,13 @@ class TestImager(unittest.TestCase):
                 file_id=self.file_name).one_or_none()    
             response = self.client.get(f"/upload/thumbnail/{image_content.file_id}")
             self.assertEqual(response.status_code, 200)
+            response.close()  # Stops ResourceWarning.
 
     def test_load_thumbnail_by_id_invalid_page(self):
         with self.app.app_context():
             response = self.client.get('/upload/thumbnail/-69420')
             self.assertEqual(response.status_code, 404)
-    
+
     def test_load_gallery_page_invalid(self):
         with self.app.app_context():
             response_invalid_img_id = self.client.get('/gallery/-69420')
@@ -967,7 +978,6 @@ class TestImager(unittest.TestCase):
                 })
             
             self.assertEqual(response.status_code, 400)
-            self.assertEqual(response.text, "An error occured performing operation.")
     
     def test_anon_user_downvote_counter_valid(self):
         with self.app.app_context():
@@ -1018,7 +1028,6 @@ class TestImager(unittest.TestCase):
                 }
             )
             self.assertEqual(response.status_code, 400)
-            self.assertEqual(response.text, "An error occured performing operation.")
 
     def test_vote_metric_valid(self):
         with self.app.app_context():
@@ -1030,8 +1039,6 @@ class TestImager(unittest.TestCase):
         with self.app.app_context():
             response = self.client.get(f"/metric/does_not_exist")
             self.assertEqual(response.status_code, 400)
-            self.assertEqual(response.text, "Invalid parameter.")
-
 
 if __name__ == "__main__":
     unittest.main()

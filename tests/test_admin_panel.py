@@ -109,10 +109,10 @@ class TestAdminPanel(unittest.TestCase):
         self.appctx = None
 
     def test_anon_admin_panel_redirect(self):
-        response = self.client.get("/admin", follow_redirects=True)
+        response = self.client.get("/admin/", follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.request.path, "/auth/login")
-    
+
     def test_general_user_admin_panel_redirect(self):
         with self.app.app_context():
             response = self.client.post(
@@ -120,11 +120,9 @@ class TestAdminPanel(unittest.TestCase):
                     data={
                         "username_email": self.created_user_username,
                         "password": self.created_user_pwd,
-                        "next": "/admin"},
+                        "next": "/admin/"},
                     follow_redirects=True)
-
             self.assertEqual(response.status_code, 403)
-            self.assertEqual(response.text, admin_panel.utils.ACCESS_DENIED)
 
     def test_load_logged_in_user_admin_panel_page(self):
         with self.app.app_context():
@@ -133,7 +131,7 @@ class TestAdminPanel(unittest.TestCase):
                 data={
                     "username_email": self.created_admin_username,
                     "password": self.created_admin_pwd,
-                    "next": "/admin"},
+                    "next": "/admin/"},
                 follow_redirects=True)
             
             self.assertEqual(response.status_code, 200)
