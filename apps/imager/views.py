@@ -202,7 +202,9 @@ def load_image_by_id(image_id):
             print("Duplicate file {} found".format(file_regex))
             abort(404)
         else:
-            return send_from_directory(folder_path, image_filenames[0])
+            return send_from_directory(
+                folder_path,
+                image_filenames[0])
 
     abort(404)
 

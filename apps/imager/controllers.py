@@ -468,25 +468,25 @@ def save_user_image(user, file, image_details):
     ])
 
     try:
-        # Saves file using user location and new filename
+        # Saves file using user location and new filename.
         file.save(image_path)
         
-        # Create Thumbnails using saved images
-        original_image = Image.open(image_path)
-        thumbnail_image = ImageOps.fit(
-            image=original_image,
-            size=THUMBNAIL_SIZE,
-            method=3,
-            bleed=0.0,
-            centering=(0.5, 0.5))
+        # Create Thumbnails using saved images.
+        with Image.open(image_path) as original_image:
+            # original_image = img
+            thumbnail_image = ImageOps.fit(
+                image=original_image,
+                size=THUMBNAIL_SIZE,
+                method=3,
+                bleed=0.0,
+                centering=(0.5, 0.5))
 
-        # Save thumbnail to Thumbnail directory.
-        thumbnail_image.save(thumbnail_path)
+            # Save thumbnail to Thumbnail directory.
+            thumbnail_image.save(thumbnail_path)
 
         # Commits ImageContent with filename
         db.session.commit()
-
-        return True
+        status = True
     except Exception as e:
         print("An error occured while saving user image: ", e)
 
@@ -498,8 +498,11 @@ def save_user_image(user, file, image_details):
             os.remove(thumbnail_path)
         except Exception as e:
             print("An exception occured while removing files: ", e)
+        status = False
+    finally:
+        file.close()
 
-        return False
+    return status
 
 
 def image_content_pagination(obj, page=1):
