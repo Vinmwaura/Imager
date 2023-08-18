@@ -1,3 +1,4 @@
+import os
 import unittest
 
 import re
@@ -9,12 +10,10 @@ import apps.auth as auth
 
 from apps import create_app, db
 
-from .config import *
-
 
 class TestAuth(unittest.TestCase):
     def setUp(self):
-        self.app = create_app(test_config)
+        self.app = create_app("config.TestingConfig")
         self.appctx = self.app.app_context()
         self.appctx.push()
 
@@ -90,7 +89,7 @@ class TestAuth(unittest.TestCase):
     def test_validate_token(self):
         with self.app.app_context():
             # Generates token.
-            secret_key = test_config["SECRET_KEY"]
+            secret_key = os.environ.get("SECRET_KEY")
             timed_serializer = URLSafeTimedSerializer(secret_key)
             email_activation_token = timed_serializer.dumps(
                 self.created_user_email,
@@ -410,19 +409,23 @@ class TestAuth(unittest.TestCase):
     def test_forgot_password(self):
         with self.app.app_context():
             reset_token = auth.utils.RESET_PASSWORD_TOKEN
-            response = self.client.post("/auth/forgot_password", data={
-                "email": self.created_user_email,
-                "reset_token": reset_token
-            }, follow_redirects=True)
+            response = self.client.post("/auth/forgot_password",
+                data={
+                    "email": self.created_user_email,
+                    "reset_token": reset_token
+                },
+                follow_redirects=True)
             
             self.assertEqual(response.status_code, 200)
-            # self.assertRegex(response.get_data(as_text=True), auth.utils.RESET_LINK_SENT)
-            self.assertTrue(re.search(auth.utils.RESET_LINK_SENT_NO_EMAIL, response.get_data(as_text=True)))
+            self.assertTrue(
+                re.search(
+                    auth.utils.RESET_LINK_SENT_NO_EMAIL,
+                    response.get_data(as_text=True)))
 
     def test_reset_password_form(self):
         with self.app.app_context():
             # Generates token.
-            secret_key = test_config["SECRET_KEY"]
+            secret_key = os.environ.get("SECRET_KEY")
             timed_serializer = URLSafeTimedSerializer(secret_key)
             password_reset_token = timed_serializer.dumps(
                 self.created_user_email,

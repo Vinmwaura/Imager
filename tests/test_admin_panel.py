@@ -9,12 +9,10 @@ from bcrypt import gensalt, hashpw
 import apps.auth as auth
 import apps.admin_panel as admin_panel
 
-from .config import *
-
 
 class TestAdminPanel(unittest.TestCase):
     def setUp(self):
-        self.app = create_app(test_config)
+        self.app = create_app("config.TestingConfig")
         self.appctx = self.app.app_context()
         self.appctx.push()
 

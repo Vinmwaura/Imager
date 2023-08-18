@@ -19,23 +19,30 @@ import apps.auth as auth
 import apps.imager as imager
 from apps import create_app, db
 
-from .config import *
-
 
 class TestImager(unittest.TestCase):
     def setUp(self):
-        self.app = create_app(test_config)
+        self.app = create_app("config.TestingConfig")
         self.appctx = self.app.app_context()
         self.appctx.push()
 
         self.client = self.app.test_client()
 
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        self.img_path = os.path.join(current_dir, "assets/test_image_512.jpg")
-        self.thumbnail_path = os.path.join(current_dir, "assets/test_image_64.jpg")
+        current_dir = os.path.dirname(
+            os.path.abspath(__file__))
+        self.img_path = os.path.join(
+            current_dir,
+            "assets/test_image_512.jpg")
+        self.thumbnail_path = os.path.join(
+            current_dir,
+            "assets/test_image_64.jpg")
         
-        self.upload_path = os.path.join(current_dir, "test_user_uploads")
-        self.app.config["UPLOAD_PATH"] = os.path.join(current_dir, "test_user_uploads")
+        self.upload_path = os.path.join(
+            current_dir,
+            "test_user_uploads")
+        self.app.config["UPLOAD_PATH"] = os.path.join(
+            current_dir,
+            "test_user_uploads")
         self.app.config["UPLOAD_EXTENSIONS"] = [".jpg", ".png", ".jpeg"]
 
         # Hack to remove any tables if any are present in Test Database.

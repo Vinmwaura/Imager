@@ -1,2 +1,2 @@
 #!/bin/bash
-gunicorn 'apps:create_app()'
+gunicorn "apps:create_app('config.ProductionConfig')"
