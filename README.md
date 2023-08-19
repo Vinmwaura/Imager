@@ -6,7 +6,7 @@ Simple Image Sharing website written with Flask.
 + Python 3
 
 ## Setup
-1.Install Postgres and it's dependecies (libpq-dev)
+1. Install Postgres and it's dependecies (libpq-dev).
 2. Create production database:
 ```
 sudo su - postgres
