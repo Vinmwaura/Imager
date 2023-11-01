@@ -69,15 +69,15 @@ sh run.sh
 
 ## Screenshot Examples
 ### Front page (No image uploaded)
-![Front_page_no_picture](https://github.com/Vinmwaura/Imager/assets/12788331/42a1fbd2-0c97-4337-ab0e-c18fdfe2c83d)
+![Front_page_no_picture](./assets/42a1fbd2-0c97-4337-ab0e-c18fdfe2c83d.png)
 
 ### Front page (Image uploaded)
-![Front_page_with_picture](https://github.com/Vinmwaura/Imager/assets/12788331/d4509c21-66f2-49e6-a7b6-167a305d3cf8)
+![Front_page_with_picture](./assets/d4509c21-66f2-49e6-a7b6-167a305d3cf8.png)
 
 ### Upload picture page
-![Upload_picture](https://github.com/Vinmwaura/Imager/assets/12788331/e975f7af-ae11-4dbe-a0d5-7133396f3c15)
+![Upload_picture](./assets/e975f7af-ae11-4dbe-a0d5-7133396f3c15.png)
 
 ### Admin page
-![Admin_page](https://github.com/Vinmwaura/Imager/assets/12788331/c32653ac-e3cd-437d-896f-b18c16a24c14)
+![Admin_page](./assets/c32653ac-e3cd-437d-896f-b18c16a24c14.png)
 
 
